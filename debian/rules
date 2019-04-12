@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+.PHONY: override_dh_auto_configure override_dh_installchangelogs override_dh_installinit
+
+override_dh_auto_clean:
+	rm -rf gsa/build
+	rm -rf gsa/node_modules
+	rm -rf gsa/public/locales
+	dh_auto_clean
+
+override_dh_auto_configure:
+	extract-yarn-offline-cache || true
+	dh_auto_configure -- -DLOCALSTATEDIR=/var -DSYSCONFDIR=/etc -DYARN_OFFLINE=1 -DCMAKE_BUILD_TYPE=Release
+
+override_dh_installchangelogs:
+	dh_installchangelogs -k CHANGES.md
+
+override_dh_installinit:
+	dh_installinit --name=gsad
+
+%:
+	dh $@

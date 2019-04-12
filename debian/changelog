@@ -1,0 +1,5 @@
+gsa (8.0.0-3) bionic; urgency=medium
+
+  * Initial release (imported upstream version 8.0.0)
+
+ -- Mohammad Razavi <mrazavi64@gmail.com>  Fri, 12 Apr 2019 20:28:06 +0430
