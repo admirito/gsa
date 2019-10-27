@@ -31,8 +31,6 @@ import {parseCvssBaseVector, parseCvssBaseFromVector} from 'gmp/parser';
 
 import SeverityBar from 'web/components/bar/severitybar';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
-
 import FormGroup from 'web/components/form/formgroup';
 import Select from 'web/components/form/select';
 import TextField from 'web/components/form/textfield';
@@ -41,6 +39,7 @@ import CvssIcon from 'web/components/icon/cvssicon';
 import ManualIcon from 'web/components/icon/manualicon';
 
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Section from 'web/components/section/section';
 
@@ -56,7 +55,7 @@ const StyledTextField = styled(TextField)`
 
 const ToolBarIcons = () => (
   <ManualIcon
-    page="vulnerabilitymanagement"
+    page="managing-secinfo"
     anchor="cvss"
     size="small"
     title={_('Help: CVSS Base Score Calculator')}
@@ -205,12 +204,13 @@ class CvssCalculator extends React.Component {
       integrityImpact,
     } = this.state;
     return (
-      <ErrorBoundary errElement={_('page')}>
+      <React.Fragment>
+        <PageTitle title={_('CVSSv2 Base Score Calculator')} />
         <Layout flex="column">
           <ToolBarIcons />
           <Section
             img={<CvssIcon size="large" />}
-            title={_('CVSS Base Score Calculator')}
+            title={_('CVSSv2 Base Score Calculator')}
           />
 
           <h3>{_('From Metrics')}:</h3>
@@ -266,7 +266,7 @@ class CvssCalculator extends React.Component {
                   label: _('None'),
                 },
                 {
-                  value: 'SINGLE_INSTANCES',
+                  value: 'SINGLE_INSTANCE',
                   label: _('Single'),
                 },
                 {
@@ -365,7 +365,7 @@ class CvssCalculator extends React.Component {
             <SeverityBar severity={cvssScore} />
           </FormGroup>
         </Layout>
-      </ErrorBoundary>
+      </React.Fragment>
     );
   }
 }

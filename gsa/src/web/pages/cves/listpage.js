@@ -29,6 +29,7 @@ import DashboardControls from 'web/components/dashboard/controls';
 
 import CveIcon from 'web/components/icon/cveicon';
 import ManualIcon from 'web/components/icon/manualicon';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {
   loadEntities,
@@ -43,40 +44,39 @@ import CvesTable from './table';
 import CvesDashboard, {CVES_DASHBOARD_ID} from './dashboard';
 
 const ToolBarIcons = () => (
-  <ManualIcon
-    page="vulnerabilitymanagement"
-    anchor="cve"
-    title={_('Help: CVEs')}
-  />
+  <ManualIcon page="managing-secinfo" anchor="cve" title={_('Help: CVEs')} />
 );
 
 const Page = ({filter, onFilterChanged, onInteraction, ...props}) => (
-  <EntitiesPage
-    {...props}
-    createFilterType="info"
-    dashboard={() => (
-      <CvesDashboard
-        filter={filter}
-        onFilterChanged={onFilterChanged}
-        onInteraction={onInteraction}
-      />
-    )}
-    dashboardControls={() => (
-      <DashboardControls
-        dashboardId={CVES_DASHBOARD_ID}
-        onInteraction={onInteraction}
-      />
-    )}
-    filter={filter}
-    filterEditDialog={CveFilterDialog}
-    filtersFilter={CVES_FILTER_FILTER}
-    sectionIcon={<CveIcon size="large" />}
-    table={CvesTable}
-    title={_('CVEs')}
-    toolBarIcons={ToolBarIcons}
-    onFilterChanged={onFilterChanged}
-    onInteraction={onInteraction}
-  />
+  <React.Fragment>
+    <PageTitle title={_('CVEs')} />
+    <EntitiesPage
+      {...props}
+      createFilterType="info"
+      dashboard={() => (
+        <CvesDashboard
+          filter={filter}
+          onFilterChanged={onFilterChanged}
+          onInteraction={onInteraction}
+        />
+      )}
+      dashboardControls={() => (
+        <DashboardControls
+          dashboardId={CVES_DASHBOARD_ID}
+          onInteraction={onInteraction}
+        />
+      )}
+      filter={filter}
+      filterEditDialog={CveFilterDialog}
+      filtersFilter={CVES_FILTER_FILTER}
+      sectionIcon={<CveIcon size="large" />}
+      table={CvesTable}
+      title={_('CVEs')}
+      toolBarIcons={ToolBarIcons}
+      onFilterChanged={onFilterChanged}
+      onInteraction={onInteraction}
+    />
+  </React.Fragment>
 );
 
 Page.propTypes = {

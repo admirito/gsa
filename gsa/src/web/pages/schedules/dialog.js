@@ -46,6 +46,7 @@ import WeekDaySelect, {WeekDaysPropType} from './weekdayselect';
 import {renderDuration} from './render';
 import DaySelect from './dayselect';
 import MonthDaysSelect from './monthdaysselect';
+import Button from 'web/components/form/button';
 
 const RECURRENCE_ONCE = 'once';
 const RECURRENCE_HOURLY = ReccurenceFrequency.HOURLY;
@@ -109,10 +110,6 @@ const NTH_DAY_ITEMS = [
     value: '4',
   },
   {
-    label: _l('The Fifth'),
-    value: '5',
-  },
-  {
     label: _l('The Last'),
     value: '-1',
   },
@@ -138,6 +135,7 @@ class ScheduleDialog extends React.Component {
     this.handleEndHoursChange = this.handleEndHoursChange.bind(this);
     this.handleEndMinutesChange = this.handleEndMinutesChange.bind(this);
     this.handleTimezoneChange = this.handleTimezoneChange.bind(this);
+    this.handleNowButtonClick = this.handleNowButtonClick.bind(this);
   }
 
   initialState(props) {
@@ -213,6 +211,12 @@ class ScheduleDialog extends React.Component {
     this.setState(state => ({
       startDate: state.startDate.minutes(value),
     }));
+  }
+
+  handleNowButtonClick() {
+    const {timezone} = this.state;
+    const now = date().tz(timezone);
+    this.setState({startDate: now});
   }
 
   handleEndHoursChange(value) {
@@ -427,11 +431,12 @@ class ScheduleDialog extends React.Component {
               />
             </FormGroup>
 
-            <FormGroup title={_('Start')}>
+            <FormGroup title={_('First Run')}>
               <DatePicker
                 name="startDate"
                 value={startDate}
                 onChange={this.handleValueChange}
+                showYearDropdown
               />
               <Divider>
                 <Spinner
@@ -454,10 +459,11 @@ class ScheduleDialog extends React.Component {
                   onChange={this.handleStartMinutesChange}
                 />
                 <span>m</span>
+                <Button title="Now" onClick={this.handleNowButtonClick} />
               </Divider>
             </FormGroup>
 
-            <FormGroup title={_('End')}>
+            <FormGroup title={_('Run Until')}>
               <DatePicker
                 disabled={state.endOpen}
                 name="endDate"

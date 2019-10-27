@@ -130,7 +130,7 @@ const AdvancedTaskWizard = ({
               </p>
               <p>
                 {_(
-                  'GSA can help you by creating a new scan task and ' +
+                  'This wizard can help you by creating a new scan task and ' +
                     'automatically starting it.',
                 )}
               </p>
@@ -143,7 +143,7 @@ const AdvancedTaskWizard = ({
               </p>
               <p>
                 {_(
-                  'You can choose, whether you want GSA to run the scan ' +
+                  'You can choose, whether you want to run the scan ' +
                     'immediately, schedule the task for a later date and ' +
                     'time, or just create the task so you can run it manually' +
                     ' later.',
@@ -167,14 +167,14 @@ const AdvancedTaskWizard = ({
                 {capabilities.mayAccess('slaves') && <br />}
                 {capabilities.mayAccess('slaves') &&
                   _(
-                    'Finally, you can select a slave which will run the ' +
+                    'Finally, you can select a sensor which will run the ' +
                       'scan.',
                   )}
               </p>
               <p>
                 {_(
-                  'For any other setting I will apply the defaults from ' +
-                    '"My Settings".',
+                  'For any other setting the defaults from ' +
+                    '"My Settings" will be applied.',
                 )}
               </p>
             </WizardContent>

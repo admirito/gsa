@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import _ from 'gmp/locale';
 import {longDate} from 'gmp/locale/date';
 
@@ -30,6 +32,8 @@ import {parseInt} from 'gmp/parser';
 
 import PropTypes from 'web/utils/proptypes';
 import {renderSelectItems} from 'web/utils/render';
+
+import withGmp from 'web/utils/withGmp';
 
 import SaveDialog from 'web/components/dialog/savedialog';
 
@@ -47,9 +51,12 @@ import NewIcon from 'web/components/icon/newicon';
 import Divider from 'web/components/layout/divider';
 import Layout from 'web/components/layout/layout';
 
+import {getTimezone} from 'web/store/usersettings/selectors';
+
 import {
   OSP_SCANNER_TYPE,
   GMP_SCANNER_TYPE,
+  GREENBONE_SENSOR_SCANNER_TYPE,
   scannerTypeName,
 } from 'gmp/models/scanner';
 
@@ -57,8 +64,6 @@ import {
   CLIENT_CERTIFICATE_CREDENTIAL_TYPE,
   USERNAME_PASSWORD_CREDENTIAL_TYPE,
 } from 'gmp/models/credential';
-
-const SCANNER_TYPES = [GMP_SCANNER_TYPE, OSP_SCANNER_TYPE];
 
 const client_cert_credentials_filter = credential => {
   return credential.credential_type === CLIENT_CERTIFICATE_CREDENTIAL_TYPE;
@@ -76,36 +81,40 @@ const filter_credentials = (credentials, type) => {
   return filter(credentials, cred_filter);
 };
 
-const render_certificate_info = info => {
+const render_certificate_info = (info, tz) => {
   if (!isDefined(info)) {
     return null;
   }
 
   if (info.time_status === 'expired') {
     return _('Certificate currently in use expired at {{date}}', {
-      date: longDate(info.expirationTime),
+      date: longDate(info.expirationTime, tz),
     });
   }
   if (info.time_status === 'inactive') {
-    return _('Certificate currently in not valid until {{date}}', {
-      date: longDate(info.activationTime),
+    return _('Certificate currently not valid until {{date}}', {
+      date: longDate(info.activationTime, tz),
     });
   }
   return _('Certificate in use will expire at {{date}}', {
-    date: longDate(info.expirationTime),
+    date: longDate(info.expirationTime, tz),
   });
 };
 
-const CertStatus = ({info}) => {
+const mapStateToProps = rootState => ({
+  timezone: getTimezone(rootState),
+});
+
+const CertStatus = connect(mapStateToProps)(({info, timezone}) => {
   return (
     <FootNote>
       <Layout>
         <KeyIcon />
       </Layout>
-      <span>{render_certificate_info(info)}</span>
+      <span>{render_certificate_info(info, timezone)}</span>
     </FootNote>
   );
-};
+});
 
 CertStatus.propTypes = {
   info: PropTypes.object.isRequired,
@@ -135,10 +144,10 @@ class ScannerDialog extends React.Component {
 
   render() {
     const {
-      ca_pub,
       comment = '',
+      gmp,
       scanner,
-      credential_id,
+      ca_pub,
       credentials,
       host = 'localhost',
       id,
@@ -152,6 +161,20 @@ class ScannerDialog extends React.Component {
       onNewCredentialClick,
       onSave,
     } = this.props;
+
+    let SCANNER_TYPES;
+
+    if (gmp.settings.enableGreenboneSensor) {
+      SCANNER_TYPES = [
+        GMP_SCANNER_TYPE,
+        OSP_SCANNER_TYPE,
+        GREENBONE_SENSOR_SCANNER_TYPE,
+      ];
+    } else {
+      SCANNER_TYPES = [GMP_SCANNER_TYPE, OSP_SCANNER_TYPE];
+    }
+
+    let {credential_id} = this.props;
 
     const data = {
       ca_pub,
@@ -170,12 +193,18 @@ class ScannerDialog extends React.Component {
 
     const scanner_credentials = filter_credentials(credentials, type);
     const is_edit = isDefined(scanner);
-    const in_use = isDefined(scanner) && scanner.isInUse();
+    const isInUse = isDefined(scanner) && scanner.isInUse();
     const show_cred_info =
       isDefined(scanner) &&
       isDefined(scanner.credential) &&
-      scanner.credential.type === CLIENT_CERTIFICATE_CREDENTIAL_TYPE;
-    const isGmpScannerType = type === GMP_SCANNER_TYPE;
+      scanner.credential.credential_type === CLIENT_CERTIFICATE_CREDENTIAL_TYPE;
+
+    const isGreenboneSensorType = type === GREENBONE_SENSOR_SCANNER_TYPE;
+    const isOspScannerType = type === OSP_SCANNER_TYPE;
+
+    if (isGreenboneSensorType) {
+      credential_id = '';
+    }
 
     return (
       <SaveDialog
@@ -216,7 +245,7 @@ class ScannerDialog extends React.Component {
                   name="type"
                   value={state.type}
                   items={scannerTypesOptions}
-                  disabled={in_use}
+                  disabled={isInUse}
                   onChange={this.handleTypeChange}
                 />
               </FormGroup>
@@ -225,19 +254,19 @@ class ScannerDialog extends React.Component {
                 <TextField
                   name="host"
                   value={state.host}
-                  disabled={in_use}
+                  disabled={isInUse}
                   grow="1"
                   onChange={onValueChange}
                 />
               </FormGroup>
 
-              {!isGmpScannerType && (
+              {isOspScannerType && (
                 <React.Fragment>
                   <FormGroup title={_('Port')}>
                     <TextField
                       name="port"
                       value={state.port}
-                      disabled={in_use}
+                      disabled={isInUse}
                       grow="1"
                       onChange={onValueChange}
                     />
@@ -281,32 +310,34 @@ class ScannerDialog extends React.Component {
                       </Divider>
                     </Layout>
                     {is_edit && isDefined(state.ca_pub) && (
-                      <CertStatus info={state.ca_pub.info} />
+                      <CertStatus info={state.ca_pub_info} />
                     )}
                   </FormGroup>
                 </React.Fragment>
               )}
 
-              <FormGroup title={_('Credential')} flex="column">
-                <Divider>
-                  <Select
-                    name="credential_id"
-                    items={renderSelectItems(scanner_credentials)}
-                    value={credential_id}
-                    onChange={onCredentialChange}
-                  />
-                  <Layout>
-                    <NewIcon
-                      value={type}
-                      title={_('Create a new Credential')}
-                      onClick={onNewCredentialClick}
+              {!isGreenboneSensorType && (
+                <FormGroup title={_('Credential')} flex="column">
+                  <Divider>
+                    <Select
+                      name="credential_id"
+                      items={renderSelectItems(scanner_credentials)}
+                      value={credential_id}
+                      onChange={onCredentialChange}
                     />
-                  </Layout>
-                </Divider>
-                {show_cred_info && (
-                  <CertStatus info={scanner.credential.certificate_info} />
-                )}
-              </FormGroup>
+                    <Layout>
+                      <NewIcon
+                        value={type}
+                        title={_('Create a new Credential')}
+                        onClick={onNewCredentialClick}
+                      />
+                    </Layout>
+                  </Divider>
+                  {show_cred_info && (
+                    <CertStatus info={scanner.credential.certificate_info} />
+                  )}
+                </FormGroup>
+              )}
             </Layout>
           );
         }}
@@ -320,13 +351,14 @@ ScannerDialog.propTypes = {
   comment: PropTypes.string,
   credential_id: PropTypes.id,
   credentials: PropTypes.array,
+  gmp: PropTypes.gmp,
   host: PropTypes.string,
   id: PropTypes.string,
   name: PropTypes.string,
   port: PropTypes.string,
   scanner: PropTypes.model,
   title: PropTypes.string,
-  type: PropTypes.oneOf(SCANNER_TYPES),
+  type: PropTypes.array,
   which_cert: PropTypes.oneOf(['default', 'existing', 'new']),
   onClose: PropTypes.func.isRequired,
   onCredentialChange: PropTypes.func.isRequired,
@@ -336,6 +368,6 @@ ScannerDialog.propTypes = {
   onValueChange: PropTypes.func,
 };
 
-export default ScannerDialog;
+export default withGmp(ScannerDialog);
 
 // vim: set ts=2 sw=2 tw=80:

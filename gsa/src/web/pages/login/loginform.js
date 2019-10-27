@@ -25,10 +25,10 @@ import _ from 'gmp/locale';
 import {KeyCode} from 'gmp/utils/event';
 import {isDefined} from 'gmp/utils/identity';
 
-import FormGroup from 'web/components/form/formgroup';
 import PasswordField from 'web/components/form/passwordfield';
 import Button from 'web/components/form/button';
 import TextField from 'web/components/form/textfield';
+import FormGroup from 'web/components/form/formgroup';
 
 import ProductImage from 'web/components/img/product';
 
@@ -38,16 +38,21 @@ import PropTypes from 'web/utils/proptypes';
 import Theme from 'web/utils/theme';
 
 const Panel = styled.div`
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin: 5px auto;
   padding-bottom: 10px;
   font-size: 9pt;
+  border: 1px solid ${Theme.lightGray};
+  padding: 10px;
+  margin-bottom: 10px;
 `;
 
 const LoginPanel = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  border: 1px solid ${Theme.lightGray};
+  padding: 10px;
+  margin-bottom: 10px;
 `;
 
 const Error = styled.p`
@@ -57,12 +62,15 @@ const Error = styled.p`
   margin: 10px;
 `;
 
-const Wrapper = styled.div`
+const StyledDivRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`;
+
+const StyledDivColumn = styled.div`
   display: flex;
   flex-direction: column;
-  border: 1px solid ${Theme.lightGray};
-  padding: 10px;
-  margin-bottom: 10px;
 `;
 
 class LoginForm extends React.Component {
@@ -106,12 +114,13 @@ class LoginForm extends React.Component {
       showGuestLogin = false,
       showLogin = true,
       showProtocolInsecure = false,
+      isIE11 = false,
       onGuestLoginClick,
     } = this.props;
     const {username, password} = this.state;
     return (
       <React.Fragment>
-        <Wrapper>
+        <Layout>
           {showProtocolInsecure && (
             <Panel data-testid="protocol-insecure">
               <Error>{_('Warning: Connection unencrypted')}</Error>
@@ -129,64 +138,76 @@ class LoginForm extends React.Component {
               </p>
             </Panel>
           )}
+        </Layout>
 
-          <LoginPanel>
-            <ProductImage />
-
-            {showLogin && (
-              <Layout flex="column">
-                <FormGroup title={_('Username')} titleSize="4">
-                  <TextField
-                    autoComplete="username"
-                    name="username"
-                    placeholder={_('e.g. johndoe')}
-                    value={username}
-                    autoFocus="autofocus"
-                    tabIndex="1"
-                    onChange={this.handleValueChange}
-                  />
-                </FormGroup>
-                <FormGroup title={_('Password')} titleSize="4">
-                  <PasswordField
-                    autoComplete="current-password"
-                    name="password"
-                    grow="1"
-                    placeholder={_('Password')}
-                    value={password}
-                    onKeyDown={this.handleKeyDown}
-                    onChange={this.handleValueChange}
-                  />
-                </FormGroup>
-                <FormGroup size="4" offset="4">
-                  <Button
-                    data-testid="login-button"
-                    title={_('Login')}
-                    onClick={this.handleSubmit}
-                  />
-                </FormGroup>
-              </Layout>
-            )}
-          </LoginPanel>
-
-          {isDefined(error) && (
-            <Panel>
-              <Error data-testid="error">{error}</Error>
+        <Layout>
+          {isIE11 && (
+            <Panel data-testid="IE11">
+              <Error>{_('Warning: You are using IE11')}</Error>
+              <p>
+                {_(
+                  'You are using Internet Explorer 11. You might encounter appearance and performance issues.',
+                )}
+              </p>
             </Panel>
           )}
-        </Wrapper>
+        </Layout>
+
+        <LoginPanel>
+          <StyledDivColumn>
+            <StyledDivRow>
+              <ProductImage />
+              {showLogin && (
+                <Layout flex="column">
+                  <FormGroup title={_('Username')} titleSize="4">
+                    <TextField
+                      autoComplete="username"
+                      name="username"
+                      grow="1"
+                      placeholder={_('Username')}
+                      value={username}
+                      autoFocus="autofocus"
+                      tabIndex="1"
+                      onChange={this.handleValueChange}
+                    />
+                  </FormGroup>
+                  <FormGroup title={_('Password')} titleSize="4">
+                    <PasswordField
+                      autoComplete="current-password"
+                      name="password"
+                      grow="1"
+                      placeholder={_('Password')}
+                      value={password}
+                      onKeyDown={this.handleKeyDown}
+                      onChange={this.handleValueChange}
+                    />
+                  </FormGroup>
+                  <FormGroup size="4" offset="4">
+                    <Layout grow="1">
+                      <Button
+                        data-testid="login-button"
+                        title={_('Login')}
+                        onClick={this.handleSubmit}
+                      />
+                    </Layout>
+                  </FormGroup>
+                </Layout>
+              )}
+            </StyledDivRow>
+            {isDefined(error) && <Error data-testid="error">{error}</Error>}
+          </StyledDivColumn>
+        </LoginPanel>
 
         {showGuestLogin && (
-          <Wrapper data-testid="guest-login">
-            <LoginPanel>
-              <Layout align={['center', 'center']}>
-                <Button
-                  data-testid="guest-login-button"
-                  title={_('Login as Guest')}
-                  onClick={onGuestLoginClick}
-                />
-              </Layout>
-            </LoginPanel>
-          </Wrapper>
+          <LoginPanel data-testid="guest-login">
+            <Layout align={['center', 'center']}>
+              <Button
+                data-testid="guest-login-button"
+                title={_('Login as Guest')}
+                onClick={onGuestLoginClick}
+              />
+            </Layout>
+          </LoginPanel>
         )}
       </React.Fragment>
     );
@@ -195,6 +216,7 @@ class LoginForm extends React.Component {
 
 LoginForm.propTypes = {
   error: PropTypes.string,
+  isIE11: PropTypes.bool,
   showGuestLogin: PropTypes.bool,
   showLogin: PropTypes.bool,
   showProtocolInsecure: PropTypes.bool,

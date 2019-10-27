@@ -16,18 +16,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
-import {isDefined} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {map} from '../utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
 
 import {
   parseSeverity,
   parseCvssBaseVector,
   parseDate,
   setProperties,
-} from '../parser';
+} from 'gmp/parser';
 
 import Info from './info';
 
@@ -51,8 +51,8 @@ const rename_props = (obj, rename = {}) => {
 class Cve extends Info {
   static entityType = 'cve';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem, 'cve');
+  static parseElement(element) {
+    const ret = super.parseElement(element, 'cve');
 
     if (isDefined(ret.update_time)) {
       ret.updateTime = parseDate(ret.update_time);
@@ -125,7 +125,7 @@ class Cve extends Info {
       const {entry} = ret.raw_data;
 
       if (isDefined(ret.cwe)) {
-        ret.cwe_id = entry.cwe._id;
+        ret.cweId = entry.cwe._id;
       }
 
       ret.publishedTime = parseDate(entry['published-datetime'].__text);

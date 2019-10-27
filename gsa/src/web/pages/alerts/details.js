@@ -32,8 +32,8 @@ import {
 import PropTypes from 'web/utils/proptypes';
 import withCapabilities from 'web/utils/withCapabilities';
 
-import Divider from 'web/components/layout/divider';
 import Layout from 'web/components/layout/layout';
+import HorizontalSep from 'web/components/layout/horizontalsep';
 
 import DetailsLink from 'web/components/link/detailslink';
 
@@ -48,7 +48,7 @@ import Condition from './condition';
 import Event from './event';
 import Method from './method';
 
-const AlertDetails = ({capabilities, entity, links = true}) => {
+const AlertDetails = ({capabilities, entity, links = true, reportFormats}) => {
   const {comment, condition, event, method, tasks = [], filter} = entity;
   return (
     <Layout flex="column" grow>
@@ -97,12 +97,14 @@ const AlertDetails = ({capabilities, entity, links = true}) => {
               <TableRow>
                 <TableData>{_('Delta Report')}</TableData>
                 <TableData>
-                  <DetailsLink
-                    id={method.data.delta_report_id.value}
-                    type="report"
-                  >
-                    {_('Report ')} {method.data.delta_report_id.value}
-                  </DetailsLink>
+                  <span>
+                    <DetailsLink
+                      id={method.data.delta_report_id.value}
+                      type="report"
+                    >
+                      {_('Report ')} {method.data.delta_report_id.value}
+                    </DetailsLink>
+                  </span>
                 </TableData>
               </TableRow>
             )}
@@ -110,7 +112,11 @@ const AlertDetails = ({capabilities, entity, links = true}) => {
           <TableRow>
             <TableData>{_('Method')}</TableData>
             <TableData>
-              <Method method={method} details={true} />
+              <Method
+                method={method}
+                details={true}
+                reportFormats={reportFormats}
+              />
             </TableData>
           </TableRow>
 
@@ -129,9 +135,11 @@ const AlertDetails = ({capabilities, entity, links = true}) => {
             <TableRow>
               <TableData>{_('Results Filter')}</TableData>
               <TableData>
-                <DetailsLink id={filter.id} type="filter">
-                  {filter.name}
-                </DetailsLink>
+                <span>
+                  <DetailsLink id={filter.id} type="filter">
+                    {filter.name}
+                  </DetailsLink>
+                </span>
               </TableData>
             </TableRow>
           )}
@@ -143,15 +151,17 @@ const AlertDetails = ({capabilities, entity, links = true}) => {
 
           {tasks.length > 0 && (
             <TableRow>
-              <TableData>{_('Task using this Alert')}</TableData>
+              <TableData>{_('Tasks using this Alert')}</TableData>
               <TableData>
-                <Divider wrap>
+                <HorizontalSep wrap>
                   {tasks.map(task => (
-                    <DetailsLink key={task.id} id={task.id} type="task">
-                      {task.name}
-                    </DetailsLink>
+                    <span key={task.id}>
+                      <DetailsLink id={task.id} type="task">
+                        {task.name}
+                      </DetailsLink>
+                    </span>
                   ))}
-                </Divider>
+                </HorizontalSep>
               </TableData>
             </TableRow>
           )}
@@ -165,6 +175,7 @@ AlertDetails.propTypes = {
   capabilities: PropTypes.capabilities.isRequired,
   entity: PropTypes.model.isRequired,
   links: PropTypes.bool,
+  reportFormats: PropTypes.array,
 };
 
 export default withCapabilities(AlertDetails);

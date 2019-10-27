@@ -33,6 +33,7 @@ import ImportIcon from 'web/components/icon/importicon';
 import ReportFormatIcon from 'web/components/icon/reportformaticon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {createFilterDialog} from 'web/components/powerfilter/dialog';
 
@@ -49,7 +50,7 @@ const ToolBarIcons = withCapabilities(
     <IconDivider>
       <ManualIcon
         page="reports"
-        anchor="report-plugins"
+        anchor="managing-report-formats"
         title={_('Help: Report Formats')}
       />
       {capabilities.mayCreate('report_format') && (
@@ -75,54 +76,45 @@ const ReportFormatsPage = ({
   onDownloaded,
   onError,
   onInteraction,
+  showSuccess,
   ...props
 }) => (
   <ReportFormatComponent
     onSaved={onChanged}
-    onCloned={onChanged}
-    onCloneError={onError}
     onDeleted={onChanged}
     onDeleteError={onError}
     onDownloaded={onDownloaded}
     onDownloadError={onError}
     onImported={onChanged}
     onInteraction={onInteraction}
-    onVerified={onChanged}
-    onVerifyError={onError}
   >
-    {({
-      clone,
-      delete: delete_func,
-      download,
-      edit,
-      import: import_func,
-      save,
-      verify,
-    }) => (
-      <EntitiesPage
-        {...props}
-        filterEditDialog={ReportFormatsFilterDialog}
-        filtersFilter={REPORT_FORMATS_FILTER_FILTER}
-        sectionIcon={<ReportFormatIcon size="large" />}
-        table={ReportFormatsTable}
-        title={_('Report Formats')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onInteraction={onInteraction}
-        onReportFormatCloneClick={clone}
-        onReportFormatImportClick={import_func}
-        onReportFormatDeleteClick={delete_func}
-        onReportFormatDownloadClick={download}
-        onReportFormatEditClick={edit}
-        onReportFormatVerifyClick={verify}
-      />
+    {({delete: delete_func, download, edit, import: import_func, save}) => (
+      <React.Fragment>
+        <PageTitle title={_('Report Formats')} />
+        <EntitiesPage
+          {...props}
+          filterEditDialog={ReportFormatsFilterDialog}
+          filtersFilter={REPORT_FORMATS_FILTER_FILTER}
+          sectionIcon={<ReportFormatIcon size="large" />}
+          table={ReportFormatsTable}
+          title={_('Report Formats')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onInteraction={onInteraction}
+          onReportFormatImportClick={import_func}
+          onReportFormatDeleteClick={delete_func}
+          onReportFormatDownloadClick={download}
+          onReportFormatEditClick={edit}
+        />
+      </React.Fragment>
     )}
   </ReportFormatComponent>
 );
 
 ReportFormatsPage.propTypes = {
+  showSuccess: PropTypes.func.isRequired,
   onChanged: PropTypes.func.isRequired,
   onDownloaded: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,

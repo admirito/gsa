@@ -30,6 +30,7 @@ import NewIcon from 'web/components/icon/newicon';
 import TargetIcon from 'web/components/icon/targeticon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import EntitiesPage from 'web/entities/page';
 import withEntitiesContainer from 'web/entities/withEntitiesContainer';
@@ -46,8 +47,8 @@ import TargetComponent from './component';
 const ToolBarIcons = withCapabilities(({capabilities, onTargetCreateClick}) => (
   <IconDivider>
     <ManualIcon
-      page="vulnerabilitymanagement"
-      anchor="creating-a-target"
+      page="scanning"
+      anchor="managing-targets"
       title={_('Help: Targets')}
     />
     {capabilities.mayCreate('target') && (
@@ -79,25 +80,28 @@ const TargetsPage = ({
     onInteraction={onInteraction}
   >
     {({clone, create, delete: delete_func, download, edit, save}) => (
-      <EntitiesPage
-        {...props}
-        filterEditDialog={TargetsFilterDialog}
-        filtersFilter={TARGETS_FILTER_FILTER}
-        sectionIcon={<TargetIcon size="large" />}
-        table={TargetsTable}
-        title={_('Targets')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onInteraction={onInteraction}
-        onTargetCloneClick={clone}
-        onTargetCreateClick={create}
-        onTargetDeleteClick={delete_func}
-        onTargetDownloadClick={download}
-        onTargetEditClick={edit}
-        onTargetSaveClick={save}
-      />
+      <React.Fragment>
+        <PageTitle title={_('Targets')} />
+        <EntitiesPage
+          {...props}
+          filterEditDialog={TargetsFilterDialog}
+          filtersFilter={TARGETS_FILTER_FILTER}
+          sectionIcon={<TargetIcon size="large" />}
+          table={TargetsTable}
+          title={_('Targets')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onInteraction={onInteraction}
+          onTargetCloneClick={clone}
+          onTargetCreateClick={create}
+          onTargetDeleteClick={delete_func}
+          onTargetDownloadClick={download}
+          onTargetEditClick={edit}
+          onTargetSaveClick={save}
+        />
+      </React.Fragment>
     )}
   </TargetComponent>
 );

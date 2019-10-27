@@ -26,6 +26,7 @@ import ListIcon from 'web/components/icon/listicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Tab from 'web/components/tab/tab';
 import TabLayout from 'web/components/tab/tablayout';
@@ -57,6 +58,11 @@ import {
   loadEntities as loadPermissions,
 } from 'web/store/entities/permissions';
 
+import {
+  loadAllEntities as loadAllReportFormats,
+  selector as reportFormatsSelector,
+} from 'web/store/entities/reportformats';
+
 import PropTypes from 'web/utils/proptypes';
 
 import AlertComponent from './component';
@@ -73,8 +79,8 @@ const ToolBarIcons = ({
   <Divider margin="10px">
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="alerts"
+        page="scanning"
+        anchor="managing-alerts"
         title={_('Help: Alerts')}
       />
       <ListIcon title={_('Alerts List')} page="alerts" />
@@ -105,6 +111,7 @@ ToolBarIcons.propTypes = {
 const Page = ({
   entity,
   permissions = [],
+  reportFormats,
   onChanged,
   onDownloaded,
   onError,
@@ -139,48 +146,54 @@ const Page = ({
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <AlertDetails entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+            <React.Fragment>
+              <PageTitle title={_('Alert: {{name}}', {name: entity.name})} />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <AlertDetails
+                        entity={entity}
+                        reportFormats={reportFormats}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>
@@ -191,6 +204,7 @@ const Page = ({
 Page.propTypes = {
   entity: PropTypes.model,
   permissions: PropTypes.array,
+  reportFormats: PropTypes.array,
   onChanged: PropTypes.func.isRequired,
   onDownloaded: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
@@ -200,17 +214,21 @@ Page.propTypes = {
 const load = gmp => {
   const loadEntityFunc = loadEntity(gmp);
   const loadPermissionsFunc = loadPermissions(gmp);
+  const loadAllReportFormatsFunc = loadAllReportFormats(gmp);
   return id => dispatch =>
     Promise.all([
       dispatch(loadEntityFunc(id)),
       dispatch(loadPermissionsFunc(permissionsResourceFilter(id))),
+      dispatch(loadAllReportFormatsFunc()),
     ]);
 };
 
 const mapStateToProps = (rootState, {id}) => {
   const permissionsSel = permissionsSelector(rootState);
+  const reportFormatsSel = reportFormatsSelector(rootState);
   return {
     permissions: permissionsSel.getEntities(permissionsResourceFilter(id)),
+    reportFormats: reportFormatsSel.getAllEntities(),
   };
 };
 

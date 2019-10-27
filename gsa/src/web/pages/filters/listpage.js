@@ -33,6 +33,7 @@ import ManualIcon from 'web/components/icon/manualicon';
 import NewIcon from 'web/components/icon/newicon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {createFilterDialog} from 'web/components/powerfilter/dialog';
 
@@ -46,7 +47,11 @@ import FiltersTable, {SORT_FIELDS} from './table';
 
 const ToolBarIcons = withCapabilities(({capabilities, onFilterCreateClick}) => (
   <IconDivider>
-    <ManualIcon page="search" searchTerm="filter" title={_('Help: Filters')} />
+    <ManualIcon
+      page="web-interface"
+      anchor="managing-powerfilters"
+      title={_('Help: Filters')}
+    />
     {capabilities.mayCreate('filter') && (
       <NewIcon title={_('New Filter')} onClick={onFilterCreateClick} />
     )}
@@ -80,25 +85,29 @@ const FiltersPage = ({
     onInteraction={onInteraction}
   >
     {({clone, create, delete: delete_func, download, edit, save}) => (
-      <EntitiesPage
-        {...props}
-        filterEditDialog={FiltersFilterDialog}
-        filtersFilter={FILTERS_FILTER_FILTER}
-        sectionIcon={<FilterIcon size="large" />}
-        table={FiltersTable}
-        title={_('Filters')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onFilterCloneClick={clone}
-        onFilterCreateClick={create}
-        onFilterDeleteClick={delete_func}
-        onFilterDownloadClick={download}
-        onFilterEditClick={edit}
-        onFilterSaveClick={save}
-        onInteraction={onInteraction}
-      />
+      <React.Fragment>
+        <PageTitle title={_('Filters')} />
+
+        <EntitiesPage
+          {...props}
+          filterEditDialog={FiltersFilterDialog}
+          filtersFilter={FILTERS_FILTER_FILTER}
+          sectionIcon={<FilterIcon size="large" />}
+          table={FiltersTable}
+          title={_('Filters')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onFilterCloneClick={clone}
+          onFilterCreateClick={create}
+          onFilterDeleteClick={delete_func}
+          onFilterDownloadClick={download}
+          onFilterEditClick={edit}
+          onFilterSaveClick={save}
+          onInteraction={onInteraction}
+        />
+      </React.Fragment>
     )}
   </FilterComponent>
 );

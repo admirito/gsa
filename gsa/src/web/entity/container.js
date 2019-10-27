@@ -26,6 +26,14 @@ import PropTypes from 'web/utils/proptypes';
 
 const log = logger.getLogger('web.entity.container');
 
+export const handleDefaultReloadIntervalFunc = func => ({
+  defaultReloadInterval,
+  ...args
+}) =>
+  defaultReloadInterval <= 0
+    ? defaultReloadInterval
+    : func({...args, defaultReloadInterval});
+
 const defaultReloadIntervalFunc = ({defaultReloadInterval, entity}) =>
   isDefined(entity) ? defaultReloadInterval : 0;
 
@@ -82,39 +90,51 @@ class EntityContainer extends React.Component {
   getReloadInterval() {
     const {reloadInterval = defaultReloadIntervalFunc} = this.props;
 
-    return reloadInterval(this.props);
+    return handleDefaultReloadIntervalFunc(reloadInterval)(this.props);
   }
 
   startTimer() {
-    if (!this.isRunning) {
+    if (!this.isRunning || isDefined(this.timer)) {
+      log.debug('Not starting timer', {
+        isRunning: this.isRunning,
+        timer: this.timer,
+      });
       return;
     }
 
     const interval = this.getReloadInterval();
 
-    if (interval > 0) {
-      this.timer = global.setTimeout(this.handleTimer, interval);
-      log.debug(
-        'Started reload timer with id',
-        this.timer,
-        'and interval of',
-        interval,
-        'milliseconds',
-      );
+    if (interval <= 0) {
+      log.debug('No reload timer will be started.');
+      return;
     }
+
+    this.timer = global.setTimeout(this.handleTimer, interval);
+    log.debug(
+      'Started reload timer with id',
+      this.timer,
+      'and interval of',
+      interval,
+      'milliseconds',
+    );
+  }
+
+  resetTimer() {
+    this.timer = undefined;
   }
 
   clearTimer() {
     if (isDefined(this.timer)) {
       log.debug('Clearing reload timer with id', this.timer);
       window.clearTimeout(this.timer);
+      this.resetTimer();
     }
   }
 
   handleTimer() {
     log.debug('Timer', this.timer, 'finished. Reloading data.');
 
-    this.timer = undefined;
+    this.resetTimer();
     this.reload();
   }
 
@@ -125,13 +145,14 @@ class EntityContainer extends React.Component {
   }
 
   render() {
-    const {children, onDownload} = this.props;
+    const {children, onDownload, showSuccessMessage} = this.props;
     return children({
       ...this.props,
       onChanged: this.handleChanged,
       onSuccess: this.handleChanged,
       onError: this.handleError,
       onDownloaded: onDownload,
+      showSuccess: showSuccessMessage,
     });
   }
 }

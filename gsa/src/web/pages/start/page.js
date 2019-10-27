@@ -50,15 +50,15 @@ import {
   convertDefaultDisplays,
 } from 'web/components/dashboard/utils';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
-
 import DashboardIcon from 'web/components/icon/dashboardicon';
 import DeleteIcon from 'web/components/icon/deleteicon';
 import EditIcon from 'web/components/icon/editicon';
+import ManualIcon from 'web/components/icon/manualicon';
 import NewIcon from 'web/components/icon/newicon';
 
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Loading from 'web/components/loading/loading';
 
@@ -108,6 +108,14 @@ const StyledTab = styled(Tab)`
     opacity: 1;
   }
 `;
+
+const ToolBarIcons = () => (
+  <ManualIcon
+    page="web-interface"
+    anchor="dashboards-and-dashboard-displays"
+    title={_('Help: Dashboards')}
+  />
+);
 
 class StartPage extends React.Component {
   constructor(...args) {
@@ -392,7 +400,9 @@ class StartPage extends React.Component {
 
     const canAdd = dashboards.length < MAX_DASHBOARDS;
     return (
-      <ErrorBoundary errElement={_('page')}>
+      <React.Fragment>
+        <PageTitle title={_('Dashboards')} />
+        <ToolBarIcons />
         <Section title={_('Dashboards')} img={<DashboardIcon size="large" />}>
           {isLoading ? (
             <Loading />
@@ -507,7 +517,7 @@ class StartPage extends React.Component {
             onSave={this.handleSaveEditDashboard}
           />
         )}
-      </ErrorBoundary>
+      </React.Fragment>
     );
   }
 }

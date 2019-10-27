@@ -16,13 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/string/starts-with';
 
-import {isDefined, isString} from '../utils/identity';
-import {isEmpty, split} from '../utils/string';
-import {map} from '../utils/array';
+import {isDefined, isArray, isString} from 'gmp/utils/identity';
+import {isEmpty, split} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
 
-import {parseFloat, parseSeverity, parseXmlEncodedString} from '../parser';
+import {parseFloat, parseSeverity} from 'gmp/parser';
 
 import Info from './info';
 
@@ -35,46 +35,109 @@ const parse_tags = tags => {
     const splited = tags.split('|');
     for (const t of splited) {
       const [key, value] = split(t, '=', 1);
-      newtags[key] = parseXmlEncodedString(value);
+      newtags[key] = value;
     }
   }
 
   return newtags;
 };
 
-const parse_ids = (ids, no) => {
-  if (isString(ids) && ids.length > 0 && ids !== no) {
-    return ids.split(',').map(id => id.trim());
+export const getRefs = element => {
+  if (
+    !isDefined(element) ||
+    !isDefined(element.refs) ||
+    !isDefined(element.refs.ref)
+  ) {
+    return [];
   }
-  return [];
+  if (isArray(element.refs.ref)) {
+    return element.refs.ref;
+  }
+  return [element.refs.ref];
+};
+
+export const hasRefType = refType => (ref = {}) =>
+  isString(ref._type) && ref._type.toLowerCase() === refType;
+
+export const getFilteredRefIds = (refs = [], type) => {
+  const filteredRefs = refs.filter(hasRefType(type));
+  return filteredRefs.map(ref => ref._id);
+};
+
+const getFilteredUrlRefs = refs => {
+  return refs.filter(hasRefType('url')).map(ref => {
+    let id = ref._id;
+    if (
+      !id.startsWith('http://') &&
+      !id.startsWith('https://') &&
+      !id.startsWith('ftp://') &&
+      !id.startsWith('ftps://')
+    ) {
+      id = 'http://' + id;
+    }
+    return {
+      ref: id,
+      type: 'url',
+    };
+  });
+};
+
+const getFilteredRefs = (refs, type) =>
+  refs.filter(hasRefType(type)).map(ref => ({
+    id: ref._id,
+    type,
+  }));
+
+const getOtherRefs = refs => {
+  const filteredRefs = refs.filter(ref => {
+    const rtype = isString(ref._type) ? ref._type.toLowerCase() : undefined;
+    return (
+      rtype !== 'url' &&
+      rtype !== 'cve' &&
+      rtype !== 'cve_id' &&
+      rtype !== 'bid' &&
+      rtype !== 'bugtraq_id' &&
+      rtype !== 'dfn-cert' &&
+      rtype !== 'cert-bund'
+    );
+  });
+  const returnRefs = filteredRefs.map(ref => {
+    return {
+      ref: ref._id,
+      type: isString(ref._type) ? ref._type.toLowerCase() : 'other',
+    };
+  });
+  return returnRefs;
 };
 
 class Nvt extends Info {
   static entityType = 'nvt';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem, 'nvt');
+  static parseElement(element) {
+    const ret = super.parseElement(element, 'nvt');
 
-    ret.nvt_type = elem._type;
+    ret.nvtType = ret._type;
 
-    ret.oid = ret._oid;
+    ret.oid = isEmpty(ret._oid) ? undefined : ret._oid;
     ret.id = ret.oid;
     ret.tags = parse_tags(ret.tags);
 
-    // several properties use different names in different responses
-    // cve and cve_id, bid and bugtraq_id, cert and cert_ref
+    const refs = getRefs(ret);
 
-    ret.cves = parse_ids(ret.cve, 'NOCVE').concat(
-      parse_ids(ret.cve_id, 'NOCVE'),
+    ret.cves = getFilteredRefIds(refs, 'cve').concat(
+      getFilteredRefIds(refs, 'cve_id'),
     );
-    delete ret.cve;
-    delete ret.cve_id;
+    ret.bids = getFilteredRefIds(refs, 'bid').concat(
+      getFilteredRefIds(refs, 'bugtraq_id'),
+    );
 
-    ret.bids = parse_ids(ret.bid, 'NOBID').concat(
-      parse_ids(ret.bugtraq_id, 'NOBID'),
+    ret.certs = getFilteredRefs(refs, 'dfn-cert').concat(
+      getFilteredRefs(refs, 'cert-bund'),
     );
-    delete ret.bid;
-    delete ret.bugtraq_id;
+
+    ret.xrefs = getFilteredUrlRefs(refs, 'url').concat(getOtherRefs(refs));
+
+    delete ret.refs;
 
     ret.severity = parseSeverity(ret.cvss_base);
     delete ret.cvss_base;
@@ -89,74 +152,29 @@ class Nvt extends Info {
       ret.preferences = [];
     }
 
-    if (isDefined(ret.cert)) {
-      ret.certs = map(ret.cert.cert_ref, ref => {
-        return {
-          id: ref._id,
-          type: ref._type,
-        };
-      });
-
-      delete ret.cert;
-    } else {
-      ret.certs = [];
-    }
-
-    if (isDefined(ret.cert_refs)) {
-      const crefs = map(ret.cert_refs.cert_ref, ref => {
-        return {
-          id: ref._id,
-          type: ref._type,
-        };
-      });
-      ret.certs = [...ret.certs, ...crefs];
-      delete ret.cert_refs;
-    }
-
-    const xrefs = parse_ids(ret.xrefs, 'NOXREF');
-
-    ret.xrefs = xrefs.map(xref => {
-      let type = 'other';
-      let ref = xref;
-      if (xref.startsWith('URL:')) {
-        type = 'URL';
-        ref = xref.slice(4);
-        if (
-          !ref.startsWith('http://') &&
-          !ref.startsWith('https://') &&
-          !ref.startsWith('ftp://') &&
-          !ref.startsWith('ftps://')
-        ) {
-          ref = 'http://' + ref;
-        }
-      }
-      return {type, ref};
-    });
-
-    delete ret.xref;
-
-    if (isDefined(elem.qod)) {
-      if (isEmpty(elem.qod.value)) {
+    if (isDefined(ret.qod)) {
+      if (isEmpty(ret.qod.value)) {
         delete ret.qod.value;
       } else {
-        ret.qod.value = parseFloat(elem.qod.value);
+        ret.qod.value = parseFloat(ret.qod.value);
       }
 
-      if (isEmpty(elem.qod.type)) {
+      if (isEmpty(ret.qod.type)) {
         delete ret.qod.type;
       }
     }
 
-    if (isEmpty(elem.default_timeout)) {
+    if (isEmpty(ret.default_timeout)) {
       delete ret.default_timeout;
     } else {
-      ret.default_timeout = parseFloat(elem.default_timeout);
+      ret.defaultTimeout = parseFloat(ret.default_timeout);
+      delete ret.default_timeout;
     }
 
-    if (isEmpty(elem.timeout)) {
+    if (isEmpty(ret.timeout)) {
       delete ret.timeout;
     } else {
-      ret.timeout = parseFloat(elem.timeout);
+      ret.timeout = parseFloat(ret.timeout);
     }
 
     return ret;

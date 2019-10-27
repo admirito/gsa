@@ -20,6 +20,7 @@ import {combineReducers} from 'redux';
 
 import {reducer as agent} from './agents';
 import {reducer as alert} from './alerts';
+import {reducer as audit} from './audits';
 import {reducer as certbund} from './certbund';
 import {reducer as cpe} from './cpes';
 import {reducer as credential} from './credentials';
@@ -34,6 +35,7 @@ import {reducer as operatingsystem} from './operatingsystems';
 import {reducer as ovaldef} from './ovaldefs';
 import {reducer as override} from './overrides';
 import {reducer as permission} from './permissions';
+import {reducer as policy} from './policies';
 import {reducer as portlist} from './portlists';
 import {reducer as reportformat} from './reportformats';
 import {reducer as report, deltaReducer as deltaReport} from './reports';
@@ -47,12 +49,14 @@ import {reducer as tag} from './tags';
 import {reducer as target} from './targets';
 import {reducer as task} from './tasks';
 import {reducer as ticket} from './tickets';
+import {reducer as tlscertificate} from './tlscertificates';
 import {reducer as user} from './users';
 import {reducer as vuln} from './vulns';
 
 const entitiesReducer = combineReducers({
   agent,
   alert,
+  audit,
   certbund,
   cpe,
   credential,
@@ -68,6 +72,7 @@ const entitiesReducer = combineReducers({
   ovaldef,
   override,
   permission,
+  policy,
   portlist,
   reportformat,
   report,
@@ -81,6 +86,7 @@ const entitiesReducer = combineReducers({
   target,
   task,
   ticket,
+  tlscertificate,
   user,
   vuln,
 });

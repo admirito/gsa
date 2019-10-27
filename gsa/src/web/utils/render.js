@@ -16,13 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/string/starts-with';
 
 import {format} from 'd3-format';
 
 import React from 'react';
 
 import {_} from 'gmp/locale/lang';
+import {dateFormat} from 'gmp/locale/date';
 
 import {isDefined, isFunction, isObject} from 'gmp/utils/identity';
 import {isEmpty, shorten, split} from 'gmp/utils/string';
@@ -185,6 +186,8 @@ const getPermissionTypeName = type => {
       return _('Tasks');
     case 'tickets':
       return _('Tickets');
+    case 'tlscertificates':
+      return _('TLS Certificates');
     case 'users':
       return _('Users');
     case 'vulns':
@@ -493,6 +496,62 @@ export const setRef = (...refs) => ref => {
       rf.current = ref;
     }
   }
+};
+
+export const generateFilename = ({
+  creationTime,
+  extension = 'xml',
+  fileNameFormat,
+  reportFormat = 'XML',
+  id = 'list',
+  modificationTime,
+  resourceName,
+  resourceType,
+  username,
+}) => {
+  let fileName = isDefined(fileNameFormat) ? fileNameFormat : '';
+  const currentTime = new Date();
+  const cTime = isDefined(creationTime) ? creationTime : currentTime;
+
+  let mTime = isDefined(modificationTime) ? modificationTime : creationTime;
+  if (!isDefined(mTime)) {
+    mTime = currentTime;
+  }
+
+  const percentC = dateFormat(cTime, 'YYYYMMDD');
+  const percentc = dateFormat(cTime, 'HHMMSS');
+  const percentD = dateFormat(currentTime, 'YYYYMMDD');
+  const percentt = dateFormat(currentTime, 'HHMMSS');
+  const percentM = dateFormat(mTime, 'YYYYMMDD');
+  const percentm = dateFormat(mTime, 'HHMMSS');
+  const percentN = isDefined(resourceName) ? resourceName : resourceType;
+
+  const fileNameMap = {
+    '%C': percentC, // The creation date in the format YYYYMMDD. Changed to the current date if a creation date is not available.
+    '%c': percentc, // The creation time in the format HHMMSS. Changed to the current time if a creation time is not available.
+    '%D': percentD, // The current date in the format YYYYMMDD.
+    '%F': reportFormat, // The name of the format plug-in used (XML for lists and types other than reports).
+    '%M': percentM, // The modification date in the format YYYYMMDD. Changed to the creation date or to the current date if a modification date is not available.
+    '%m': percentm, // The modification time in the format HHMMSS. Changed to the creation time or to the current time if a modification time is not available.
+    '%N': percentN, // The name for the resource or the associated task for reports. Lists and types without a name will use the type (see %T).
+    '%T': resourceType, // The resource type, e.g. “task”, “port_list”. Pluralized for list pages.
+    '%t': percentt, // The current time in the format HHMMSS.
+    '%U': id, // The unique ID of the resource or “list” for lists of multiple resources.
+    '%u': username, // The name for the currently logged in user.
+    '%%': '%',
+  };
+  const regExp = new RegExp(Object.keys(fileNameMap).join('|'), 'gi');
+
+  fileName = fileName.replace(regExp, match => fileNameMap[match]);
+
+  fileName += '.' + extension;
+
+  if (fileName === '.' + extension) {
+    // if something went wrong, make sure to always have a filename
+    fileName = 'unnamed.unknown';
+  }
+
+  return fileName;
 };
 
 // vim: set ts=2 sw=2 tw=80:

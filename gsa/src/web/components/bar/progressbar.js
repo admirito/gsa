@@ -54,6 +54,16 @@ const Content = styled.div`
   }
 `;
 
+export const adjustProgress = progress => {
+  if (parseInt(progress) > 100) {
+    progress = '100';
+  }
+  if (parseInt(progress) < 0) {
+    progress = '0';
+  }
+  return progress;
+};
+
 const Progress = styled.div`
   height: 13px;
 
@@ -64,22 +74,21 @@ const Progress = styled.div`
     let {background, progress} = props;
 
     if (background === 'warn') {
-      background = '#F0A519';
+      background = Theme.severityWarnYellow;
     } else if (background === 'error') {
-      background = '#C83814';
+      background = Theme.errorRed;
     } else if (background === 'low') {
-      background = '#4F91C7';
+      background = Theme.severityLowBlue;
     } else if (background === 'new') {
-      background = '#99BE48';
+      background = Theme.statusNewGreen;
     } else if (background === 'run') {
-      background = '#70C000';
+      background = Theme.statusRunGreen;
     } else if (background === 'log') {
       background = 'gray';
     }
 
-    if (progress > 100) {
-      progress = 100;
-    }
+    progress = adjustProgress(progress);
+
     return {
       width: progress + '%',
       background,
@@ -89,8 +98,12 @@ const Progress = styled.div`
 
 const ProgressBar = ({background, children, progress, title}) => {
   return (
-    <ProgressBarBox title={title}>
-      <Progress progress={progress} background={background} />
+    <ProgressBarBox data-testid="progressbar-box" title={title}>
+      <Progress
+        data-testid="progress"
+        progress={progress}
+        background={background}
+      />
       <Content>{children}</Content>
     </ProgressBarBox>
   );

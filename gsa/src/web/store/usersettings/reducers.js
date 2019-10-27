@@ -20,6 +20,7 @@
 import {combineReducers} from 'web/store/utils';
 
 import defaults from './defaults/reducers';
+import defaultFilters from './defaultfilters/reducers';
 
 import {
   USER_SETTINGS_LOAD_REPORT_COMPOSER_DEFAULTS_SUCCESS,
@@ -27,6 +28,7 @@ import {
   USER_SETTINGS_SET_LOCALE,
   USER_SETTINGS_SET_USERNAME,
   USER_SETTINGS_SET_SESSION_TIMEOUT,
+  USER_SETTINGS_SET_LOGGED_IN,
 } from 'web/store/usersettings/actions';
 
 export const reportComposerDefaults = (state = {}, action) => {
@@ -77,8 +79,19 @@ export const username = (state, action) => {
   }
 };
 
+export const isLoggedIn = (state = false, action) => {
+  switch (action.type) {
+    case USER_SETTINGS_SET_LOGGED_IN:
+      return action.isLoggedIn;
+    default:
+      return state;
+  }
+};
+
 const userSettings = combineReducers({
   defaults,
+  defaultFilters,
+  isLoggedIn,
   locale,
   reportComposerDefaults,
   sessionTimeout,

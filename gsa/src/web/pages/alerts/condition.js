@@ -31,9 +31,14 @@ import {
   CONDITION_DIRECTION_DECREASED,
 } from 'gmp/models/alert';
 
-const Condition = ({condition, event}) => {
+const Condition = ({condition = {}, event}) => {
+  if (!isDefined(condition.type) || !isDefined(condition.data)) {
+    return null;
+  }
+
+  let count = _('undefined');
+
   if (condition.type === CONDITION_TYPE_FILTER_COUNT_AT_LEAST) {
-    const count = parseInt(condition.data.count.value);
     let type;
 
     // FIXME this is not translateable
@@ -46,14 +51,19 @@ const Condition = ({condition, event}) => {
       type = 'result';
     }
 
-    if (count > 1) {
-      type += 's';
+    if (isDefined(condition.data.count)) {
+      count = parseInt(condition.data.count.value);
+      if (count > 1) {
+        type += 's';
+      }
     }
     return _('Filter matches at least {{count}} {{type}}', {count, type});
   }
 
   if (condition.type === CONDITION_TYPE_FILTER_COUNT_CHANGED) {
-    const count = parseInt(condition.data.count.value);
+    if (isDefined(condition.data.count)) {
+      count = parseInt(condition.data.count.value);
+    }
 
     // FIXME this is not translateable
     return _(

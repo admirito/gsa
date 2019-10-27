@@ -16,19 +16,43 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/array/find-index';
-import 'core-js/fn/array/includes';
+import 'core-js/features/array/find-index';
+import 'core-js/features/array/includes';
 
-import {isDefined, isString} from '../utils/identity';
+import {isDefined, isString, hasValue} from '../utils/identity';
 import {forEach, map} from '../utils/array';
 
-import Model from '../model.js';
+import Model, {parseModelFromElement} from '../model.js';
+
+import {setProperties} from '../parser';
 
 import convert from './filter/convert.js';
 import FilterTerm, {AND} from './filter/filterterm.js';
 import {EXTRA_KEYWORDS} from './filter/keywords.js';
 
 export const UNKNOWN_FILTER_ID = '0';
+
+/**
+ * Parses FilterTerms from filterstring
+ *
+ * @param {String} filterString  Filter representation as a string
+ *
+ * @return {Array} Array of parsed FilterTerms
+ */
+const parseFilterTermsFromString = filterString => {
+  const terms = [];
+  if (isString(filterString)) {
+    const filterTerms = filterString.split(' ');
+    for (let filterTerm of filterTerms) {
+      // strip whitespace
+      filterTerm = filterTerm.trim();
+      if (filterTerm.length > 0) {
+        terms.push(FilterTerm.fromString(filterTerm));
+      }
+    }
+  }
+  return terms;
+};
 
 /**
  * Represents a filter
@@ -38,31 +62,38 @@ export const UNKNOWN_FILTER_ID = '0';
 class Filter extends Model {
   static entityType = 'filter';
 
+  constructor() {
+    super();
+
+    this.terms = [];
+  }
+
   get length() {
     return this.terms.length;
   }
 
-  /**
-   * Init the Filter
-   *
-   * Creates the internal data structure.
-   */
-  init() {
-    this.terms = [];
+  setProperties({id, ...properties}) {
+    // override setProperties to allow changing the id
+    setProperties(properties, this);
+    this.id = id;
   }
 
   /**
-   * Parse properties from the passed element object for being set in this
-   * Filter model.
+   * Parse properties from the passed element object
    *
-   * @param {Object} elem  Element object to parse properties from.
+   * @param {Object} element  Element object to parse properties from.
    *
    * @return {Object} An object with properties for the new Filter model
    */
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem);
+  static parseElement(element) {
+    const ret = super.parseElement(element);
 
     ret.filter_type = ret._type;
+
+    if (ret.id === UNKNOWN_FILTER_ID) {
+      ret.id = undefined;
+    }
+    ret.terms = [];
 
     if (isDefined(ret.keywords)) {
       forEach(ret.keywords.keyword, keyword => {
@@ -70,11 +101,11 @@ class Filter extends Model {
 
         const converted = convert(key, value, relation);
 
-        this._addTerm(new FilterTerm(converted));
+        ret.terms.push(new FilterTerm(converted));
       });
       delete ret.keywords;
     } else if (isDefined(ret.term)) {
-      this.parseString(ret.term);
+      ret.terms = parseFilterTermsFromString(ret.term);
 
       // ret.term should not be part of the public api
       // but it's helpful for debug purposes
@@ -83,7 +114,9 @@ class Filter extends Model {
     }
 
     if (isDefined(ret.alerts)) {
-      ret.alerts = map(ret.alerts.alert, alert => new Model(alert, 'alert'));
+      ret.alerts = map(ret.alerts.alert, alert =>
+        parseModelFromElement(alert, 'alert'),
+      );
     }
 
     return ret;
@@ -172,7 +205,7 @@ class Filter extends Model {
    * @return {Filter} This filter with merged terms.
    */
   _mergeExtraKeywords(filter) {
-    if (isDefined(filter)) {
+    if (hasValue(filter)) {
       filter.forEach(term => {
         const {keyword: key} = term;
         if (isDefined(key) && EXTRA_KEYWORDS.includes(key) && !this.has(key)) {
@@ -184,19 +217,14 @@ class Filter extends Model {
   }
 
   /**
-   * Merges all terms from filter into this Filter
-   *
+   * Reset filter id of the current filter
    *
    * @private
    *
-   * @param {Filter} filter  Terms from filter to be merged.
-   *
-   * @return {Filter} This filter with merged terms.
+   * @return {Filter} This filter.
    */
-  _merge(filter) {
-    if (isDefined(filter)) {
-      this._addTerm(...filter.getAllTerms());
-    }
+  _resetFilterId() {
+    this.id = undefined;
     return this;
   }
 
@@ -348,6 +376,7 @@ class Filter extends Model {
    * @return {Filter} This filter
    */
   set(keyword, value, relation = '=') {
+    this._resetFilterId(); // reset id because the filter has changed
     const converted = convert(keyword, value, relation);
     this._setTerm(new FilterTerm(converted));
     return this;
@@ -380,6 +409,7 @@ class Filter extends Model {
     const index = this._getIndex(key);
     if (index !== -1) {
       this.terms.splice(index, 1);
+      this._resetFilterId(); // filter has changed
     }
     return this;
   }
@@ -392,7 +422,7 @@ class Filter extends Model {
    * @return {bool} Returns true if this filter equals to the other filter
    */
   equals(filter) {
-    if (!isDefined(filter)) {
+    if (!hasValue(filter)) {
       return false;
     }
 
@@ -562,6 +592,10 @@ class Filter extends Model {
    * @return {Filter} This filter
    */
   and(filter) {
+    if (!hasValue(filter)) {
+      return this;
+    }
+
     const nonExtraTerms = this.getAllTerms().filter(
       term => !EXTRA_KEYWORDS.includes(term.keyword),
     );
@@ -569,7 +603,9 @@ class Filter extends Model {
     if (nonExtraTerms.length > 0) {
       this._addTerm(AND);
     }
-    return this._merge(filter);
+
+    this._resetFilterId(); // filter has changed
+    return this.merge(filter);
   }
 
   /**
@@ -619,6 +655,20 @@ class Filter extends Model {
   }
 
   /**
+   * Merges all terms from filter into this Filter
+   *
+   * @param {Filter} filter  Terms from filter to be merged.
+   *
+   * @return {Filter} This filter with merged terms.
+   */
+  merge(filter) {
+    if (hasValue(filter)) {
+      this._addTerm(...filter.getAllTerms());
+    }
+    return this;
+  }
+
+  /**
    * Merges additional EXTRA KEYWORD terms from filter into this Filter
    *
    * This filter will not be changed. Instead a copy with merged terms will be
@@ -631,28 +681,8 @@ class Filter extends Model {
    */
   mergeExtraKeywords(filter) {
     const f = this.copy();
+    f._resetFilterId();
     return f._mergeExtraKeywords(filter);
-  }
-
-  /**
-   * Parses FilterTerms from filterstring and adds them to this Filter
-   *
-   * @param {String} filterstring  Filter representation as a string
-   *
-   * @return {Filter} This filter.
-   */
-  parseString(filterstring) {
-    if (isString(filterstring)) {
-      const fterms = filterstring.split(' ');
-      for (let fterm of fterms) {
-        // strip whitespace
-        fterm = fterm.trim();
-        if (fterm.length > 0) {
-          this._addTerm(FilterTerm.fromString(fterm));
-        }
-      }
-    }
-    return this;
   }
 
   /**
@@ -667,7 +697,7 @@ class Filter extends Model {
   static fromString(filterstring, filter) {
     const f = new Filter();
 
-    f.parseString(filterstring);
+    f._setTerms(parseFilterTermsFromString(filterstring));
     f._mergeExtraKeywords(filter);
 
     return f;
@@ -703,6 +733,7 @@ export const OS_FILTER_FILTER = Filter.fromString('type=os');
 export const OVALDEFS_FILTER_FILTER = Filter.fromString('type=info');
 export const OVERRIDES_FILTER_FILTER = Filter.fromString('type=override');
 export const PORTLISTS_FILTER_FILTER = Filter.fromString('type=port_list');
+export const PERMISSIONS_FILTER_FILTER = Filter.fromString('type=permission');
 export const REPORT_FORMATS_FILTER_FILTER = Filter.fromString(
   'type=report_format',
 );
@@ -717,10 +748,17 @@ export const TARGETS_FILTER_FILTER = Filter.fromString('type=target');
 export const TASKS_FILTER_FILTER = Filter.fromString('type=task');
 export const TAGS_FILTER_FILTER = Filter.fromString('type=tag');
 export const TICKETS_FILTER_FILTER = Filter.fromString('type=ticket');
+export const TLS_CERTIFICATES_FILTER_FILTER = Filter.fromString(
+  'type=tls_certificate',
+);
 export const USERS_FILTER_FILTER = Filter.fromString('type=user');
 export const VULNS_FILTER_FILTER = Filter.fromString('type=vuln');
 
+export const DEFAULT_FALLBACK_FILTER = Filter.fromString('sort=name first=1');
+
 export const RESET_FILTER = Filter.fromString('first=1');
+
+export const DEFAULT_ROWS_PER_PAGE = 50;
 
 export default Filter;
 

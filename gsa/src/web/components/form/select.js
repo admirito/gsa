@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import React from 'react';
 
@@ -30,6 +30,8 @@ import ArrowIcon from '../icon/arrowicon';
 
 import Layout from '../../components/layout/layout';
 
+import styled from 'styled-components';
+
 import {
   Box,
   caseInsensitiveFilter,
@@ -40,6 +42,10 @@ import {
   SelectContainer,
   SelectedValue,
 } from './selectelements.js';
+
+const SingleSelectedValue = styled(SelectedValue)`
+  cursor: default;
+`;
 
 const SelectValueValidator = (props, prop_name, component_name) => {
   const value = props[prop_name];
@@ -98,6 +104,9 @@ class Select extends React.Component {
       search: '',
     };
 
+    this.input = React.createRef();
+    this.box = React.createRef();
+
     this.handleChange = this.handleChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
@@ -149,11 +158,14 @@ class Select extends React.Component {
         itemToString={itemToString}
         onChange={this.handleChange}
         onSelect={this.handleSelect}
-        render={({
-          getButtonProps,
+      >
+        {({
+          closeMenu,
           getInputProps,
           getItemProps,
+          getMenuProps,
           getRootProps,
+          getToggleButtonProps,
           highlightedIndex,
           inputValue,
           isOpen,
@@ -164,48 +176,58 @@ class Select extends React.Component {
           const label = find_label(items, selectedItem);
           return (
             <SelectContainer
-              {...getRootProps({refKey: 'innerRef'})}
+              {...getRootProps({})}
               className={className}
-              flex="column"
               width={width}
             >
               <Box
-                {...getButtonProps({
+                {...getToggleButtonProps({
                   disabled,
                   onClick: isOpen
-                    ? undefined
+                    ? event => {
+                        closeMenu();
+                      }
                     : event => {
-                        event.preventDefault(); // don't call default handler from downshift
-                        openMenu(
-                          () => isDefined(this.input) && this.input.focus(),
-                        ); // set focus to input field after menu is opened
+                        event.preventDownshiftDefault = true; // don't call default handler from downshift
+                        openMenu(() => {
+                          const {current: input} = this.input;
+                          input !== null && input.focus();
+                        }); // set focus to input field after menu is opened
                       },
                 })}
                 isOpen={isOpen}
                 title={toolTipTitle}
-                innerRef={ref => (this.box = ref)}
-                data-testid="select-open-button"
+                ref={this.box}
               >
-                <SelectedValue
+                <SingleSelectedValue
                   data-testid="select-selected-value"
                   disabled={disabled}
                   title={toolTipTitle ? toolTipTitle : label}
                 >
                   {label}
-                </SelectedValue>
+                </SingleSelectedValue>
                 <Layout align={['center', 'center']}>
-                  <ArrowIcon disabled={disabled} down={!isOpen} size="small" />
+                  <ArrowIcon
+                    data-testid="select-open-button"
+                    down={!isOpen}
+                    size="small"
+                  />
                 </Layout>
               </Box>
               {isOpen && !disabled && (
-                <Menu position={menuPosition} target={this.box}>
+                <Menu
+                  {...getMenuProps({})}
+                  position={menuPosition}
+                  target={this.box}
+                >
                   <Input
                     {...getInputProps({
                       value: search,
+                      disabled,
                       onChange: this.handleSearch,
                     })}
-                    disabled={disabled}
-                    innerRef={ref => (this.input = ref)}
+                    data-testid="select-search-input"
+                    ref={this.input}
                   />
                   <ItemContainer>
                     {displayedItems.map(
@@ -214,12 +236,17 @@ class Select extends React.Component {
                         i,
                       ) => (
                         <Item
-                          {...getItemProps({item: itemValue})}
+                          {...getItemProps({
+                            item: itemValue,
+                            isSelected: itemValue === selectedItem,
+                            isActive: i === highlightedIndex,
+                            onClick: event => {
+                              event.preventDownshiftDefault = true;
+                              selectItem(itemValue);
+                            },
+                          })}
                           data-testid="select-item"
-                          isSelected={itemValue === selectedItem}
-                          isActive={i === highlightedIndex}
                           key={key}
-                          onMouseDown={() => selectItem(itemValue)}
                         >
                           {React.isValidElement(itemLabel)
                             ? itemLabel
@@ -233,7 +260,7 @@ class Select extends React.Component {
             </SelectContainer>
           );
         }}
-      />
+      </Downshift>
     );
   }
 }

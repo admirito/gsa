@@ -32,7 +32,7 @@ import withGmp from 'web/utils/withGmp';
 
 import Toolbar from 'web/components/bar/toolbar';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
+import ErrorMessage from 'web/components/error/errormessage';
 
 import Layout from 'web/components/layout/layout';
 
@@ -42,7 +42,7 @@ import PowerFilter from 'web/components/powerfilter/powerfilter';
 
 import Section from 'web/components/section/section';
 
-import {loadEntities, selector} from 'web/store/entities/filters';
+import {loadAllEntities, selector} from 'web/store/entities/filters';
 
 const exclude_props = [
   'children',
@@ -114,7 +114,7 @@ class EntitiesPage extends React.Component {
   renderSection() {
     const {
       entities,
-      loading,
+      isLoading,
       sectionIcon,
       dashboard,
       dashboardControls,
@@ -142,17 +142,10 @@ class EntitiesPage extends React.Component {
       >
         <Layout flex="column" grow="1">
           {isDefined(dashboard) && dashboard()}
-          {loading && !isDefined(entities)
-            ? this.renderLoading()
-            : this.renderTable()}
+          {isLoading && !isDefined(entities) ? <Loading /> : this.renderTable()}
         </Layout>
       </SectionComponent>
     );
-  }
-
-  renderLoading() {
-    const {loading} = this.props;
-    return <Loading loading={loading} />;
   }
 
   renderTable() {
@@ -160,9 +153,14 @@ class EntitiesPage extends React.Component {
       filter,
       entities,
       entitiesCounts,
+      entitiesError,
       table: TableComponent,
       ...props
     } = this.props;
+
+    if (isDefined(entitiesError)) {
+      return <ErrorMessage message={entitiesError.message} />;
+    }
 
     if (!isDefined(entities) || !isDefined(TableComponent)) {
       return null;
@@ -271,13 +269,11 @@ class EntitiesPage extends React.Component {
 
   render() {
     return (
-      <ErrorBoundary errElement={_('page')}>
-        <Layout grow="1" flex="column">
-          {this.renderToolbar()}
-          {this.renderSection()}
-          {this.renderDialogs()}
-        </Layout>
-      </ErrorBoundary>
+      <Layout grow="1" flex="column">
+        {this.renderToolbar()}
+        {this.renderSection()}
+        {this.renderDialogs()}
+      </Layout>
     );
   }
 }
@@ -288,12 +284,13 @@ EntitiesPage.propTypes = {
   dashboardControls: PropTypes.func,
   entities: PropTypes.array,
   entitiesCounts: PropTypes.counts,
+  entitiesError: PropTypes.error,
   filter: PropTypes.filter,
   filterEditDialog: PropTypes.component,
   filters: PropTypes.array,
   filtersFilter: PropTypes.filter,
+  isLoading: PropTypes.bool,
   loadFilters: PropTypes.func.isRequired,
-  loading: PropTypes.bool,
   powerfilter: PropTypes.componentOrFalse,
   section: PropTypes.componentOrFalse,
   sectionIcon: PropTypes.icon,
@@ -323,14 +320,14 @@ const mapStateToProps = (state, {filtersFilter}) => {
   }
 
   const filterSelector = selector(state);
-  const filters = filterSelector.getEntities(filtersFilter);
+  const filters = filterSelector.getAllEntities(filtersFilter);
   return {
     filters: hasValue(filters) ? filters : [],
   };
 };
 
 const mapDispatchToProps = (dispatch, {gmp, filtersFilter}) => ({
-  loadFilters: () => dispatch(loadEntities(gmp)(filtersFilter)),
+  loadFilters: () => dispatch(loadAllEntities(gmp)(filtersFilter)),
 });
 
 export default compose(

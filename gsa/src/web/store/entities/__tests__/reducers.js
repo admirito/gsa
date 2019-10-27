@@ -35,6 +35,7 @@ describe('entities reducer tests', () => {
     expect(entitiesReducer(undefined, {})).toEqual({
       agent: initState,
       alert: initState,
+      audit: initState,
       certbund: initState,
       cpe: initState,
       credential: initState,
@@ -50,6 +51,7 @@ describe('entities reducer tests', () => {
       ovaldef: initState,
       override: initState,
       permission: initState,
+      policy: initState,
       portlist: initState,
       reportformat: initState,
       report: initState,
@@ -63,6 +65,7 @@ describe('entities reducer tests', () => {
       target: initState,
       task: initState,
       ticket: initState,
+      tlscertificate: initState,
       user: initState,
       vuln: initState,
     });

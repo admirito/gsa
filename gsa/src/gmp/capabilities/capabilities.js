@@ -16,14 +16,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/set';
-import 'core-js/fn/symbol';
+import 'core-js/features/set';
+import 'core-js/features/symbol';
 
 import {isDefined} from '../utils/identity';
 import {map} from '../utils/array';
 import {pluralizeType} from '../utils/entitytype';
 
 const types = {
+  audit: 'task',
+  audits: 'task',
   host: 'asset',
   hosts: 'asset',
   os: 'asset',
@@ -43,12 +45,16 @@ const types = {
   certbunds: 'info',
   secinfo: 'info',
   secinfos: 'info',
+  policy: 'config',
+  policies: 'config',
   portlist: 'port_list',
   portlists: 'port_list',
   reportformat: 'report_format',
   reportformats: 'report_format',
   scanconfig: 'config',
   scanconfigs: 'config',
+  tlscertificate: 'tls_certificate',
+  tlscertificates: 'tls_certificate',
 };
 
 const convertType = type => {

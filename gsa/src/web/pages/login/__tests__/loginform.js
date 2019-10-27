@@ -18,14 +18,18 @@
  */
 import React from 'react';
 
-import {render, fireEvent} from 'web/utils/testing';
+import {rendererWith, fireEvent} from 'web/utils/testing';
 
 import LoginForm from '../loginform';
+
+const gmp = {settings: {}};
 
 describe('LoginForm tests', () => {
   test('should render full LoginForm', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {baseElement} = render(
       <LoginForm
@@ -45,6 +49,8 @@ describe('LoginForm tests', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
 
+    const {render} = rendererWith({gmp});
+
     const {getByTestId} = render(
       <LoginForm
         error="An Error Occurred"
@@ -60,6 +66,8 @@ describe('LoginForm tests', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
 
+    const {render} = rendererWith({gmp});
+
     const {queryByTestId} = render(
       <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
     );
@@ -70,6 +78,8 @@ describe('LoginForm tests', () => {
   test('should display insecure protocol message', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {getByTestId} = render(
       <LoginForm
@@ -86,6 +96,8 @@ describe('LoginForm tests', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
 
+    const {render} = rendererWith({gmp});
+
     const {queryByTestId} = render(
       <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
     );
@@ -93,9 +105,41 @@ describe('LoginForm tests', () => {
     expect(queryByTestId('protocol-insecure')).toBeNull();
   });
 
+  test('should display IE11 message', () => {
+    const handleSubmit = jest.fn();
+    const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
+
+    const {getByTestId} = render(
+      <LoginForm
+        isIE11
+        onSubmit={handleSubmit}
+        onGuestLoginClick={handleClick}
+      />,
+    );
+
+    expect(getByTestId('IE11')).toBeInTheDocument();
+  });
+
+  test('should not display IE11 message by default', () => {
+    const handleSubmit = jest.fn();
+    const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
+
+    const {queryByTestId} = render(
+      <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
+    );
+
+    expect(queryByTestId('IE11')).toBeNull();
+  });
+
   test('should display login fields by default', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {queryByName} = render(
       <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
@@ -108,6 +152,8 @@ describe('LoginForm tests', () => {
   test('should allow to disable login fields', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {queryByName} = render(
       <LoginForm
@@ -124,6 +170,8 @@ describe('LoginForm tests', () => {
   test('should allow to login with username and password', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {getByName, getByTestId} = render(
       <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
@@ -145,6 +193,8 @@ describe('LoginForm tests', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
 
+    const {render} = rendererWith({gmp});
+
     const {queryByTestId} = render(
       <LoginForm onSubmit={handleSubmit} onGuestLoginClick={handleClick} />,
     );
@@ -156,6 +206,8 @@ describe('LoginForm tests', () => {
   test('should allow to display guest login', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {getByTestId} = render(
       <LoginForm
@@ -172,6 +224,8 @@ describe('LoginForm tests', () => {
   test('should allow to login as guest', () => {
     const handleSubmit = jest.fn();
     const handleClick = jest.fn();
+
+    const {render} = rendererWith({gmp});
 
     const {getByTestId} = render(
       <LoginForm

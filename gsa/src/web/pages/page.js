@@ -19,7 +19,11 @@
 
 import React from 'react';
 
+import {withRouter} from 'react-router-dom';
+
 import styled from 'styled-components';
+
+import _ from 'gmp/locale';
 
 import logger from 'gmp/log';
 
@@ -29,12 +33,15 @@ import Capabilities from 'gmp/capabilities/capabilities';
 
 import PropTypes from 'web/utils/proptypes';
 import withGmp from 'web/utils/withGmp';
+import compose from 'web/utils/compose';
 
 import MenuBar from 'web/components/bar/menubar';
 
+import ErrorBoundary from 'web/components/error/errorboundary';
+
 import Layout from 'web/components/layout/layout';
 
-import CapabilitiesProvider from 'web/components/provider/capabilitiesprovider'; // eslint-disable-line max-len
+import CapabilitiesContext from 'web/components/provider/capabilitiesprovider';
 
 import Footer from 'web/components/structure/footer';
 import Header from 'web/components/structure/header';
@@ -71,7 +78,7 @@ class Page extends React.Component {
   }
 
   render() {
-    const {children} = this.props;
+    const {children, location} = this.props;
     const {capabilities} = this.state;
 
     if (!isDefined(capabilities)) {
@@ -81,14 +88,21 @@ class Page extends React.Component {
     }
 
     return (
-      <CapabilitiesProvider capabilities={capabilities}>
+      <CapabilitiesContext.Provider value={capabilities}>
         <StyledLayout flex="column" align={['start', 'stretch']}>
-          <Header />
           <MenuBar />
-          <Main>{children}</Main>
+          <Header />
+          <Main>
+            <ErrorBoundary
+              key={location.pathname}
+              message={_('An error occurred on this page.')}
+            >
+              {children}
+            </ErrorBoundary>
+          </Main>
           <Footer />
         </StyledLayout>
-      </CapabilitiesProvider>
+      </CapabilitiesContext.Provider>
     );
   }
 }
@@ -97,6 +111,9 @@ Page.propTypes = {
   gmp: PropTypes.gmp.isRequired,
 };
 
-export default withGmp(Page);
+export default compose(
+  withGmp,
+  withRouter,
+)(Page);
 
 // vim: set ts=2 sw=2 tw=80:

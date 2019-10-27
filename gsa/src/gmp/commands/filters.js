@@ -43,7 +43,7 @@ class FilterCommand extends EntityCommand {
       cmd: 'create_filter',
       term,
       name,
-      optional_resource_type: type,
+      resource_type: type,
       comment,
     };
     log.debug('Creating new filter', args, data);
@@ -57,7 +57,7 @@ class FilterCommand extends EntityCommand {
       comment,
       id,
       name,
-      optional_resource_type: type,
+      resource_type: type,
       term,
     };
     log.debug('Saving filter', args, data);
@@ -71,12 +71,12 @@ class FilterCommand extends EntityCommand {
 
 // FIXME parsing counts is horrible
 
-const parse_filter = element => {
+const parseFilter = element => {
   const filter =
     isDefined(element) && isDefined(element.filters)
       ? element.filters[0]
       : undefined;
-  return new Filter(filter);
+  return Filter.fromElement(filter);
 };
 
 const parse_counts = element => {
@@ -115,7 +115,7 @@ class FiltersCommand extends EntitiesCommand {
     const response = this.getEntitiesResponse(root);
     return parseCollectionList(response, this.name, this.clazz, {
       meta,
-      filter_parse_func: parse_filter,
+      filter_parse_func: parseFilter,
       collection_count_parse_func: parse_collection_counts,
     });
   }

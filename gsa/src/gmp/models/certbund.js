@@ -16,18 +16,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import {isDefined} from '../utils/identity';
-import {forEach, map} from '../utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {forEach, map} from 'gmp/utils/array';
 
-import {parseSeverity, parseDate} from '../parser';
+import {parseSeverity, parseDate} from 'gmp/parser';
 
 import Info from './info';
 
 class CertBundAdv extends Info {
   static entityType = 'certbund';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem, 'cert_bund_adv');
+  static parseElement(element) {
+    const ret = super.parseElement(element, 'cert_bund_adv');
 
     ret.severity = parseSeverity(ret.max_cvss);
     delete ret.max_cvss;
@@ -35,7 +35,7 @@ class CertBundAdv extends Info {
     ret.categories = [];
     ret.description = [];
     ret.cves = [];
-    ret.additional_information = [];
+    ret.additionalInformation = [];
 
     if (isDefined(ret.raw_data) && isDefined(ret.raw_data.Advisory)) {
       const {raw_data} = ret;
@@ -45,10 +45,10 @@ class CertBundAdv extends Info {
       ret.software = advisory.Software;
       ret.platform = advisory.Platform;
       ret.effect = advisory.effect;
-      ret.remote_attack = advisory.RemoteAttack;
+      ret.remoteAttack = advisory.RemoteAttack;
       ret.risk = advisory.Risk;
-      ret.reference_source = advisory.Reference_Source;
-      ret.reference_url = advisory.Reference_URL;
+      ret.referenceSource = advisory.Reference_Source;
+      ret.referenceUrl = advisory.Reference_URL;
       ret.categories = map(advisory.CategoryTree, categoryTree => categoryTree);
 
       if (!isDefined(ret.version) && isDefined(advisory.Ref_Num)) {
@@ -59,12 +59,12 @@ class CertBundAdv extends Info {
         isDefined(advisory.Description) &&
         isDefined(advisory.Description.Element)
       ) {
-        forEach(advisory.Description.Element, element => {
-          if (isDefined(element.TextBlock)) {
-            ret.description.push(element.TextBlock);
-          } else if (isDefined(element.Infos)) {
-            ret.additional_information = ret.additional_information.concat(
-              map(element.Infos.Info, info => ({
+        forEach(advisory.Description.Element, desciptionElement => {
+          if (isDefined(desciptionElement.TextBlock)) {
+            ret.description.push(desciptionElement.TextBlock);
+          } else if (isDefined(desciptionElement.Infos)) {
+            ret.additionalInformation = ret.additionalInformation.concat(
+              map(desciptionElement.Infos.Info, info => ({
                 issuer: info._Info_Issuer,
                 url: info._Info_URL,
               })),
@@ -74,7 +74,7 @@ class CertBundAdv extends Info {
       }
 
       if (isDefined(advisory.RevisionHistory)) {
-        ret.revision_history = map(advisory.RevisionHistory.Revision, rev => ({
+        ret.revisionHistory = map(advisory.RevisionHistory.Revision, rev => ({
           revision: rev.Number,
           description: rev.Description,
           date: parseDate(rev.Date),

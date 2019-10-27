@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2018 Greenbone Networks GmbH
+/* Copyright (C) 2009-2019 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -45,9 +45,6 @@ clone_gmp (gvm_connection_t *, credentials_t *, params_t *,
 
 char *
 create_report_gmp (gvm_connection_t *, credentials_t *, params_t *,
-                   cmd_response_data_t *);
-char *
-import_report_gmp (gvm_connection_t *, credentials_t *, params_t *,
                    cmd_response_data_t *);
 char *
 create_container_task_gmp (gvm_connection_t *, credentials_t *, params_t *,
@@ -317,9 +314,6 @@ save_target_gmp (gvm_connection_t *, credentials_t *, params_t *,
                  cmd_response_data_t *);
 
 char *
-edit_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
-                 cmd_response_data_t *);
-char *
 get_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
                 cmd_response_data_t *);
 char *
@@ -338,9 +332,6 @@ char *
 save_config_family_gmp (gvm_connection_t *, credentials_t *, params_t *,
                         cmd_response_data_t *);
 char *
-edit_config_nvt_gmp (gvm_connection_t *, credentials_t *, params_t *,
-                     cmd_response_data_t *);
-char *
 get_config_nvt_gmp (gvm_connection_t *, credentials_t *, params_t *,
                     cmd_response_data_t *);
 char *
@@ -355,9 +346,6 @@ import_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
 char *
 delete_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
                    cmd_response_data_t *);
-char *
-sync_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
-                 cmd_response_data_t *);
 char *
 export_config_gmp (gvm_connection_t *, credentials_t *, params_t *,
                    cmd_response_data_t *);
@@ -420,6 +408,10 @@ export_notes_gmp (gvm_connection_t *, credentials_t *, params_t *,
                   cmd_response_data_t *);
 
 char *
+get_nvt_families_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                      cmd_response_data_t *);
+
+char *
 create_permission_gmp (gvm_connection_t *, credentials_t *, params_t *,
                        cmd_response_data_t *);
 char *
@@ -480,9 +472,6 @@ create_role_gmp (gvm_connection_t *, credentials_t *, params_t *,
 char *
 delete_role_gmp (gvm_connection_t *, credentials_t *, params_t *,
                  cmd_response_data_t *);
-char *
-edit_role_gmp (gvm_connection_t *, credentials_t *, params_t *,
-               cmd_response_data_t *);
 char *
 export_role_gmp (gvm_connection_t *, credentials_t *, params_t *,
                  cmd_response_data_t *);
@@ -565,9 +554,6 @@ import_report_format_gmp (gvm_connection_t *, credentials_t *, params_t *,
 char *
 save_report_format_gmp (gvm_connection_t *, credentials_t *, params_t *,
                         cmd_response_data_t *);
-char *
-verify_report_format_gmp (gvm_connection_t *, credentials_t *, params_t *,
-                          cmd_response_data_t *);
 
 char *
 get_feeds_gmp (gvm_connection_t *, credentials_t *, params_t *,
@@ -732,6 +718,26 @@ save_ticket_gmp (gvm_connection_t *, credentials_t *, params_t *,
 char *
 delete_ticket_gmp (gvm_connection_t *, credentials_t *, params_t *,
                    cmd_response_data_t *);
+
+char *
+get_tls_certificates_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                          cmd_response_data_t *);
+char *
+get_tls_certificate_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                         cmd_response_data_t *);
+char *
+create_tls_certificate_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                            cmd_response_data_t *);
+char *
+save_tls_certificate_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                          cmd_response_data_t *);
+char *
+delete_tls_certificate_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                            cmd_response_data_t *);
+
+char *
+get_capabilities_gmp (gvm_connection_t *, credentials_t *, params_t *,
+                      cmd_response_data_t *);
 
 char *
 renew_session_gmp (gvm_connection_t *, credentials_t *, params_t *,

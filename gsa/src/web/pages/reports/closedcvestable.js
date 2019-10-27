@@ -42,34 +42,30 @@ const Header = ({currentSortDir, currentSortBy, sort = true, onSortChange}) => (
         currentSortBy={currentSortBy}
         sortBy={sort ? 'cve' : false}
         onSortChange={onSortChange}
-      >
-        {_('CVE')}
-      </TableHead>
+        title={_('CVE')}
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'host' : false}
         onSortChange={onSortChange}
-      >
-        {_('Host')}
-      </TableHead>
+        title={_('Host')}
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'nvt' : false}
         onSortChange={onSortChange}
-      >
-        {_('NVT')}
-      </TableHead>
+        title={_('NVT')}
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'severity' : false}
         width="10%"
         onSortChange={onSortChange}
-      >
-        {_('Severity')}
-      </TableHead>
+        title={_('Severity')}
+      />
     </TableRow>
   </TableHeader>
 );
@@ -86,17 +82,23 @@ const Row = ({entity}) => {
   return (
     <TableRow>
       <TableData>
-        <CveLink id={id} />
+        <span>
+          <CveLink id={id} />
+        </span>
       </TableData>
       <TableData>
-        <DetailsLink type="host" id={host.id}>
-          {host.ip}
-        </DetailsLink>
+        <span>
+          <DetailsLink type="host" id={host.id}>
+            {host.ip}
+          </DetailsLink>
+        </span>
       </TableData>
       <TableData>
-        <DetailsLink type="nvt" id={source.name}>
-          {source.description}
-        </DetailsLink>
+        <span>
+          <DetailsLink type="nvt" id={source.name}>
+            {source.description}
+          </DetailsLink>
+        </span>
       </TableData>
       <TableData>
         <SeverityBar severity={severity} />

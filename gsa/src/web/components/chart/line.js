@@ -17,13 +17,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import 'core-js/library/fn/array/find';
+import 'core-js/features/array/find';
 
 import memoize from 'memoize-one';
 
 import React from 'react';
-
-import {css} from 'glamor';
 
 import styled from 'styled-components';
 
@@ -64,9 +62,9 @@ const MIN_TICK_WIDTH = 75;
 const findX = (timeline, value) => d =>
   timeline ? d.x.isSame(value) : d.x === value;
 
-const lineCss = css({
-  shapeRendering: 'crispEdges',
-});
+const CrispEdgesLine = styled(Line)`
+  shape-rendering: crisp-edges;
+`;
 
 const LINE_HEIGHT = 15;
 
@@ -385,11 +383,7 @@ class LineChart extends React.Component {
     const infoMargin = 20;
     return (
       <Group>
-        <Line
-          from={{x, y: 0}}
-          to={{x, y: maxHeight(height)}}
-          className={`${lineCss}`}
-        />
+        <CrispEdgesLine from={{x, y: 0}} to={{x, y: maxHeight(height)}} />
         <Group left={x + infoMargin} top={mouseY}>
           <rect
             x={0}
@@ -456,11 +450,10 @@ class LineChart extends React.Component {
     const rangeWidth = rightDirection ? endX - startX : startX - endX;
     return (
       <Group>
-        <Line
+        <CrispEdgesLine
           from={{x: startX, y: 0}}
           to={{x: startX, y: maxHeight(height)}}
           stroke={Theme.green}
-          className={`${lineCss}`}
         />
         <rect
           x={rightDirection ? startX : endX}
@@ -503,7 +496,7 @@ class LineChart extends React.Component {
         <Svg
           width={width}
           height={height}
-          innerRef={setRef(svgRef, ref => (this.svg = ref))}
+          ref={setRef(svgRef, ref => (this.svg = ref))}
           onMouseLeave={hasValue ? this.hideInfo : undefined}
           onMouseEnter={hasValue ? this.showInfo : undefined}
           onMouseMove={hasValue ? this.handleMouseMove : undefined}
@@ -591,7 +584,7 @@ class LineChart extends React.Component {
           </Group>
         </Svg>
         {hasLines && showLegend && (
-          <Legend innerRef={this.legendRef} data={[yLine, y2Line]}>
+          <Legend ref={this.legendRef} data={[yLine, y2Line]}>
             {({d, toolTipProps}) => (
               <Item {...toolTipProps}>
                 <LegendLine

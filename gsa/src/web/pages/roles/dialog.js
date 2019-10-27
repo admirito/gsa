@@ -22,20 +22,21 @@ import React from 'react';
 import _ from 'gmp/locale';
 
 import {isDefined} from 'gmp/utils/identity';
-import {map} from 'gmp/utils/array';
 
 import PropTypes from 'web/utils/proptypes';
 import {permissionDescription} from 'web/utils/render';
 
 import SaveDialog from 'web/components/dialog/savedialog';
 
-import Button from 'web/components/form/button';
 import FormGroup from 'web/components/form/formgroup';
+import LoadingButton from 'web/components/form/loadingbutton';
 import MultiSelect from 'web/components/form/multiselect';
 import Select from 'web/components/form/select';
 import TextField from 'web/components/form/textfield';
 
 import TrashIcon from 'web/components/icon/trashicon';
+
+import Loading from 'web/components/loading/loading';
 
 import Layout from 'web/components/layout/layout';
 
@@ -47,13 +48,15 @@ import TableHead from 'web/components/table/head';
 import TableRow from 'web/components/table/row';
 
 const Dialog = ({
-  all_groups,
-  all_permissions,
-  all_users,
+  allGroups = [],
+  allPermissions = [],
+  allUsers = [],
   error,
-  group_id,
-  permissions,
-  permission_name,
+  isCreatingPermission = false,
+  isCreatingSuperPermission = false,
+  isInUse = false,
+  isLoadingPermissions = false,
+  permissions = [],
   role,
   title = _('New Role'),
   onClose,
@@ -65,41 +68,43 @@ const Dialog = ({
 }) => {
   const DEFAULTS = {name: _('Unnamed')};
 
-  const is_edit = isDefined(role);
-  const has_groups = isDefined(all_groups) && all_groups.length > 0;
-  const has_permissions =
-    isDefined(all_permissions) && all_permissions.length > 0;
+  const isEdit = isDefined(role);
+  const hasGroups = allGroups.length > 0;
+  const hasPermissions = allPermissions.length > 0;
 
-  const groupOptions = map(all_groups, group => ({
+  const groupOptions = allGroups.map(group => ({
     label: group.name,
     value: group.id,
   }));
 
-  const permissionsOptions = map(all_permissions, permission => {
+  const permissionsOptions = allPermissions.map(permission => {
     const labelString =
-      permission.name + ' (' + permissionDescription(permission.name) + ')';
+      permission + ' (' + permissionDescription(permission) + ')';
     return {
       label: labelString,
-      value: permission.name,
+      value: permission,
     };
   });
 
-  const usersOptions = map(all_users, user => ({
+  const usersOptions = allUsers.map(user => ({
     label: user.name,
     value: user.name,
   }));
 
+  const defaultValues = {
+    ...DEFAULTS,
+    ...role,
+  };
+
   return (
     <SaveDialog
+      defaultValues={defaultValues}
       error={error}
+      initialHeight={isEdit ? '600px' : undefined}
       title={title}
       onClose={onClose}
       onErrorClose={onErrorClose}
       onSave={onSave}
-      defaultValues={{
-        ...DEFAULTS,
-        ...role,
-      }}
     >
       {({values: state, onValueChange}) => {
         return (
@@ -132,7 +137,7 @@ const Dialog = ({
               />
             </FormGroup>
 
-            {is_edit && (
+            {isEdit && (
               <Layout flex="column">
                 <h2>{_('New Permission')}</h2>
 
@@ -141,15 +146,20 @@ const Dialog = ({
                   align={['space-between', 'center']}
                 >
                   <Select
-                    name="permission_name"
+                    name="permissionName"
                     items={permissionsOptions}
-                    value={state.permission_name}
+                    value={state.permissionName}
                     onChange={onValueChange}
                   />
-                  <Button
+                  <LoadingButton
                     title={_('Create Permission')}
-                    disabled={state.in_use || !has_permissions}
-                    value={{role_id: state.id, name: state.permission_name}}
+                    disabled={
+                      isInUse ||
+                      !hasPermissions ||
+                      !isDefined(state.permissionName)
+                    }
+                    loading={isCreatingPermission}
+                    value={{roleId: state.id, name: state.permissionName}}
                     onClick={onCreatePermission}
                   />
                 </FormGroup>
@@ -161,31 +171,34 @@ const Dialog = ({
                   align={['space-between', 'center']}
                 >
                   <Select
-                    name="group_id"
+                    name="groupId"
                     items={groupOptions}
-                    value={state.group_id}
+                    value={state.groupId}
                     onChange={onValueChange}
                   />
-                  <Button
+                  <LoadingButton
                     title={_('Create Permission')}
-                    disabled={!has_groups}
-                    value={{role_id: state.id, group_id: state.group_id}}
+                    disabled={!hasGroups || !isDefined(state.groupId)}
+                    loading={isCreatingSuperPermission}
+                    value={{roleId: state.id, groupId: state.groupId}}
                     onClick={onCreateSuperPermission}
                   />
                 </FormGroup>
 
                 <h2>{_('General Command Permissions')}</h2>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{_('Name')}</TableHead>
-                      <TableHead>{_('Description')}</TableHead>
-                      <TableHead width="2em">{_('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {map(permissions, permission => {
-                      return (
+                {isLoadingPermissions && permissions.length === 0 ? (
+                  <Loading />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{_('Name')}</TableHead>
+                        <TableHead>{_('Description')}</TableHead>
+                        <TableHead width="2em">{_('Actions')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {permissions.map(permission => (
                         <TableRow key={permission.id}>
                           <TableData>{permission.name}</TableData>
                           <TableData>
@@ -199,18 +212,18 @@ const Dialog = ({
                               <TrashIcon
                                 title={_('Move permission to trashcan')}
                                 value={{
-                                  role_id: state.id,
-                                  permission_id: permission.id,
+                                  roleId: state.id,
+                                  permissionId: permission.id,
                                 }}
                                 onClick={onDeletePermission}
                               />
                             )}
                           </TableData>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </Layout>
             )}
           </Layout>
@@ -221,12 +234,15 @@ const Dialog = ({
 };
 
 Dialog.propTypes = {
-  all_groups: PropTypes.array,
-  all_permissions: PropTypes.array,
-  all_users: PropTypes.array,
+  allGroups: PropTypes.arrayOf(PropTypes.model),
+  allPermissions: PropTypes.arrayOf(PropTypes.string),
+  allUsers: PropTypes.arrayOf(PropTypes.model),
   error: PropTypes.string,
-  group_id: PropTypes.id,
-  permission_name: PropTypes.string,
+  isCreatingPermission: PropTypes.bool,
+  isCreatingSuperPermission: PropTypes.bool,
+  isInUse: PropTypes.bool,
+  isLoadingPermissions: PropTypes.bool,
+  permissionName: PropTypes.string,
   permissions: PropTypes.array,
   role: PropTypes.model,
   title: PropTypes.string,

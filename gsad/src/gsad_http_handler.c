@@ -30,6 +30,7 @@
 #include "gsad_i18n.h"        /* for accept_language_to_env_fmt */
 #include "gsad_settings.h"    /* for get_guest_usernmae */
 #include "gsad_user.h"        /* for user_t */
+#include "utils.h"            /* for str_equal */
 #include "validator.h"        /* for gvm_validate */
 
 #include <assert.h>              /* for assert */
@@ -312,7 +313,9 @@ handle_validate (http_connection_t *connection, const char *method,
   /* Prevent guest link from leading to URL redirection. */
   if (url && (url[0] == '/') && (url[1] == '/'))
     {
-      return handler_send_not_found (connection, url);
+      send_response (connection, BAD_REQUEST_PAGE, MHD_HTTP_BAD_REQUEST, NULL,
+                     GSAD_CONTENT_TYPE_TEXT_HTML, NULL, 0);
+      return MHD_YES;
     }
 
   /* Many Glib functions require valid UTF-8. */
@@ -324,14 +327,6 @@ handle_validate (http_connection_t *connection, const char *method,
     }
 
   return http_handler_next (connection, method, url, con_info, handler, data);
-}
-
-int
-handle_not_found (http_connection_t *connection, const char *method,
-                  const char *url, gsad_connection_info_t *con_info,
-                  http_handler_t *handler, void *data)
-{
-  return handler_send_not_found (connection, url);
 }
 
 int
@@ -410,16 +405,10 @@ handle_setup_user (http_connection_t *connection, const char *method,
 
   ret = get_user_from_connection (connection, &user);
 
-  if (ret == USER_GUEST_LOGIN_FAILED || ret == USER_GMP_DOWN
-      || ret == USER_GUEST_LOGIN_ERROR)
+  if (ret == USER_GMP_DOWN)
     {
-      auth_reason =
-        ret == USER_GMP_DOWN
-          ? GMP_SERVICE_DOWN
-          : (ret == USER_GUEST_LOGIN_ERROR ? LOGIN_ERROR : LOGIN_FAILED);
-
       return handler_send_reauthentication (
-        connection, MHD_HTTP_SERVICE_UNAVAILABLE, auth_reason);
+        connection, MHD_HTTP_SERVICE_UNAVAILABLE, GMP_SERVICE_DOWN);
     }
 
   if ((ret == USER_EXPIRED_TOKEN) || (ret == USER_BAD_MISSING_COOKIE)
@@ -693,7 +682,7 @@ handle_static_file (http_connection_t *connection, const char *method,
   g_debug ("Requesting url %s for static ng path %s", url, path);
 
   response_data = cmd_response_data_new ();
-  cmd_response_data_set_allow_caching (response_data, 1);
+  cmd_response_data_set_allow_caching (response_data, TRUE);
 
   response = file_content_response (connection, url, path, response_data);
 
@@ -722,7 +711,9 @@ handle_static_config (http_connection_t *connection, const char *method,
   g_debug ("Requesting url %s for static config path %s", url, path);
 
   response_data = cmd_response_data_new ();
-  cmd_response_data_set_allow_caching (response_data, 1);
+
+  // don't cache config file
+  cmd_response_data_set_allow_caching (response_data, FALSE);
 
   if (g_file_test (path, G_FILE_TEST_EXISTS))
     {
@@ -743,7 +734,6 @@ http_handler_t *
 init_http_handlers ()
 {
   http_handler_t *method_router;
-  http_handler_t *not_found_handler;
   http_handler_t *gmp_post_handler;
   http_handler_t *url_handlers;
 
@@ -754,18 +744,18 @@ init_http_handlers ()
   handlers = http_handler_new (handle_validate);
 
   method_router = method_router_new ();
-  not_found_handler = http_handler_new (handle_not_found);
   gmp_post_handler = http_handler_new (handle_gmp_post);
 
   http_handler_add (handlers, method_router);
 
   url_handlers = url_handler_new ("^/(img|js|css|locales)/.+$",
                                   http_handler_new (handle_static_file));
-  url_handler_add_func (url_handlers, "^/robots.txt$", handle_static_file);
+  url_handler_add_func (url_handlers, "^/robots\\.txt$", handle_static_file);
 
-  url_handler_add_func (url_handlers, "^/config.*js$", handle_static_config);
-  url_handler_add_func (url_handlers, "^/static/(img|js|css)/.+$",
+  url_handler_add_func (url_handlers, "^/config\\.*js$", handle_static_config);
+  url_handler_add_func (url_handlers, "^/static/(img|js|css|media)/.+$",
                         handle_static_file);
+  url_handler_add_func (url_handlers, "^/manual/.+$", handle_static_file);
 
   http_handler_t *gmp_handler = http_handler_new (handle_setup_user);
   http_handler_add (gmp_handler, http_handler_new (handle_setup_credentials));
@@ -789,8 +779,7 @@ init_http_handlers ()
   http_handler_add (url_handlers, system_report_url_handler);
   http_handler_add (url_handlers, logout_url_handler);
 
-  url_handler_add_func (url_handlers, "^/.*$", handle_index);
-  http_handler_add (url_handlers, not_found_handler);
+  http_handler_add (url_handlers, http_handler_new (handle_index));
 
   method_router_set_get_handler (method_router, url_handlers);
   method_router_set_post_handler (method_router, gmp_post_handler);
@@ -837,12 +826,14 @@ handle_request (void *cls, http_connection_t *connection, const char *url,
   gsad_connection_info_t *con_info;
   http_handler_t *handlers;
   char *full_url;
+  gboolean new_connection;
 
   handlers = (http_handler_t *) cls;
   con_info = *con_cls;
+  new_connection = (*con_cls == NULL);
 
   /* Never respond on first call of a GET. */
-  if ((!strcmp (method, "GET")) && *con_cls == NULL)
+  if ((str_equal (method, "GET")) && new_connection)
     {
       /* First call for this request, a GET. */
 
@@ -860,9 +851,9 @@ handle_request (void *cls, http_connection_t *connection, const char *url,
       return MHD_YES;
     }
 
-  if (!strcmp (method, "POST"))
+  if (str_equal (method, "POST"))
     {
-      if (NULL == *con_cls)
+      if (new_connection)
         {
           /* First call for this request, a POST. */
 
@@ -871,7 +862,8 @@ handle_request (void *cls, http_connection_t *connection, const char *url,
 
           con_info->postprocessor = MHD_create_post_processor (
             connection, POST_BUFFER_SIZE, serve_post, (void *) con_info);
-          if (NULL == con_info->postprocessor)
+
+          if (con_info->postprocessor == NULL)
             {
               g_free (con_info);
               /* Both bad request or running out of memory will lead here, but
@@ -882,6 +874,7 @@ handle_request (void *cls, http_connection_t *connection, const char *url,
                              GSAD_CONTENT_TYPE_TEXT_HTML, NULL, 0);
               return MHD_YES;
             }
+
           con_info->params = params_new ();
           con_info->connectiontype = 1;
 
@@ -891,7 +884,7 @@ handle_request (void *cls, http_connection_t *connection, const char *url,
 
       /* Second or later call for this request, a POST. */
 
-      if (0 != *upload_data_size)
+      if (*upload_data_size != 0)
         {
           MHD_post_process (con_info->postprocessor, upload_data,
                             *upload_data_size);

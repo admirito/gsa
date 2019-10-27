@@ -93,7 +93,7 @@ const Actions = withEntitiesActions(
           onClick={onScannerCredentialDownloadClick}
         />
       )}
-      {isDefined(entity.ca_pub) && (
+      {isDefined(entity.caPub) && (
         <DownloadKeyIcon
           title={_('Download CA Certificate')}
           value={entity}
@@ -143,7 +143,9 @@ const Row = ({
     <TableData>{scannerTypeName(entity.scannerType)}</TableData>
     <TableData>
       {isDefined(entity.credential) && (
-        <EntityLink entity={entity.credential} />
+        <span>
+          <EntityLink entity={entity.credential} />
+        </span>
       )}
     </TableData>
     <ActionsComponent {...props} entity={entity} />

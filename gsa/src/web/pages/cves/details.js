@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
 import React from 'react';
 
@@ -52,7 +52,7 @@ const CVSS_PROPS = {
 const CveDetails = ({entity}) => {
   const {
     cvssBaseVector,
-    cwe_id,
+    cweId,
     description,
     references = [],
     severity,
@@ -60,12 +60,12 @@ const CveDetails = ({entity}) => {
 
   return (
     <Layout flex="column" grow="1">
-      {isDefined(cwe_id) && (
+      {isDefined(cweId) && (
         <InfoTable>
           <TableBody>
             <TableRow>
               <TableData>{_('CWE ID')}</TableData>
-              <TableData>{entity.cwe_id}</TableData>
+              <TableData>{entity.cweId}</TableData>
             </TableRow>
           </TableBody>
         </InfoTable>
@@ -119,7 +119,9 @@ const CveDetails = ({entity}) => {
                 <TableRow key={ref.name}>
                   <TableData>{ref.source}</TableData>
                   <TableData>
-                    <ExternalLink to={ref.href}>{ref.name}</ExternalLink>
+                    <span>
+                      <ExternalLink to={ref.href}>{ref.name}</ExternalLink>
+                    </span>
                   </TableData>
                 </TableRow>
               ))}

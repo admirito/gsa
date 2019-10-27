@@ -17,13 +17,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import React from 'react';
 
 import {connect} from 'react-redux';
-
-import {withRouter} from 'react-router-dom';
 
 import _ from 'gmp/locale';
 
@@ -33,21 +31,25 @@ import Filter, {RESET_FILTER, RESULTS_FILTER_FILTER} from 'gmp/models/filter';
 import {isActive} from 'gmp/models/task';
 
 import {first} from 'gmp/utils/array';
-import {isDefined} from 'gmp/utils/identity';
+import {isDefined, hasValue} from 'gmp/utils/identity';
 
 import withDownload from 'web/components/form/withDownload';
 
 import withDialogNotification from 'web/components/notification/withDialogNotifiaction'; // eslint-disable-line max-len
 
+import {handleDefaultReloadIntervalFunc} from 'web/entity/container';
+
+import withDefaultFilter from 'web/entities/withDefaultFilter';
+
 import DownloadReportDialog from 'web/pages/reports/downloadreportdialog';
 
 import {
-  loadEntities as loadFilters,
+  loadAllEntities as loadFilters,
   selector as filterSelector,
 } from 'web/store/entities/filters';
 
 import {
-  loadEntities as loadReportFormats,
+  loadAllEntities as loadReportFormats,
   selector as reportFormatsSelector,
 } from 'web/store/entities/reportformats';
 
@@ -64,7 +66,13 @@ import {
   saveReportComposerDefaults,
 } from 'web/store/usersettings/actions';
 
-import {getReportComposerDefaults} from 'web/store/usersettings/selectors';
+import {loadUserSettingDefaults} from 'web/store/usersettings/defaults/actions';
+import {getUserSettingsDefaults} from 'web/store/usersettings/defaults/selectors';
+
+import {
+  getReportComposerDefaults,
+  getUsername,
+} from 'web/store/usersettings/selectors';
 
 import {create_pem_certificate} from 'web/utils/cert';
 import {
@@ -72,19 +80,23 @@ import {
   LOAD_TIME_FACTOR,
 } from 'web/utils/constants';
 import compose from 'web/utils/compose';
+import {generateFilename} from 'web/utils/render';
 import PropTypes from 'web/utils/proptypes';
 import withGmp from 'web/utils/withGmp';
 
 import TargetComponent from '../targets/component';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Page from './detailscontent';
 import FilterDialog from './detailsfilterdialog';
 
 const log = logger.getLogger('web.pages.report.detailspage');
 
-const DEFAULT_FILTER = Filter.fromString('rows=100');
+const DEFAULT_FILTER = Filter.fromString(
+  'levels=hml rows=100 min_qod=70 first=1 sort-reverse=severity',
+);
 
-const REPORT_FORMATS_FILTER = Filter.fromString('active=1 trust=1 rows=-1');
+const REPORT_FORMATS_FILTER = Filter.fromString('active=1 and trust=1 rows=-1');
 
 const getTarget = (entity = {}) => {
   const {report = {}} = entity;
@@ -97,6 +109,11 @@ const getFilter = (entity = {}) => {
   return report.filter;
 };
 
+const reloadReportFunc = ({entity}) =>
+  isDefined(entity) && isActive(entity.report.scan_run_status)
+    ? DEFAULT_RELOAD_INTERVAL_ACTIVE
+    : 0; // report doesn't change anymore. no need to reload
+
 class ReportDetails extends React.Component {
   constructor(...args) {
     super(...args);
@@ -107,7 +124,7 @@ class ReportDetails extends React.Component {
       showDownloadReportDialog: false,
       sorting: {
         results: {
-          sortField: 'created',
+          sortField: 'severity',
           sortReverse: true,
         },
         apps: {
@@ -181,13 +198,10 @@ class ReportDetails extends React.Component {
 
   componentDidMount() {
     this.isRunning = true;
-    const {filter: filterString} = this.props.location.query;
 
-    const filter = isDefined(filterString)
-      ? Filter.fromString(filterString)
-      : undefined;
+    this.load();
 
-    this.load(filter);
+    this.props.loadSettings();
     this.props.loadFilters();
     this.props.loadReportFormats();
     this.props.loadReportComposerDefaults();
@@ -201,9 +215,19 @@ class ReportDetails extends React.Component {
 
   componentDidUpdate() {
     const {reportFormats} = this.props;
-    if (!isDefined(this.state.reportFormatId) && isDefined(reportFormats)) {
-      // set initial report format id
-      this.setState({reportFormatId: first(reportFormats).id});
+    if (
+      !isDefined(this.state.reportFormatId) &&
+      isDefined(reportFormats) &&
+      reportFormats.length > 0
+    ) {
+      // set initial report format id if available
+      const reportFormatId = first(reportFormats).id;
+      if (isDefined(reportFormatId)) {
+        // ensure the report format id is only set if we really have one
+        // if no report format id is available we would create an infinite
+        // render loop here
+        this.setState({reportFormatId});
+      }
     }
 
     if (
@@ -241,12 +265,14 @@ class ReportDetails extends React.Component {
       filter,
     });
 
+    this.clearTimer();
+
     this.startDurationMeasurement();
 
     this.setState(({lastFilter}) => ({
       reportId,
       deltaReportId,
-      isUpdating: isDefined(lastFilter) && !lastFilter.equals(filter), // show update indicator if filter has changed
+      isUpdating: hasValue(lastFilter) && !lastFilter.equals(filter), // show update indicator if filter has changed
       lastFilter: filter,
     }));
 
@@ -258,18 +284,19 @@ class ReportDetails extends React.Component {
 
   reload() {
     // reload data from backend
-    this.load();
+    this.load(this.state.lastFilter);
   }
 
   getReloadInterval() {
-    const {entity} = this.props;
-    return isDefined(entity) && isActive(entity.report.scan_run_status)
-      ? DEFAULT_RELOAD_INTERVAL_ACTIVE
-      : 0; // report doesn't change anymore. no need to reload
+    return handleDefaultReloadIntervalFunc(reloadReportFunc)(this.props);
   }
 
   startTimer() {
-    if (!this.isRunning) {
+    if (!this.isRunning || isDefined(this.timer)) {
+      log.debug('Not starting timer', {
+        isRunning: this.isRunning,
+        timer: this.timer,
+      });
       return;
     }
 
@@ -279,26 +306,36 @@ class ReportDetails extends React.Component {
 
     let interval = this.getReloadInterval();
 
-    if (loadTime > interval && interval !== 0) {
+    if (interval <= 0) {
+      log.debug('No reload timer will be started.');
+      return;
+    }
+
+    if (loadTime > interval) {
       // ensure timer is longer then the loading procedure
       interval = loadTime * LOAD_TIME_FACTOR;
     }
 
-    if (interval > 0) {
-      this.timer = global.setTimeout(this.handleTimer, interval);
-      log.debug(
-        'Started reload timer with id',
-        this.timer,
-        'and interval of',
-        interval,
-        'milliseconds',
-      );
-    }
+    this.timer = global.setTimeout(this.handleTimer, interval);
+    log.debug(
+      'Started reload timer with id',
+      this.timer,
+      'and interval of',
+      interval,
+      'milliseconds',
+    );
+  }
+
+  resetTimer() {
+    this.timer = undefined;
   }
 
   clearTimer() {
     if (isDefined(this.timer)) {
       log.debug('Clearing reload timer with id', this.timer);
+
+      this.resetTimer();
+
       global.clearTimeout(this.timer);
     }
   }
@@ -306,7 +343,8 @@ class ReportDetails extends React.Component {
   handleTimer() {
     log.debug('Timer', this.timer, 'finished. Reloading data.');
 
-    this.timer = undefined;
+    this.resetTimer();
+
     this.reload();
   }
 
@@ -341,28 +379,28 @@ class ReportDetails extends React.Component {
   }
 
   handleAddToAssets() {
-    const {gmp, showSuccessMessage} = this.props;
-    const {entity, filter} = this.state;
+    const {gmp, showSuccessMessage, entity, reportFilter: filter} = this.props;
 
     this.handleInteraction();
 
-    gmp.report.addAssets(entity, {filter}).then(response => {
+    gmp.report.addAssets(entity, {filter}).then(() => {
       showSuccessMessage(
         _(
           'Report content added to Assets with QoD>=70% and Overrides enabled.',
         ),
       );
+      this.reload();
     }, this.handleError);
   }
 
   handleRemoveFromAssets() {
-    const {gmp, showSuccessMessage} = this.props;
-    const {entity, filter} = this.state;
+    const {gmp, showSuccessMessage, entity, reportFilter: filter} = this.props;
 
     this.handleInteraction();
 
-    gmp.report.removeAssets(entity, {filter}).then(response => {
+    gmp.report.removeAssets(entity, {filter}).then(() => {
       showSuccessMessage(_('Report content removed from Assets.'));
+      this.reload();
     }, this.handleError);
   }
 
@@ -392,10 +430,12 @@ class ReportDetails extends React.Component {
     const {
       deltaReportId,
       entity,
-      filter,
       gmp,
       reportComposerDefaults,
+      reportExportFileName,
+      reportFilter,
       reportFormats = [],
+      username,
       onDownload,
     } = this.props;
     const {
@@ -405,7 +445,7 @@ class ReportDetails extends React.Component {
       storeAsDefault,
     } = state;
 
-    const newFilter = filter.copy();
+    const newFilter = reportFilter.copy();
     newFilter.set('notes', includeNotes);
     newFilter.set('overrides', includeOverrides);
 
@@ -429,7 +469,7 @@ class ReportDetails extends React.Component {
 
     this.handleInteraction();
 
-    gmp.report
+    return gmp.report
       .download(entity, {
         reportFormatId,
         deltaReportId,
@@ -438,7 +478,18 @@ class ReportDetails extends React.Component {
       .then(response => {
         this.setState({showDownloadReportDialog: false});
         const {data} = response;
-        const filename = 'report-' + entity.id + '.' + extension;
+        const filename = generateFilename({
+          creationTime: entity.creationTime,
+          extension,
+          fileNameFormat: reportExportFileName,
+          id: entity.id,
+          modificationTime: entity.modificationTime,
+          reportFormat: report_format,
+          resourceName: entity.task.name,
+          resourceType: 'report',
+          username,
+        });
+
         onDownload({filename, data});
       }, this.handleError);
   }
@@ -452,50 +503,50 @@ class ReportDetails extends React.Component {
 
     onDownload({
       filename: 'tls-cert-' + serial + '.pem',
+      mimetype: 'application/x-x509-ca-cert',
       data: create_pem_certificate(data),
     });
   }
 
   handleFilterCreated(filter) {
     this.handleInteraction();
-
     this.load(filter);
     this.props.loadFilters();
   }
 
   handleFilterAddLogLevel() {
-    const {filter} = this.props;
-    let levels = filter.get('levels', '');
+    const {reportFilter} = this.props;
+    let levels = reportFilter.get('levels', '');
 
     this.handleInteraction();
 
     if (!levels.includes('g')) {
       levels += 'g';
-      const lfilter = filter.copy();
+      const lfilter = reportFilter.copy();
       lfilter.set('levels', levels);
       this.load(lfilter);
     }
   }
 
   handleFilterRemoveSeverity() {
-    const {filter} = this.props;
+    const {reportFilter} = this.props;
 
     this.handleInteraction();
 
-    if (filter.has('severity')) {
-      const lfilter = filter.copy();
+    if (reportFilter.has('severity')) {
+      const lfilter = reportFilter.copy();
       lfilter.delete('severity');
       this.load(lfilter);
     }
   }
 
   handleFilterDecreaseMinQoD() {
-    const {filter} = this.props;
+    const {reportFilter} = this.props;
 
     this.handleInteraction();
 
-    if (filter.has('min_qod')) {
-      const lfilter = filter.copy();
+    if (reportFilter.has('min_qod')) {
+      const lfilter = reportFilter.copy();
       lfilter.set('min_qod', 30);
       this.load(lfilter);
     }
@@ -538,9 +589,9 @@ class ReportDetails extends React.Component {
     const {
       entity,
       entityError,
-      filter,
       filters = [],
       isLoading,
+      reportFilter,
       reportFormats,
       onInteraction,
       reportComposerDefaults,
@@ -560,59 +611,66 @@ class ReportDetails extends React.Component {
     const {report} = entity || {};
     return (
       <React.Fragment>
+        <PageTitle title={_('Report Details')} />
         <TargetComponent
           onError={this.handleError}
           onInteraction={onInteraction}
         >
           {({edit}) => (
-            <Page
-              activeTab={activeTab}
-              entity={entity}
-              entityError={entityError}
-              filter={filter}
-              filters={filters}
-              isLoading={isLoading}
-              isUpdating={isUpdating}
-              sorting={sorting}
-              task={isDefined(report) ? report.task : undefined}
-              onActivateTab={this.handleActivateTab}
-              onAddToAssetsClick={this.handleAddToAssets}
-              onError={this.handleError}
-              onFilterAddLogLevelClick={this.handleFilterAddLogLevel}
-              onFilterDecreaseMinQoDClick={this.handleFilterDecreaseMinQoD}
-              onFilterChanged={this.handleFilterChange}
-              onFilterCreated={this.handleFilterCreated}
-              onFilterEditClick={this.handleFilterEditClick}
-              onFilterRemoveSeverityClick={this.handleFilterRemoveSeverity}
-              onFilterResetClick={this.handleFilterResetClick}
-              onFilterRemoveClick={this.handleFilterRemoveClick}
-              onInteraction={onInteraction}
-              onRemoveFromAssetsClick={this.handleRemoveFromAssets}
-              onReportDownloadClick={this.handleOpenDownloadReportDialog}
-              onSortChange={this.handleSortChange}
-              onTagSuccess={this.handleChanged}
-              onTargetEditClick={() =>
-                this.loadTarget().then(response => edit(response.data))
-              }
-              onTlsCertificateDownloadClick={this.handleTlsCertificateDownload}
-              showError={showError}
-              showErrorMessage={showErrorMessage}
-              showSuccessMessage={showSuccessMessage}
-            />
+            <React.Fragment>
+              <Page
+                activeTab={activeTab}
+                entity={entity}
+                entityError={entityError}
+                filter={reportFilter}
+                filters={filters}
+                isLoading={isLoading}
+                isUpdating={isUpdating}
+                sorting={sorting}
+                task={isDefined(report) ? report.task : undefined}
+                onActivateTab={this.handleActivateTab}
+                onAddToAssetsClick={this.handleAddToAssets}
+                onError={this.handleError}
+                onFilterAddLogLevelClick={this.handleFilterAddLogLevel}
+                onFilterDecreaseMinQoDClick={this.handleFilterDecreaseMinQoD}
+                onFilterChanged={this.handleFilterChange}
+                onFilterCreated={this.handleFilterCreated}
+                onFilterEditClick={this.handleFilterEditClick}
+                onFilterRemoveSeverityClick={this.handleFilterRemoveSeverity}
+                onFilterResetClick={this.handleFilterResetClick}
+                onFilterRemoveClick={this.handleFilterRemoveClick}
+                onInteraction={onInteraction}
+                onRemoveFromAssetsClick={this.handleRemoveFromAssets}
+                onReportDownloadClick={this.handleOpenDownloadReportDialog}
+                onSortChange={this.handleSortChange}
+                onTagSuccess={this.handleChanged}
+                onTargetEditClick={() =>
+                  this.loadTarget().then(response => edit(response.data))
+                }
+                onTlsCertificateDownloadClick={
+                  this.handleTlsCertificateDownload
+                }
+                showError={showError}
+                showErrorMessage={showErrorMessage}
+                showSuccessMessage={showSuccessMessage}
+              />
+            </React.Fragment>
           )}
         </TargetComponent>
         {showFilterDialog && (
           <FilterDialog
-            filter={filter}
+            filter={reportFilter}
             delta={isDefined(report) && report.isDeltaReport()}
             onFilterChanged={this.handleFilterChange}
             onCloseClick={this.handleFilterDialogClose}
+            createFilterType="result"
+            onFilterCreated={this.handleFilterCreated}
           />
         )}
         {showDownloadReportDialog && (
           <DownloadReportDialog
             defaultReportFormatId={reportComposerDefaults.defaultReportFormatId}
-            filter={filter}
+            filter={reportFilter}
             includeNotes={reportComposerDefaults.includeNotes}
             includeOverrides={reportComposerDefaults.includeOverrides}
             reportFormats={reportFormats}
@@ -627,6 +685,7 @@ class ReportDetails extends React.Component {
 }
 
 ReportDetails.propTypes = {
+  defaultReloadInterval: PropTypes.number,
   deltaReportId: PropTypes.id,
   entity: PropTypes.model,
   entityError: PropTypes.object,
@@ -638,10 +697,13 @@ ReportDetails.propTypes = {
   loadReport: PropTypes.func.isRequired,
   loadReportComposerDefaults: PropTypes.func.isRequired,
   loadReportFormats: PropTypes.func.isRequired,
+  loadSettings: PropTypes.func.isRequired,
   loadTarget: PropTypes.func.isRequired,
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
   reportComposerDefaults: PropTypes.object,
+  reportExportFileName: PropTypes.string,
+  reportFilter: PropTypes.filter,
   reportFormats: PropTypes.array,
   reportId: PropTypes.id,
   saveReportComposerDefaults: PropTypes.func.isRequired,
@@ -649,6 +711,7 @@ ReportDetails.propTypes = {
   showErrorMessage: PropTypes.func.isRequired,
   showSuccessMessage: PropTypes.func.isRequired,
   target: PropTypes.model,
+  username: PropTypes.string,
   onDownload: PropTypes.func.isRequired,
   onInteraction: PropTypes.func.isRequired,
 };
@@ -657,6 +720,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => {
   return {
     onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
     loadFilters: () => dispatch(loadFilters(gmp)(RESULTS_FILTER_FILTER)),
+    loadSettings: () => dispatch(loadUserSettingDefaults(gmp)()),
     loadTarget: targetId => gmp.target.get({id: targetId}),
     loadReportFormats: () =>
       dispatch(loadReportFormats(gmp)(REPORT_FORMATS_FILTER)),
@@ -673,12 +737,14 @@ const mapDispatchToProps = (dispatch, {gmp}) => {
   };
 };
 
-const mapStateToProps = (rootState, {match}) => {
+const mapStateToProps = (rootState, {gmp, match}) => {
   const {id, deltaid} = match.params;
   const filterSel = filterSelector(rootState);
   const reportSel = reportSelector(rootState);
   const deltaSel = deltaSelector(rootState);
   const reportFormatsSel = reportFormatsSelector(rootState);
+  const userDefaultsSelector = getUserSettingsDefaults(rootState);
+  const username = getUsername(rootState);
 
   let entity;
   let entityError;
@@ -692,23 +758,28 @@ const mapStateToProps = (rootState, {match}) => {
   }
 
   return {
+    deltaReportId: deltaid,
+    defaultReloadInterval: gmp.reloadInterval,
     entity,
     entityError,
-    filter: getFilter(entity),
+    filters: filterSel.getAllEntities(RESULTS_FILTER_FILTER),
     isLoading: !isDefined(entity),
-    filters: filterSel.getEntities(RESULTS_FILTER_FILTER),
-    reportFormats: reportFormatsSel.getEntities(REPORT_FORMATS_FILTER),
+    reportExportFileName: userDefaultsSelector.getValueByName(
+      'reportexportfilename',
+    ),
+    reportFilter: getFilter(entity),
+    reportFormats: reportFormatsSel.getAllEntities(REPORT_FORMATS_FILTER),
     reportId: id,
-    deltaReportId: deltaid,
     reportComposerDefaults: getReportComposerDefaults(rootState),
+    username,
   };
 };
 
 export default compose(
-  withRouter,
   withGmp,
   withDialogNotification,
   withDownload,
+  withDefaultFilter('result'),
   connect(
     mapStateToProps,
     mapDispatchToProps,

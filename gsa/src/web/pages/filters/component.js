@@ -47,13 +47,17 @@ const FILTER_OPTIONS = [
   ['report_format', _l('Report Format')],
   ['result', _l('Result')],
   ['role', _l('Role')],
+  ['scanner', _l('Scanner')],
   ['schedule', _l('Schedule')],
   ['info', _l('SecInfo')],
   ['config', _l('Scan Config')],
   ['tag', _l('Tag')],
   ['target', _l('Target')],
   ['task', _l('Task')],
+  ['ticket', _l('Ticket')],
+  ['tls_certificate', _l('TLS Certificate')],
   ['user', _l('User')],
+  ['vulnerability', _l('Vulnerability')],
 ];
 
 const filter_types = (caps, name) => {

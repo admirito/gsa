@@ -23,13 +23,17 @@ import Result from '../models/result';
 import EntitiesCommand from './entities';
 import EntityCommand from './entity';
 
-class ResultsCommand extends EntitiesCommand {
+export class ResultsCommand extends EntitiesCommand {
   constructor(http) {
     super(http, 'result', Result);
   }
 
   getEntitiesResponse(root) {
     return root.get_results.get_results_response;
+  }
+
+  get(params = {}, options) {
+    return super.get({details: 1, ...params}, options);
   }
 
   getDescriptionWordCountsAggregates({filter} = {}) {
@@ -61,13 +65,13 @@ class ResultsCommand extends EntitiesCommand {
   }
 }
 
-class ResultCommand extends EntityCommand {
+export class ResultCommand extends EntityCommand {
   constructor(http) {
     super(http, 'result', Result);
   }
 
   getElementFromRoot(root) {
-    return root.get_result.commands_response.get_results_response.result;
+    return root.get_result.get_results_response.result;
   }
 }
 

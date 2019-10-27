@@ -17,11 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 
 import _ from 'gmp/locale';
-
-import logger from 'gmp/log';
 
 import {forEach, first} from 'gmp/utils/array';
 import {isDefined, isArray} from 'gmp/utils/identity';
@@ -33,6 +31,9 @@ import {
   AUTO_DELETE_KEEP_DEFAULT_VALUE,
   HOSTS_ORDERING_SEQUENTIAL,
   AUTO_DELETE_NO,
+  DEFAULT_MAX_CHECKS,
+  DEFAULT_MAX_HOSTS,
+  DEFAULT_MIN_QOD,
 } from 'gmp/models/task';
 
 import {
@@ -40,6 +41,7 @@ import {
   OSP_SCANNER_TYPE,
   GMP_SCANNER_TYPE,
   OPENVAS_DEFAULT_SCANNER_ID,
+  GREENBONE_SENSOR_SCANNER_TYPE,
 } from 'gmp/models/scanner';
 
 import {
@@ -71,8 +73,6 @@ import Layout from 'web/components/layout/layout';
 import AddResultsToAssetsGroup from './addresultstoassetsgroup';
 import AutoDeleteReportsGroup from './autodeletereportsgroup';
 
-const log = logger.getLogger('web.tasks.dialog');
-
 const sort_scan_configs = (scan_configs = []) => {
   const sorted_scan_configs = {
     [OPENVAS_SCAN_CONFIG_TYPE]: [],
@@ -101,64 +101,21 @@ const get_scanner = (scanners, scanner_id) => {
   });
 };
 
-class ScannerSelect extends React.Component {
-  constructor(...args) {
-    super(...args);
+const ScannerSelect = props => {
+  const {changeTask, scannerId, scanners, onChange} = props;
 
-    this.handleScannerChange = this.handleScannerChange.bind(this);
-  }
-
-  handleScannerChange(value, name) {
-    const {
-      scanners,
-      scanConfigs,
-      onScanConfigChange,
-      onScannerChange,
-    } = this.props;
-    let config_id;
-
-    const scanner = get_scanner(scanners, value);
-    const scanner_type = isDefined(scanner) ? scanner.scannerType : undefined;
-
-    if (
-      scanner_type === OPENVAS_SCANNER_TYPE ||
-      scanner_type === GMP_SCANNER_TYPE
-    ) {
-      config_id = selectSaveId(
-        scanConfigs[OPENVAS_SCAN_CONFIG_TYPE],
-        FULL_AND_FAST_SCAN_CONFIG_ID,
-      );
-    } else if (scanner_type === OSP_SCANNER_TYPE) {
-      config_id = selectSaveId(scanConfigs[OSP_SCAN_CONFIG_TYPE], UNSET_VALUE);
-    } else {
-      config_id = UNSET_VALUE;
-    }
-
-    log.debug('on scanner change', value, config_id, scanner);
-
-    if (isDefined(onScannerChange)) {
-      onScannerChange(value);
-    }
-    if (isDefined(onScanConfigChange)) {
-      onScanConfigChange(config_id);
-    }
-  }
-
-  render() {
-    const {changeTask, scannerId, scanners} = this.props;
-    return (
-      <FormGroup title={_('Scanner')}>
-        <Select
-          name="scanner_id"
-          value={scannerId}
-          disabled={!changeTask}
-          items={renderSelectItems(scanners)}
-          onChange={this.handleScannerChange}
-        />
-      </FormGroup>
-    );
-  }
-}
+  return (
+    <FormGroup title={_('Scanner')}>
+      <Select
+        name="scanner_id"
+        value={scannerId}
+        disabled={!changeTask}
+        items={renderSelectItems(scanners)}
+        onChange={onChange}
+      />
+    </FormGroup>
+  );
+};
 
 ScannerSelect.propTypes = {
   changeTask: PropTypes.bool.isRequired,
@@ -168,13 +125,8 @@ ScannerSelect.propTypes = {
   }),
   scannerId: PropTypes.id.isRequired,
   scanners: PropTypes.array.isRequired,
-  onScanConfigChange: PropTypes.func.isRequired,
-  onScannerChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
-
-const DEFAULT_MAX_CHECKS = 4;
-const DEFAULT_MAX_HOSTS = 20;
-const DEFAULT_MIN_QOD = 70;
 
 const TaskDialog = ({
   add_tag = NO_VALUE,
@@ -186,7 +138,7 @@ const TaskDialog = ({
   auto_delete_data = AUTO_DELETE_KEEP_DEFAULT_VALUE,
   capabilities,
   comment = '',
-  config_id = FULL_AND_FAST_SCAN_CONFIG_ID,
+  config_id,
   hosts_ordering = HOSTS_ORDERING_SEQUENTIAL,
   in_assets = YES_VALUE,
   max_checks = DEFAULT_MAX_CHECKS,
@@ -225,6 +177,55 @@ const TaskDialog = ({
   const scanner = get_scanner(scanners, scanner_id);
   const scanner_type = isDefined(scanner) ? scanner.scannerType : undefined;
 
+  const [configType, setConfigType] = useState('openvas');
+  const [prevConfigType, setPrevConfigType] = useState('openvas');
+
+  // eslint-disable-next-line no-shadow
+  const handleScannerChange = (value, name) => {
+    // eslint-disable-next-line no-shadow
+    const scanner = get_scanner(scanners, value);
+    // eslint-disable-next-line no-shadow
+    const scanner_type = isDefined(scanner) ? scanner.scannerType : undefined;
+
+    if (
+      scanner_type === OPENVAS_SCANNER_TYPE ||
+      scanner_type === GREENBONE_SENSOR_SCANNER_TYPE ||
+      scanner_type === GMP_SCANNER_TYPE
+    ) {
+      setConfigType('openvas');
+    } else if (scanner_type === OSP_SCANNER_TYPE) {
+      setConfigType('osp');
+    } else {
+      setConfigType('other');
+    }
+
+    if (isDefined(onScannerChange)) {
+      onScannerChange(value);
+    }
+
+    if (configType !== prevConfigType && isDefined(onScanConfigChange)) {
+      if (
+        scanner_type === OPENVAS_SCANNER_TYPE ||
+        scanner_type === GMP_SCANNER_TYPE ||
+        scanner_type === GREENBONE_SENSOR_SCANNER_TYPE
+      ) {
+        onScanConfigChange(
+          selectSaveId(
+            sorted_scan_configs[OPENVAS_SCAN_CONFIG_TYPE],
+            FULL_AND_FAST_SCAN_CONFIG_ID,
+          ),
+        );
+      } else if (scanner_type === OSP_SCANNER_TYPE) {
+        onScanConfigChange(
+          selectSaveId(sorted_scan_configs[OSP_SCAN_CONFIG_TYPE], UNSET_VALUE),
+        );
+      } else {
+        onScanConfigChange(UNSET_VALUE);
+      }
+    }
+    setPrevConfigType(configType);
+  };
+
   const tag_items = renderSelectItems(tags);
 
   const target_items = renderSelectItems(targets);
@@ -260,6 +261,7 @@ const TaskDialog = ({
     auto_delete,
     auto_delete_data,
     comment,
+    config_id,
     hosts_ordering,
     in_assets,
     max_checks,
@@ -268,6 +270,7 @@ const TaskDialog = ({
     name,
     scanner_type,
     scanner_id,
+    schedule_periods,
     source_iface,
     tag_id,
     tags,
@@ -305,7 +308,9 @@ const TaskDialog = ({
 
         const use_openvas_scan_config =
           state.scanner_type === OPENVAS_SCANNER_TYPE ||
-          state.scanner_type === GMP_SCANNER_TYPE;
+          state.scanner_type === GMP_SCANNER_TYPE ||
+          state.scanner_type === GREENBONE_SENSOR_SCANNER_TYPE;
+
         return (
           <Layout flex="column">
             <FormGroup title={_('Name')}>
@@ -330,13 +335,24 @@ const TaskDialog = ({
 
             <FormGroup title={_('Scan Targets')}>
               <Divider>
-                <Select
-                  name="target_id"
-                  disabled={!change_task}
-                  items={target_items}
-                  value={state.target_id}
-                  onChange={onTargetChange}
-                />
+                <div
+                  title={
+                    change_task
+                      ? null
+                      : _(
+                          'This setting is not alterable once task has been run at least once.',
+                        )
+                  }
+                >
+                  <Select
+                    name="target_id"
+                    disabled={!change_task}
+                    items={target_items}
+                    value={state.target_id}
+                    width="260px"
+                    onChange={onTargetChange}
+                  />
+                </div>
                 {change_task && (
                   <Layout>
                     <NewIcon
@@ -355,6 +371,7 @@ const TaskDialog = ({
                     name="alert_ids"
                     items={alert_items}
                     value={state.alert_ids}
+                    width="260px"
                     onChange={onAlertsChange}
                   />
                   <Layout>
@@ -374,6 +391,7 @@ const TaskDialog = ({
                     name="schedule_id"
                     value={state.schedule_id}
                     items={schedule_items}
+                    width="201px"
                     onChange={onScheduleChange}
                   />
                   <Checkbox
@@ -438,26 +456,45 @@ const TaskDialog = ({
               autoDeleteData={state.auto_delete_data}
               onChange={onValueChange}
             />
-
-            <ScannerSelect
-              scanConfigs={sorted_scan_configs}
-              scanners={scanners}
-              scannerId={state.scanner_id}
-              changeTask={change_task}
-              onScanConfigChange={onScanConfigChange}
-              onScannerChange={onScannerChange}
-            />
-
+            <div
+              title={
+                change_task
+                  ? null
+                  : _(
+                      'This setting is not alterable once task has been run at least once.',
+                    )
+              }
+            >
+              <ScannerSelect
+                scanners={scanners}
+                scannerId={state.scanner_id}
+                changeTask={change_task}
+                onChange={handleScannerChange}
+              />
+            </div>
             {use_openvas_scan_config && (
               <Layout flex="column" grow="1">
                 <FormGroup titleSize="2" title={_('Scan Config')}>
-                  <Select
-                    name="config_id"
-                    disabled={!change_task}
-                    items={openvas_scan_config_items}
-                    value={openvas_config_id}
-                    onChange={onScanConfigChange}
-                  />
+                  <div
+                    title={
+                      change_task
+                        ? null
+                        : _(
+                            'This setting is not alterable once task has been run at least once.',
+                          )
+                    }
+                  >
+                    <Select
+                      name="config_id"
+                      disabled={!change_task}
+                      items={openvas_scan_config_items}
+                      value={openvas_config_id}
+                      onChange={value => {
+                        onScanConfigChange(value);
+                        setPrevConfigType(configType);
+                      }}
+                    />
+                  </div>
                 </FormGroup>
                 <FormGroup titleSize="4" title={_('Network Source Interface')}>
                   <TextField
@@ -523,7 +560,10 @@ const TaskDialog = ({
                   name="config_id"
                   items={osp_scan_config_items}
                   value={osp_config_id}
-                  onChange={onScanConfigChange}
+                  onChange={value => {
+                    onScanConfigChange(value);
+                    setPrevConfigType(configType);
+                  }}
                 />
               </FormGroup>
             )}

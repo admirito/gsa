@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/array/find-index';
-import 'core-js/fn/object/entries';
+import 'core-js/features/array/find-index';
+import 'core-js/features/object/entries';
 
 import memoize from 'memoize-one';
 
@@ -51,7 +51,7 @@ import {
   removeDisplay,
 } from 'web/components/dashboard/utils';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
+import ErrorBoundary from 'web/components/error/errorboundary';
 
 import Loading from 'web/components/loading/loading';
 
@@ -255,12 +255,15 @@ export class Dashboard extends React.Component {
       maxRows = DEFAULT_MAX_ROWS,
       ...props
     } = this.props;
+
     const rows = this.getRows();
 
     if (isDefined(error) && !isLoading) {
       return (
         <RowPlaceHolder>
-          {_('Could not load dashboard settings. Reason: {{error}}', {error})}
+          {_('Could not load dashboard settings. Reason: {{error}}', {
+            error: error.message,
+          })}
         </RowPlaceHolder>
       );
     } else if (!isDefined(rows) && isLoading) {
@@ -286,7 +289,7 @@ export class Dashboard extends React.Component {
     const other = excludeObjectProps(props, ownPropNames);
 
     return (
-      <ErrorBoundary errElement="dashboard">
+      <ErrorBoundary message={_('An error occurred on this dashboard.')}>
         <Grid
           items={convertDisplaysToGridItems(filterDisplays(rows, isAllowed))}
           maxItemsPerRow={maxItemsPerRow}

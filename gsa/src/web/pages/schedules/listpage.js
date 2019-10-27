@@ -33,6 +33,7 @@ import NewIcon from 'web/components/icon/newicon';
 import ScheduleIcon from 'web/components/icon/scheduleicon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {createFilterDialog} from 'web/components/powerfilter/dialog';
 
@@ -48,8 +49,8 @@ const ToolBarIcons = withCapabilities(
   ({capabilities, onScheduleCreateClick}) => (
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="scheduled-scan"
+        page="scanning"
+        anchor="managing-schedules"
         title={_('Help: Schedules')}
       />
       {capabilities.mayCreate('schedule') && (
@@ -86,25 +87,28 @@ const SchedulesPage = ({
     onInteraction={onInteraction}
   >
     {({clone, create, delete: delete_func, download, edit, save}) => (
-      <EntitiesPage
-        {...props}
-        filterEditDialog={ScheduleFilterDialog}
-        filtersFilter={SCHEDULES_FILTER_FILTER}
-        sectionIcon={<ScheduleIcon size="large" />}
-        table={SchedulesTable}
-        title={_('Schedules')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onInteraction={onInteraction}
-        onScheduleCloneClick={clone}
-        onScheduleCreateClick={create}
-        onScheduleDeleteClick={delete_func}
-        onScheduleDownloadClick={download}
-        onScheduleEditClick={edit}
-        onScheduleSaveClick={save}
-      />
+      <React.Fragment>
+        <PageTitle title={_('Schedules')} />
+        <EntitiesPage
+          {...props}
+          filterEditDialog={ScheduleFilterDialog}
+          filtersFilter={SCHEDULES_FILTER_FILTER}
+          sectionIcon={<ScheduleIcon size="large" />}
+          table={SchedulesTable}
+          title={_('Schedules')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onInteraction={onInteraction}
+          onScheduleCloneClick={clone}
+          onScheduleCreateClick={create}
+          onScheduleDeleteClick={delete_func}
+          onScheduleDownloadClick={download}
+          onScheduleEditClick={edit}
+          onScheduleSaveClick={save}
+        />
+      </React.Fragment>
     )}
   </ScheduleComponent>
 );

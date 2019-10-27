@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import React from 'react';
 
@@ -55,7 +55,7 @@ export const MultiSelectedValue = styled(SelectedValue)`
   padding: 0 3px;
   margin-right: 4px;
   margin-top: 1px;
-  margin-bottom: 1px;
+  margin-bottom: 0px;
   background-color: ${Theme.lightGray};
   width: 80px; /* acts similar to minWidth? */
 `;
@@ -84,6 +84,9 @@ class MultiSelect extends React.Component {
       search: '',
       selectedItems: isArray(value) ? value : [],
     };
+
+    this.input = React.createRef();
+    this.box = React.createRef();
 
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
@@ -174,6 +177,7 @@ class MultiSelect extends React.Component {
       items,
       menuPosition = 'adjust',
       width = DEFAULT_WIDTH,
+      grow,
     } = this.props;
 
     const {search, selectedItems} = this.state;
@@ -189,11 +193,13 @@ class MultiSelect extends React.Component {
         selectedItem={selectedItems}
         onChange={this.handleChange}
         onSelect={this.handleSelect}
-        render={({
-          getButtonProps,
+      >
+        {({
           getInputProps,
           getItemProps,
+          getMenuProps,
           getRootProps,
+          getToggleButtonProps,
           highlightedIndex,
           inputValue,
           isOpen,
@@ -202,31 +208,28 @@ class MultiSelect extends React.Component {
         }) => {
           return (
             <SelectContainer
-              {...getRootProps({refKey: 'innerRef'})}
+              {...getRootProps({})}
               className={className}
-              flex="column"
               width={width}
+              grow={grow}
             >
-              <Box
-                isOpen={isOpen}
-                disabled={disabled}
-                innerRef={ref => (this.box = ref)}
-              >
+              <Box isOpen={isOpen} disabled={disabled} ref={this.box}>
                 <Layout grow="1" wrap>
                   {selectedItems.map(item => this.renderItem(item, items))}
                 </Layout>
                 <Layout align={['center', 'center']}>
                   <ArrowIcon
-                    {...getButtonProps({
+                    {...getToggleButtonProps({
                       disabled,
                       down: !isOpen,
                       onClick: isOpen
                         ? undefined
                         : event => {
-                            event.preventDefault(); // don't call default handler from downshift
-                            openMenu(
-                              () => isDefined(this.input) && this.input.focus(),
-                            ); // set focus to input field after menu is opened
+                            event.preventDownshiftDefault = true; // don't call default handler from downshift
+                            openMenu(() => {
+                              const {current: input} = this.input;
+                              input !== null && input.focus();
+                            });
                           },
                     })}
                     size="small"
@@ -234,26 +237,35 @@ class MultiSelect extends React.Component {
                 </Layout>
               </Box>
               {isOpen && !disabled && (
-                <Menu position={menuPosition} target={this.box}>
+                <Menu
+                  {...getMenuProps({})}
+                  position={menuPosition}
+                  target={this.box}
+                >
                   <Input
                     {...getInputProps({
+                      disabled,
                       value: search,
                       onChange: this.handleSearch,
                     })}
-                    disabled={disabled}
-                    innerRef={ref => (this.input = ref)}
+                    ref={this.input}
                     data-testid="multiselect-input"
                   />
                   <ItemContainer>
                     {displayedItems.map(
                       ({label: itemLabel, value: itemValue}, i) => (
                         <Item
-                          {...getItemProps({item: itemValue})}
+                          {...getItemProps({
+                            item: itemValue,
+                            isSelected: selectedItems.includes(itemValue),
+                            isActive: i === highlightedIndex,
+                            onClick: event => {
+                              event.preventDownshiftDefault = true;
+                              selectItem(itemValue);
+                            },
+                          })}
                           data-testid="multiselect-item-label"
-                          isSelected={selectedItems.includes(itemValue)}
-                          isActive={i === highlightedIndex}
                           key={itemValue}
-                          onMouseDown={() => selectItem(itemValue)}
                         >
                           {itemLabel}
                         </Item>
@@ -265,13 +277,14 @@ class MultiSelect extends React.Component {
             </SelectContainer>
           );
         }}
-      />
+      </Downshift>
     );
   }
 }
 
 MultiSelect.propTypes = {
   disabled: PropTypes.bool,
+  grow: PropTypes.number,
   items: PropTypes.arrayOf(PropTypes.object),
   menuPosition: PropTypes.oneOf(['left', 'right', 'adjust']),
   name: PropTypes.string,

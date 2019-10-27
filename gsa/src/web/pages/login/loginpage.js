@@ -25,6 +25,8 @@ import {withRouter} from 'react-router-dom';
 
 import styled from 'styled-components';
 
+import Rejection from 'gmp/http/rejection';
+
 import _ from 'gmp/locale';
 
 import logger from 'gmp/log';
@@ -48,7 +50,10 @@ import {
   setSessionTimeout,
   setUsername,
   updateTimezone,
+  setIsLoggedIn,
 } from 'web/store/usersettings/actions';
+
+import {isLoggedIn} from 'web/store/usersettings/selectors';
 
 import LoginForm from './loginform';
 
@@ -60,10 +65,19 @@ const GreenboneLogo = styled(Logo)`
   position: sticky;
 `;
 
+const LoginBox = styled(Layout)`
+  ${'' /* flex-grow: 1; */}
+  width: 100%;
+  flex-direction: row;
+  align-items: stretch;
+`;
+
+const LoginSpacer = styled(Layout)`
+  width: 42%;
+`;
+
 const LoginLayout = styled(Layout)`
   height: 100%;
-  width: 420px;
-  margin: 0 auto;
   padding: 20px 20px 0px 20px;
 `;
 
@@ -81,13 +95,18 @@ const LoginHeader = styled(Header)`
 
 const MenuSpacer = styled.div`
   background: ${Theme.darkGray};
-  position: absolute;
+  position: fixed;
   top: 42px;
   left: 0;
   right: 0;
   height: 35px;
   z-index: ${Theme.Layers.menu};
 `;
+
+const isIE11 = () =>
+  navigator.userAgent.match(/Trident\/([\d.]+)/)
+    ? +navigator.userAgent.match(/Trident\/([\d.]+)/)[1] >= 7
+    : false;
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -118,6 +137,14 @@ class LoginPage extends React.Component {
         const {locale, timezone, sessionTimeout} = data;
 
         const {location, history} = this.props;
+
+        this.props.setTimezone(timezone);
+        this.props.setLocale(locale);
+        this.props.setSessionTimeout(sessionTimeout);
+        this.props.setUsername(username);
+        // must be set before changing the location
+        this.props.setIsLoggedIn(true);
+
         if (
           location &&
           location.state &&
@@ -128,11 +155,6 @@ class LoginPage extends React.Component {
         } else {
           history.replace('/');
         }
-
-        this.props.setTimezone(timezone);
-        this.props.setLocale(locale);
-        this.props.setSessionTimeout(sessionTimeout);
-        this.props.setUsername(username);
       },
       rej => {
         log.error(rej);
@@ -142,9 +164,12 @@ class LoginPage extends React.Component {
   }
 
   componentDidMount() {
-    // reset token
-    const {gmp} = this.props;
-    gmp.clearToken();
+    const {history, isLoggedIn = false} = this.props; // eslint-disable-line no-shadow
+
+    // redirect user to main page if he is already logged in
+    if (isLoggedIn) {
+      history.replace('/');
+    }
   }
 
   render() {
@@ -154,8 +179,10 @@ class LoginPage extends React.Component {
     let message;
 
     if (error) {
-      if (isEmpty(error.message)) {
-        message = _('Unknown error on login');
+      if (error.reason === Rejection.REASON_UNAUTHORIZED) {
+        message = _('Login Failed. Invalid password or username.');
+      } else if (isEmpty(error.message)) {
+        message = _('Unknown error on login.');
       } else {
         message = error.message;
       }
@@ -167,21 +194,27 @@ class LoginPage extends React.Component {
 
     const showLogin = !gmp.settings.disableLoginForm;
     const showProtocolInsecure = window.location.protocol !== 'https:';
+
     return (
       <StyledLayout>
         <LoginHeader />
         <MenuSpacer />
-        <LoginLayout flex="column" className="login">
-          <GreenboneLogo />
-          <LoginForm
-            error={message}
-            showGuestLogin={showGuestLogin}
-            showLogin={showLogin}
-            showProtocolInsecure={showProtocolInsecure}
-            onGuestLoginClick={this.handleGuestLogin}
-            onSubmit={this.handleSubmit}
-          />
-        </LoginLayout>
+        <LoginBox>
+          <LoginSpacer />
+          <LoginLayout flex="column" className="login">
+            <GreenboneLogo />
+            <LoginForm
+              error={message}
+              showGuestLogin={showGuestLogin}
+              showLogin={showLogin}
+              showProtocolInsecure={showProtocolInsecure}
+              isIE11={isIE11()}
+              onGuestLoginClick={this.handleGuestLogin}
+              onSubmit={this.handleSubmit}
+            />
+          </LoginLayout>
+          <LoginSpacer />
+        </LoginBox>
         <Footer />
       </StyledLayout>
     );
@@ -191,7 +224,9 @@ class LoginPage extends React.Component {
 LoginPage.propTypes = {
   gmp: PropTypes.gmp.isRequired,
   history: PropTypes.object.isRequired,
+  isLoggedIn: PropTypes.bool,
   location: PropTypes.object.isRequired,
+  setIsLoggedIn: PropTypes.func.isRequired,
   setLocale: PropTypes.func.isRequired,
   setSessionTimeout: PropTypes.func.isRequired,
   setTimezone: PropTypes.func.isRequired,
@@ -203,13 +238,18 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
   setLocale: locale => gmp.setLocale(locale),
   setSessionTimeout: timeout => dispatch(setSessionTimeout(timeout)),
   setUsername: username => dispatch(setUsername(username)),
+  setIsLoggedIn: value => dispatch(setIsLoggedIn(value)),
+});
+
+const mapStateToProp = (rootState, ownProps) => ({
+  isLoggedIn: isLoggedIn(rootState),
 });
 
 export default compose(
   withRouter,
   withGmp,
   connect(
-    null,
+    mapStateToProp,
     mapDispatchToProps,
   ),
 )(LoginPage);

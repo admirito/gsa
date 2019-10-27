@@ -26,18 +26,19 @@ import PropTypes from 'web/utils/proptypes';
 import {renderYesNo} from 'web/utils/render';
 import withCapabilities from 'web/utils/withCapabilities';
 
-import Divider from 'web/components/layout/divider';
 import Layout from 'web/components/layout/layout';
 
 import DetailsLink from 'web/components/link/detailslink';
 
 import InfoTable from 'web/components/table/infotable';
 import TableBody from 'web/components/table/body';
-import TableData from 'web/components/table/data';
+import TableData, {TableDataAlignTop} from 'web/components/table/data';
 import TableRow from 'web/components/table/row';
 
 import DetailsBlock from 'web/entity/block';
 import {Col} from 'web/entity/page';
+
+import HorizontalSep from 'web/components/layout/horizontalsep';
 
 const MAX_HOSTS_LISTINGS = 70;
 
@@ -61,6 +62,10 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
     .slice(0, MAX_HOSTS_LISTINGS)
     .map(host => <span key={host}>{host}</span>);
 
+  const excludeHostsListing = exclude_hosts
+    .slice(0, MAX_HOSTS_LISTINGS)
+    .map(host => <span key={host}>{host}</span>);
+
   return (
     <Layout grow="1" flex="column">
       <DetailsBlock title={_('Hosts')}>
@@ -71,24 +76,23 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
           </colgroup>
           <TableBody>
             <TableRow>
-              <TableData>{_('Included')}</TableData>
+              <TableDataAlignTop>{_('Included')}</TableDataAlignTop>
               <TableData>
-                <Divider wrap>
+                <HorizontalSep separator="," wrap spacing="0">
                   {hostsListing}
                   {hosts.length > MAX_HOSTS_LISTINGS && '[...]'}
-                </Divider>
+                </HorizontalSep>
               </TableData>
             </TableRow>
 
             {exclude_hosts.length > 0 && (
               <TableRow>
-                <TableData>{_('Excluded')}</TableData>
+                <TableDataAlignTop>{_('Excluded')}</TableDataAlignTop>
                 <TableData>
-                  <Divider>
-                    {exclude_hosts.map(host => (
-                      <span key={host}>{host}</span>
-                    ))}
-                  </Divider>
+                  <HorizontalSep separator="," wrap spacing="0">
+                    {excludeHostsListing}
+                    {exclude_hosts.length > MAX_HOSTS_LISTINGS && '[...]'}
+                  </HorizontalSep>
                 </TableData>
               </TableRow>
             )}
@@ -116,9 +120,11 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
             <TableRow>
               <TableData>{_('Port List')}</TableData>
               <TableData>
-                <DetailsLink id={port_list.id} type="portlist">
-                  {port_list.name}
-                </DetailsLink>
+                <span>
+                  <DetailsLink id={port_list.id} type="portlist">
+                    {port_list.name}
+                  </DetailsLink>
+                </span>
               </TableData>
             </TableRow>
           </TableBody>
@@ -137,9 +143,11 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
                   <TableRow>
                     <TableData>{_('SSH')}</TableData>
                     <TableData>
-                      <DetailsLink id={ssh_credential.id} type="credential">
-                        {ssh_credential.name}
-                      </DetailsLink>
+                      <span>
+                        <DetailsLink id={ssh_credential.id} type="credential">
+                          {ssh_credential.name}
+                        </DetailsLink>
+                      </span>
                       {_(' on Port {{port}}', {port: ssh_credential.port})}
                     </TableData>
                   </TableRow>
@@ -149,9 +157,11 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
                   <TableRow>
                     <TableData>{_('SMB')}</TableData>
                     <TableData>
-                      <DetailsLink id={smb_credential.id} type="credential">
-                        {smb_credential.name}
-                      </DetailsLink>
+                      <span>
+                        <DetailsLink id={smb_credential.id} type="credential">
+                          {smb_credential.name}
+                        </DetailsLink>
+                      </span>
                     </TableData>
                   </TableRow>
                 )}
@@ -160,9 +170,11 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
                   <TableRow>
                     <TableData>{_('ESXi')}</TableData>
                     <TableData>
-                      <DetailsLink id={esxi_credential.id} type="credential">
-                        {esxi_credential.name}
-                      </DetailsLink>
+                      <span>
+                        <DetailsLink id={esxi_credential.id} type="credential">
+                          {esxi_credential.name}
+                        </DetailsLink>
+                      </span>
                     </TableData>
                   </TableRow>
                 )}
@@ -171,9 +183,11 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
                   <TableRow>
                     <TableData>{_('SNMP')}</TableData>
                     <TableData>
-                      <DetailsLink id={snmp_credential.id} type="credential">
-                        {snmp_credential.name}
-                      </DetailsLink>
+                      <span>
+                        <DetailsLink id={snmp_credential.id} type="credential">
+                          {snmp_credential.name}
+                        </DetailsLink>
+                      </span>
                     </TableData>
                   </TableRow>
                 )}
@@ -187,13 +201,15 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
             count: tasks.length,
           })}
         >
-          <Divider>
+          <HorizontalSep>
             {tasks.map(task => (
-              <DetailsLink key={task.id} id={task.id} type="task">
-                {task.name}
-              </DetailsLink>
+              <span key={task.id}>
+                <DetailsLink id={task.id} type="task">
+                  {task.name}
+                </DetailsLink>
+              </span>
             ))}
-          </Divider>
+          </HorizontalSep>
         </DetailsBlock>
       )}
     </Layout>

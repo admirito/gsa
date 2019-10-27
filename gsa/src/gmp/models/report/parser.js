@@ -16,16 +16,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
-import 'core-js/fn/object/values';
-import 'core-js/fn/string/includes';
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/object/entries';
+import 'core-js/features/object/values';
+import 'core-js/features/string/includes';
+import 'core-js/features/string/starts-with';
 
 import {isDefined} from 'gmp/utils/identity';
 import {isEmpty} from 'gmp/utils/string';
 import {filter as filter_func, forEach, map} from 'gmp/utils/array';
 
-import {parseSeverity, parseDate, parseXmlEncodedString} from 'gmp/parser';
+import {parseSeverity, parseDate} from 'gmp/parser';
 
 import {
   parseCollectionList,
@@ -35,17 +35,17 @@ import {
 
 import CollectionCounts from 'gmp/collection/collectioncounts';
 
-import App from './app';
-import Cve from './cve';
-import Host from './host';
-import OperatingSystem from './os';
-import Port from './port';
-import TLSCertificate from './tlscertificate';
-import Vulnerability from './vulnerability';
+import ReportApp from './app';
+import ReportCve from './cve';
+import ReportHost from './host';
+import ReportOperatingSystem from './os';
+import ReportPort from './port';
+import ReportTLSCertificate from './tlscertificate';
 
 import Result from '../result';
+import {getRefs, hasRefType} from '../nvt';
 
-const empty_collection_list = filter => {
+const emptyCollectionList = filter => {
   return {
     filter,
     counts: new CollectionCounts(),
@@ -53,21 +53,21 @@ const empty_collection_list = filter => {
   };
 };
 
-const get_cert = (certs, fingerprint) => {
+const getTlsCertificate = (certs, fingerprint) => {
   let cert = certs[fingerprint];
 
   if (!isDefined(cert)) {
-    cert = new TLSCertificate(fingerprint);
+    cert = ReportTLSCertificate.fromElement({fingerprint});
     certs[fingerprint] = cert;
   }
   return cert;
 };
 
-export const parse_tls_certificates = (report, filter) => {
+export const parseTlsCertificates = (report, filter) => {
   const {host: hosts, ssl_certs} = report;
 
   if (!isDefined(ssl_certs)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const {count: full_count} = ssl_certs;
@@ -84,7 +84,7 @@ export const parse_tls_certificates = (report, filter) => {
       if (name.startsWith('SSLInfo')) {
         const [port, fingerprint] = value.split('::');
 
-        const cert = get_cert(host_certs, fingerprint);
+        const cert = getTlsCertificate(host_certs, fingerprint);
 
         cert.ip = host.ip;
 
@@ -92,7 +92,7 @@ export const parse_tls_certificates = (report, filter) => {
       } else if (name.startsWith('SSLDetails')) {
         const [, fingerprint] = name.split(':');
 
-        const cert = get_cert(host_certs, fingerprint);
+        const cert = getTlsCertificate(host_certs, fingerprint);
 
         value.split('|').reduce((c, v) => {
           let [key, val] = v.split(':');
@@ -107,7 +107,7 @@ export const parse_tls_certificates = (report, filter) => {
       } else if (name.startsWith('Cert')) {
         const [, fingerprint] = name.split(':');
 
-        const cert = get_cert(host_certs, fingerprint);
+        const cert = getTlsCertificate(host_certs, fingerprint);
 
         // currently cert data starts with x509:
         // not sure if there are other types of certs
@@ -168,12 +168,12 @@ export const parse_tls_certificates = (report, filter) => {
   };
 };
 
-export const parse_ports = (report, filter) => {
+export const parsePorts = (report, filter) => {
   const temp_ports = {};
   const {ports} = report;
 
   if (!isDefined(ports)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const {count: full_count} = ports;
@@ -189,7 +189,7 @@ export const parse_ports = (report, filter) => {
 
         tport.setSeverity(severity);
       } else {
-        tport = new Port(port);
+        tport = ReportPort.fromElement(port);
         temp_ports[id] = tport;
       }
 
@@ -215,62 +215,13 @@ export const parse_ports = (report, filter) => {
   };
 };
 
-export const parse_vulnerabilities = (report, filter) => {
-  const temp_vulns = {};
-  const {vulns, results = {}} = report;
-
-  if (!isDefined(vulns)) {
-    return empty_collection_list(filter);
-  }
-
-  const {count: full_count} = vulns;
-
-  forEach(results.result, result => {
-    const {nvt = {}, host} = result;
-    const {_oid: oid} = nvt;
-
-    if (isDefined(oid)) {
-      const severity = parseSeverity(result.severity);
-
-      let vuln = temp_vulns[oid];
-
-      if (isDefined(vuln)) {
-        vuln.addResult(results);
-      } else {
-        vuln = new Vulnerability(result);
-        temp_vulns[oid] = vuln;
-      }
-
-      vuln.setSeverity(severity);
-      vuln.addHost(host);
-    }
-  });
-
-  const vulns_array = Object.values(temp_vulns);
-  const filtered_count = vulns_array.length;
-
-  const counts = new CollectionCounts({
-    all: full_count,
-    filtered: filtered_count,
-    first: 1,
-    length: filtered_count,
-    rows: filtered_count,
-  });
-
-  return {
-    entities: vulns_array,
-    filter: isDefined(filter) ? filter : parseFilter(report),
-    counts,
-  };
-};
-
-export const parse_apps = (report, filter) => {
+export const parseApps = (report, filter) => {
   const {host: hosts, apps, results = {}} = report;
   const apps_temp = {};
   const cpe_host_details = {};
 
   if (!isDefined(apps)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const {count: full_count} = apps;
@@ -318,7 +269,7 @@ export const parse_apps = (report, filter) => {
         let app = apps_temp[cpe];
 
         if (!isDefined(app)) {
-          app = new App({...detail, severity: severities[cpe]});
+          app = ReportApp.fromElement({...detail, severity: severities[cpe]});
           apps_temp[cpe] = app;
         }
 
@@ -360,7 +311,7 @@ export const parse_apps = (report, filter) => {
   };
 };
 
-export const parse_host_severities = (results = {}) => {
+export const parseHostSeverities = (results = {}) => {
   const severities = {};
 
   // if the there are several results find the highest severity for the ip
@@ -385,16 +336,16 @@ export const parse_host_severities = (results = {}) => {
   return severities;
 };
 
-export const parse_operatingsystems = (report, filter) => {
+export const parseOperatingSystems = (report, filter) => {
   const {host: hosts, results, os: os_count} = report;
 
   if (!isDefined(os_count)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const operating_systems = {};
 
-  const severities = parse_host_severities(results);
+  const severities = parseHostSeverities(results);
 
   forEach(hosts, host => {
     const {detail: details, ip} = host;
@@ -417,14 +368,16 @@ export const parse_operatingsystems = (report, filter) => {
         const severity = severities[ip];
 
         if (!isDefined(os)) {
-          os = operating_systems[best_os_cpe] = new OperatingSystem({
+          os = operating_systems[
+            best_os_cpe
+          ] = ReportOperatingSystem.fromElement({
             best_os_cpe,
             best_os_txt,
           });
         }
 
         os.addHost(host);
-        os.addSeverity(severity);
+        os.setSeverity(severity);
       }
     }
   });
@@ -447,18 +400,23 @@ export const parse_operatingsystems = (report, filter) => {
   };
 };
 
-export const parse_hosts = (report, filter) => {
+export const parseHosts = (report, filter) => {
   const {host: hosts, results, hosts: hosts_count} = report;
 
   if (!isDefined(hosts_count)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
-  const severities = parse_host_severities(results);
+  const severities = parseHostSeverities(results);
 
   const hosts_array = map(hosts, host => {
+    const {port_count = {}} = host;
     const severity = severities[host.ip];
-    return new Host({...host, severity});
+    return ReportHost.fromElement({
+      ...host,
+      severity,
+      portsCount: port_count.page,
+    });
   });
 
   const {length: filtered_count} = hosts_array;
@@ -494,7 +452,7 @@ const parse_report_report_counts = elem => {
   return new CollectionCounts(counts);
 };
 
-export const parse_results = (report, filter) => {
+export const parseResults = (report, filter) => {
   const {results} = report;
 
   if (!isDefined(results)) {
@@ -515,7 +473,7 @@ export const parse_errors = (report, filter) => {
   const {host: hosts, errors} = report;
 
   if (!isDefined(errors)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const {count: full_count} = errors;
@@ -556,7 +514,7 @@ export const parse_errors = (report, filter) => {
       },
       nvt: {
         id: nvt._oid,
-        name: parseXmlEncodedString(nvt.name),
+        name: nvt.name,
       },
       port,
     };
@@ -579,11 +537,11 @@ export const parse_errors = (report, filter) => {
   };
 };
 
-export const parse_closed_cves = (report, filter) => {
+export const parseClosedCves = (report, filter) => {
   const {host: hosts, closed_cves} = report;
 
   if (!isDefined(closed_cves)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   // count doesn't fit to our counting of cves. we split the db rows with a csv
@@ -647,39 +605,36 @@ export const parse_closed_cves = (report, filter) => {
   };
 };
 
-export const parse_cves = (report, filter) => {
+export const parseCves = (report, filter) => {
   const {results} = report;
 
   if (!isDefined(results)) {
-    return empty_collection_list(filter);
+    return emptyCollectionList(filter);
   }
 
   const cves = {};
 
-  const results_with_cve = filter_func(
-    results.result,
-    result => result.nvt.cve !== 'NOCVE' && !isEmpty(result.nvt.cve),
-  );
+  const results_with_cve = filter_func(results.result, result => {
+    const refs = getRefs(result.nvt);
+    return refs.some(hasRefType('cve'));
+  });
 
   results_with_cve.forEach(result => {
-    const {host = {}, nvt = {}} = result;
-    const {cve: id} = nvt;
+    const {host = {}, nvt} = result;
+    const {_oid: id} = nvt;
+    let cve = cves[id];
 
-    if (isDefined(id)) {
-      let cve = cves[id];
-
-      if (!isDefined(cve)) {
-        cve = new Cve(nvt);
-        cves[id] = cve;
-      }
-
-      const {__text: ip} = host;
-
-      if (isDefined(ip)) {
-        cve.addHost({ip});
-      }
-      cve.addResult(result);
+    if (!isDefined(cve)) {
+      cve = ReportCve.fromElement(nvt);
+      cves[id] = cve;
     }
+
+    const {__text: ip} = host;
+
+    if (isDefined(ip)) {
+      cve.addHost({ip});
+    }
+    cve.addResult(result);
   });
 
   const cves_array = Object.values(cves);

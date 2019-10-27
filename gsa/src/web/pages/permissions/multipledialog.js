@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import styled from 'styled-components';
+
 import _ from 'gmp/locale';
 
 import {typeName, getEntityType} from 'gmp/utils/entitytype';
@@ -40,6 +42,11 @@ export const CURRENT_RESOURCE_ONLY = '0';
 export const INCLUDE_RELATED_RESOURCES = '1';
 export const RELATED_RESOURCES_ONLY = '2';
 
+const EntityName = styled.div`
+  font-style: italic;
+  word-break: break-all;
+`;
+
 const MultiplePermissionDialog = withCapabilities(
   ({
     capabilities,
@@ -48,7 +55,7 @@ const MultiplePermissionDialog = withCapabilities(
     groupId,
     groups = [],
     id,
-    includeRelated = CURRENT_RESOURCE_ONLY,
+    includeRelated = INCLUDE_RELATED_RESOURCES,
     permission = 'read',
     related = [],
     roleId,
@@ -57,24 +64,25 @@ const MultiplePermissionDialog = withCapabilities(
     title = _('Create Permission'),
     userId,
     users = [],
+    onChange,
     onClose,
     onSave,
   }) => {
     const hasRelated = related.length > 0;
 
     const defaultValues = {
-      groupId,
       includeRelated,
       permission,
-      roleId,
       subjectType,
-      userId,
     };
 
     const values = {
+      groupId,
       id,
       entityType,
       related,
+      roleId,
+      userId,
     };
 
     const includeRelatedItems = [];
@@ -143,7 +151,7 @@ const MultiplePermissionDialog = withCapabilities(
                         name="userId"
                         value={state.userId}
                         items={renderSelectItems(users)}
-                        onChange={onValueChange}
+                        onChange={onChange}
                       />
                     </Divider>
                   )}
@@ -161,7 +169,7 @@ const MultiplePermissionDialog = withCapabilities(
                         name="roleId"
                         value={state.roleId}
                         items={renderSelectItems(roles)}
-                        onChange={onValueChange}
+                        onChange={onChange}
                       />
                     </Divider>
                   )}
@@ -179,7 +187,7 @@ const MultiplePermissionDialog = withCapabilities(
                         name="groupId"
                         value={state.groupId}
                         items={renderSelectItems(groups)}
-                        onChange={onValueChange}
+                        onChange={onChange}
                       />
                     </Divider>
                   )}
@@ -188,7 +196,7 @@ const MultiplePermissionDialog = withCapabilities(
               <FormGroup title={_('on')} flex="column">
                 <Divider>
                   <span>{typeName(getEntityType(state))}</span>
-                  <i>{entityName}</i>
+                  <EntityName>{entityName}</EntityName>
                   <Select
                     name="includeRelated"
                     value={state.includeRelated}
@@ -228,7 +236,7 @@ MultiplePermissionDialog.propTypes = {
     INCLUDE_RELATED_RESOURCES,
     RELATED_RESOURCES_ONLY,
   ]),
-  permission: PropTypes.oneOf(['read', 'proxy']),
+  permission: PropTypes.oneOf(['read', 'write']),
   related: PropTypes.array, // array of models
   roleId: PropTypes.id,
   roles: PropTypes.array,
@@ -237,12 +245,9 @@ MultiplePermissionDialog.propTypes = {
   userId: PropTypes.id,
   users: PropTypes.array,
   visible: PropTypes.bool,
+  onChange: PropTypes.func,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-};
-
-MultiplePermissionDialog.contextTypes = {
-  capabilities: PropTypes.capabilities.isRequired,
 };
 
 export default MultiplePermissionDialog;

@@ -20,9 +20,10 @@
 import React from 'react';
 
 import _ from 'gmp/locale';
-import {longDate} from 'gmp/locale/date';
 
 import SeverityBar from 'web/components/bar/severitybar';
+
+import DateTime from 'web/components/date/datetime';
 
 import CpeIcon from 'web/components/icon/cpeicon';
 import DeleteIcon from 'web/components/icon/deleteicon';
@@ -84,20 +85,28 @@ const Row = ({
     </TableData>
     <TableData>{entity.title}</TableData>
     <TableData>
-      <SeverityBar severity={entity.latest_severity} />
+      <SeverityBar severity={entity.latestSeverity} />
     </TableData>
     <TableData>
-      <SeverityBar severity={entity.highest_severity} />
+      <SeverityBar severity={entity.highestSeverity} />
     </TableData>
     <TableData>
-      <SeverityBar severity={entity.average_severity} />
+      <SeverityBar severity={entity.averageSeverity} />
     </TableData>
     <TableData>
-      <Link to={'hosts'} filter={'os~"' + entity.name + '"'} textOnly={!links}>
-        {entity.hosts.length}
-      </Link>
+      <span>
+        <Link
+          to={'hosts'}
+          filter={'os~"' + entity.name + '"'}
+          textOnly={!links}
+        >
+          {entity.hosts.length}
+        </Link>
+      </span>
     </TableData>
-    <TableData>{longDate(entity.modificationTime)}</TableData>
+    <TableData>
+      <DateTime date={entity.modificationTime} />
+    </TableData>
     <ActionsComponent {...props} entity={entity} />
   </TableRow>
 );

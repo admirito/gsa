@@ -16,13 +16,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/string/starts-with';
 
 import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {isTaskEvent, isSecinfoEvent} from 'gmp/models/alert';
+import {
+  isTaskEvent,
+  isSecinfoEvent,
+  EMAIL_NOTICE_INCLUDE,
+  EMAIL_NOTICE_SIMPLE,
+  EMAIL_NOTICE_ATTACH,
+} from 'gmp/models/alert';
 import {
   EMAIL_CREDENTIAL_TYPES,
   email_credential_filter,
@@ -129,13 +135,13 @@ const EmailMethodPart = ({
             <Radio
               title={_('Simple Notice')}
               name={prefix + 'notice'}
-              checked={notice === '1'}
+              checked={notice === EMAIL_NOTICE_SIMPLE}
               value="1"
               onChange={onChange}
             />
 
             {capabilities.mayOp('get_report_formats') && (
-              <Layout flex="column" box>
+              <Layout flex="column">
                 <Divider>
                   <Radio
                     name={prefix + 'notice'}
@@ -144,12 +150,13 @@ const EmailMethodPart = ({
                         ? _('Include report')
                         : _('Include list of resources with message:')
                     }
-                    checked={notice === '0'}
+                    checked={notice === EMAIL_NOTICE_INCLUDE}
                     value="0"
                     onChange={onChange}
                   />
                   {taskEvent && (
                     <Select
+                      disabled={notice !== EMAIL_NOTICE_INCLUDE}
                       name={prefix + 'notice_report_format'}
                       value={noticeReportFormat}
                       items={reportFormatItems}
@@ -158,9 +165,15 @@ const EmailMethodPart = ({
                   )}
                 </Divider>
                 <TextArea
+                  disabled={notice !== EMAIL_NOTICE_INCLUDE}
                   name={prefix + 'message'}
                   rows="8"
                   cols="50"
+                  title={
+                    notice === EMAIL_NOTICE_INCLUDE
+                      ? undefined
+                      : _('Activate the "include" option to make changes here.')
+                  }
                   value={message}
                   onChange={onChange}
                 />
@@ -178,12 +191,13 @@ const EmailMethodPart = ({
                           ? _('Attach report')
                           : _('Attach list of resources with message:')
                       }
-                      checked={notice === '2'}
+                      checked={notice === EMAIL_NOTICE_ATTACH}
                       value="2"
                       onChange={onChange}
                     />
                     {taskEvent && (
                       <Select
+                        disabled={notice !== EMAIL_NOTICE_ATTACH}
                         name={prefix + 'notice_attach_format'}
                         value={noticeAttachFormat}
                         items={renderSelectItems(reportFormats)}
@@ -193,9 +207,15 @@ const EmailMethodPart = ({
                   </Divider>
                 </Layout>
                 <TextArea
+                  disabled={notice !== EMAIL_NOTICE_ATTACH}
                   name={prefix + 'message_attach'}
                   rows="8"
                   cols="50"
+                  title={
+                    notice === EMAIL_NOTICE_ATTACH
+                      ? undefined
+                      : _('Activate the "attach" option to allow changes here.')
+                  }
                   value={messageAttach}
                   onChange={onChange}
                 />

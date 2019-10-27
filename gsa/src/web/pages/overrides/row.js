@@ -104,9 +104,11 @@ const Row = ({
 }) => (
   <TableRow>
     <TableData>
-      <RowDetailsToggle name={entity.id} onClick={onToggleDetailsClick}>
-        {shorten(entity.text)}
-      </RowDetailsToggle>
+      <span>
+        <RowDetailsToggle name={entity.id} onClick={onToggleDetailsClick}>
+          {shorten(entity.text)}
+        </RowDetailsToggle>
+      </span>
     </TableData>
     <TableData>{entity.nvt ? entity.nvt.name : ''}</TableData>
     <TableData title={entity.hosts}>
@@ -115,7 +117,7 @@ const Row = ({
     <TableData title={entity.port}>{shorten(entity.port)}</TableData>
     <TableData>{render_severity(entity.severity)}</TableData>
     <TableData>
-      <SeverityBar severity={entity.new_severity} />
+      <SeverityBar severity={entity.newSeverity} />
     </TableData>
     <TableData>{entity.isActive() ? _('yes') : _('no')}</TableData>
     <ActionsComponent {...props} entity={entity} />

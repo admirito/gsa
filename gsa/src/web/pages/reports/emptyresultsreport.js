@@ -16,9 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import React from 'react';
+
+import styled from 'styled-components';
 
 import _ from 'gmp/locale';
 
@@ -35,6 +37,11 @@ import ReportPanel from './reportpanel';
 import FilterIcon from 'web/components/icon/filtericon';
 import EditIcon from 'web/components/icon/editicon';
 import DeleteIcon from 'web/components/icon/deleteicon';
+
+const FilterString = styled.span`
+  font-style: italic;
+  margin-left: 10px;
+`;
 
 const EmptyResultsReport = ({
   all,
@@ -57,7 +64,10 @@ const EmptyResultsReport = ({
             '{{all}} results.',
           {all},
         )}
-      />
+      >
+        {_('Current applied filter is: ')}
+        <FilterString>{filter.toFilterString()}</FilterString>
+      </InfoPanel>
 
       <Divider align={['start', 'stretch']} wrap>
         {!levels.includes('g') && (

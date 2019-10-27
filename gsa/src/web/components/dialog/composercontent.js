@@ -42,7 +42,7 @@ export const COMPOSER_CONTENT_DEFAULTS = {
 
 const FilterField = styled.div`
   display: block;
-  height: 22px;
+  min-height: 22px;
   color: ${Theme.darkGray};
   border: 1px solid ${Theme.inputBorderGray};
   border-radius: 2px;
@@ -54,7 +54,7 @@ const FilterField = styled.div`
 
 const ComposerContent = ({
   filterFieldTitle = _(
-    'To change the filter, please filter your results on the report page.',
+    'To change the filter, please filter your results on the report page. This filter will not be stored as default.',
   ),
   filterString,
   includeNotes,
@@ -62,7 +62,7 @@ const ComposerContent = ({
   onValueChange,
 }) => (
   <Layout flex="column">
-    <FormGroup title={_('Filter')} titleSize="3">
+    <FormGroup title={_('Results Filter')} titleSize="3">
       <FilterField title={filterFieldTitle}>{filterString}</FilterField>
     </FormGroup>
     <FormGroup title={_('Include')} titleSize="3">
@@ -82,6 +82,16 @@ const ComposerContent = ({
           checkedValue={YES_VALUE}
           unCheckedValue={NO_VALUE}
           title={_('Overrides')}
+          onChange={onValueChange}
+        />
+        <CheckBox
+          disabled={true}
+          name="includeTlsCertificates"
+          checked={true}
+          checkedValue={YES_VALUE}
+          unCheckedValue={NO_VALUE}
+          title={_('TLS Certificates')}
+          toolTipTitle={_('TLS Certificates are always included for now')}
           onChange={onValueChange}
         />
       </Divider>

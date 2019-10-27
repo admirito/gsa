@@ -28,12 +28,14 @@ import Comment from 'web/components/comment/comment';
 
 import ExportIcon from 'web/components/icon/exporticon';
 import ListIcon from 'web/components/icon/listicon';
+import ManualIcon from 'web/components/icon/manualicon';
 import SolutionType from 'web/components/icon/solutiontypeicon';
 import TicketIcon from 'web/components/icon/ticketicon';
 
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import DetailsLink from 'web/components/link/detailslink';
 
@@ -77,6 +79,11 @@ const ToolBarIcons = ({
   onTicketEditClick,
 }) => (
   <Divider margin="10px">
+    <ManualIcon
+      page="reports"
+      anchor="managing-tickets"
+      title={_('Help: Remediation Tickets')}
+    />
     <ListIcon title={_('Ticket List')} page="tickets" />
     <IconDivider>
       <EntityCloneIcon
@@ -142,9 +149,11 @@ const Details = ({entity}) => (
         <TableRow>
           <TableData>{_('Assigned To')}</TableData>
           <TableData>
-            <DetailsLink type="user" id={entity.assignedTo.user.id}>
-              {entity.assignedTo.user.name}
-            </DetailsLink>
+            <span>
+              <DetailsLink type="user" id={entity.assignedTo.user.id}>
+                {entity.assignedTo.user.name}
+              </DetailsLink>
+            </span>
           </TableData>
         </TableRow>
         <TableRow>
@@ -207,36 +216,39 @@ const Page = ({
         onTicketSolveClick={solve}
       >
         {({activeTab = 0, onActivateTab}) => (
-          <Layout grow="1" flex="column">
-            <TabLayout grow="1" align={['start', 'end']}>
-              <TabList
-                active={activeTab}
-                align={['start', 'stretch']}
-                onActivateTab={onActivateTab}
-              >
-                <Tab>{_('Information')}</Tab>
-                <EntitiesTab entities={entity.userTags}>
-                  {_('User Tags')}
-                </EntitiesTab>
-              </TabList>
-            </TabLayout>
+          <React.Fragment>
+            <PageTitle title={_('Ticket: {{name}}', {name: entity.name})} />
+            <Layout grow="1" flex="column">
+              <TabLayout grow="1" align={['start', 'end']}>
+                <TabList
+                  active={activeTab}
+                  align={['start', 'stretch']}
+                  onActivateTab={onActivateTab}
+                >
+                  <Tab>{_('Information')}</Tab>
+                  <EntitiesTab entities={entity.userTags}>
+                    {_('User Tags')}
+                  </EntitiesTab>
+                </TabList>
+              </TabLayout>
 
-            <Tabs active={activeTab}>
-              <TabPanels>
-                <TabPanel>
-                  <Details entity={entity} />
-                </TabPanel>
-                <TabPanel>
-                  <EntityTags
-                    entity={entity}
-                    onChanged={onChanged}
-                    onError={onError}
-                    onInteraction={onInteraction}
-                  />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Layout>
+              <Tabs active={activeTab}>
+                <TabPanels>
+                  <TabPanel>
+                    <Details entity={entity} />
+                  </TabPanel>
+                  <TabPanel>
+                    <EntityTags
+                      entity={entity}
+                      onChanged={onChanged}
+                      onError={onError}
+                      onInteraction={onInteraction}
+                    />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </Layout>
+          </React.Fragment>
         )}
       </EntityPage>
     )}

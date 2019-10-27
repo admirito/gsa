@@ -30,6 +30,7 @@ import Scanner, {
   OPENVAS_SCANNER_TYPE,
   OSP_SCANNER_TYPE,
   GMP_SCANNER_TYPE,
+  GREENBONE_SENSOR_SCANNER_TYPE,
 } from 'gmp/models/scanner';
 import {testModel} from 'gmp/models/testing';
 
@@ -39,7 +40,7 @@ testModel(Scanner, 'scanner');
 
 describe('Scanner model tests', () => {
   test('should parse type', () => {
-    const scanner = new Scanner({type: '42'});
+    const scanner = Scanner.fromElement({type: '42'});
 
     expect(scanner.scannerType).toEqual(42);
   });
@@ -55,11 +56,12 @@ describe('Scanner model tests', () => {
         _id: '',
       },
     };
-    const scanner = new Scanner(elem);
-    const scanner2 = new Scanner(elem2);
+    const scanner = Scanner.fromElement(elem);
+    const scanner2 = Scanner.fromElement(elem2);
 
     expect(scanner.credential).toBeInstanceOf(Credential);
     expect(scanner.credential.id).toEqual('123abc');
+    expect(scanner.credential.entityType).toEqual('credential');
     expect(scanner2.credential).toBeUndefined();
   });
 
@@ -67,11 +69,12 @@ describe('Scanner model tests', () => {
     const elem = {
       ca_pub: {},
     };
-    const scanner = new Scanner({});
-    const scanner2 = new Scanner(elem);
+    const scanner = Scanner.fromElement({});
+    const scanner2 = Scanner.fromElement(elem);
 
+    expect(scanner.caPub).toBeUndefined();
+    expect(scanner2.caPub).toEqual({certificate: {}});
     expect(scanner.ca_pub).toBeUndefined();
-    expect(scanner2.ca_pub).toEqual({certificate: {}});
   });
 
   test('should parse ca_pub_info', () => {
@@ -82,13 +85,11 @@ describe('Scanner model tests', () => {
         expiration_time: '2018-10-10T23:59:00.000+0000',
       },
     };
-    const scanner = new Scanner(elem);
+    const scanner = Scanner.fromElement(elem);
 
-    expect(isDate(scanner.ca_pub.info.activationTime)).toEqual(true);
-    expect(isDate(scanner.ca_pub.info.expirationTime)).toEqual(true);
+    expect(isDate(scanner.caPub.info.activationTime)).toEqual(true);
+    expect(isDate(scanner.caPub.info.expirationTime)).toEqual(true);
     expect(scanner.ca_pub_info).toBeUndefined();
-    expect(scanner.ca_pub.info.activation_time).toBeUndefined();
-    expect(scanner.ca_pub.info.expiration_time).toBeUndefined();
   });
 
   test('should parse tasks', () => {
@@ -97,14 +98,15 @@ describe('Scanner model tests', () => {
         task: [{id: '123'}],
       },
     };
-    const scanner = new Scanner(elem);
+    const scanner = Scanner.fromElement(elem);
 
     expect(scanner.tasks[0]).toBeInstanceOf(Model);
     expect(scanner.tasks[0].entityType).toEqual('task');
+    expect(scanner.tasks[0].id).toEqual('123');
   });
 
   test('should return empty array if no tasks are given', () => {
-    const scanner = new Scanner({});
+    const scanner = Scanner.fromElement({});
 
     expect(scanner.tasks).toEqual([]);
   });
@@ -115,14 +117,15 @@ describe('Scanner model tests', () => {
         config: [{id: '123'}],
       },
     };
-    const scanner = new Scanner(elem);
+    const scanner = Scanner.fromElement(elem);
 
     expect(scanner.configs[0]).toBeInstanceOf(Model);
     expect(scanner.configs[0].entityType).toEqual('scanconfig');
+    expect(scanner.configs[0].id).toEqual('123');
   });
 
   test('should return empty array if no configs are given', () => {
-    const scanner = new Scanner({});
+    const scanner = Scanner.fromElement({});
 
     expect(scanner.configs).toEqual([]);
   });
@@ -163,12 +166,12 @@ describe('Scanner model tests', () => {
     const paramsRes = {
       name: 'ipsum',
       description: 'dolor',
-      param_type: 'sit',
+      paramType: 'sit',
       mandatory: YES_VALUE,
       default: 'amet',
     };
-    const scanner = new Scanner(elem);
-    const scanner2 = new Scanner(elem2);
+    const scanner = Scanner.fromElement(elem);
+    const scanner2 = Scanner.fromElement(elem2);
 
     expect(scanner.info.scanner.name).toEqual('foo');
     expect(scanner.info.scanner.version).toEqual('42');
@@ -177,6 +180,8 @@ describe('Scanner model tests', () => {
     expect(scanner.info.protocol.name).toEqual('bar');
     expect(scanner.info.protocol.version).toBeUndefined();
     expect(scanner.info.params[0]).toEqual(paramsRes);
+    expect(scanner.info.params[0].paramType).toEqual('sit');
+    expect(scanner.info.params.param).toBeUndefined();
     expect(scanner2.info.description).toBeUndefined();
     expect(scanner2.info.params).toBeUndefined();
   });
@@ -186,16 +191,19 @@ describe('Scanner model tests', () => {
     const elem2 = {type: OPENVAS_SCANNER_TYPE};
     const elem3 = {type: GMP_SCANNER_TYPE};
     const elem4 = {type: OSP_SCANNER_TYPE};
+    const elem5 = {type: GREENBONE_SENSOR_SCANNER_TYPE};
 
-    const scanner1 = new Scanner(elem1);
-    const scanner2 = new Scanner(elem2);
-    const scanner3 = new Scanner(elem3);
-    const scanner4 = new Scanner(elem4);
+    const scanner1 = Scanner.fromElement(elem1);
+    const scanner2 = Scanner.fromElement(elem2);
+    const scanner3 = Scanner.fromElement(elem3);
+    const scanner4 = Scanner.fromElement(elem4);
+    const scanner5 = Scanner.fromElement(elem5);
 
     expect(scanner1.isClonable()).toEqual(false);
     expect(scanner2.isClonable()).toEqual(false);
     expect(scanner3.isClonable()).toEqual(true);
     expect(scanner4.isClonable()).toEqual(true);
+    expect(scanner5.isClonable()).toEqual(true);
   });
 
   test('isWritable() should return correct true/false', () => {
@@ -203,22 +211,25 @@ describe('Scanner model tests', () => {
     const elem2 = {type: OPENVAS_SCANNER_TYPE};
     const elem3 = {type: GMP_SCANNER_TYPE};
     const elem4 = {type: OSP_SCANNER_TYPE};
+    const elem5 = {type: GREENBONE_SENSOR_SCANNER_TYPE};
 
-    const scanner1 = new Scanner(elem1);
-    const scanner2 = new Scanner(elem2);
-    const scanner3 = new Scanner(elem3);
-    const scanner4 = new Scanner(elem4);
+    const scanner1 = Scanner.fromElement(elem1);
+    const scanner2 = Scanner.fromElement(elem2);
+    const scanner3 = Scanner.fromElement(elem3);
+    const scanner4 = Scanner.fromElement(elem4);
+    const scanner5 = Scanner.fromElement(elem5);
 
     expect(scanner1.isClonable()).toEqual(false);
     expect(scanner2.isClonable()).toEqual(false);
     expect(scanner3.isClonable()).toEqual(true);
     expect(scanner4.isClonable()).toEqual(true);
+    expect(scanner5.isClonable()).toEqual(true);
   });
 
   test('hasUnixSocket() should return correct true/false', () => {
-    const scanner1 = new Scanner({host: '/foo'});
-    const scanner2 = new Scanner({host: 'bar'});
-    const scanner3 = new Scanner({host: {}});
+    const scanner1 = Scanner.fromElement({host: '/foo'});
+    const scanner2 = Scanner.fromElement({host: 'bar'});
+    const scanner3 = Scanner.fromElement({host: {}});
 
     expect(scanner1.hasUnixSocket()).toEqual(true);
     expect(scanner2.hasUnixSocket()).toEqual(false);
@@ -232,13 +243,15 @@ describe('Scanner model function tests', () => {
     const type2 = scannerTypeName(OPENVAS_SCANNER_TYPE);
     const type3 = scannerTypeName(CVE_SCANNER_TYPE);
     const type4 = scannerTypeName(GMP_SCANNER_TYPE);
-    const type5 = scannerTypeName(42);
+    const type5 = scannerTypeName(GREENBONE_SENSOR_SCANNER_TYPE);
+    const type6 = scannerTypeName(42);
 
     expect(type1).toEqual('OSP Scanner');
     expect(type2).toEqual('OpenVAS Scanner');
     expect(type3).toEqual('CVE Scanner');
     expect(type4).toEqual('GMP Scanner');
-    expect(type5).toEqual('Unknown type (42)');
+    expect(type5).toEqual('Greenbone Sensor');
+    expect(type6).toEqual('Unknown type (42)');
   });
 
   test('openVasScannersFilter should return filter with correct true/false', () => {

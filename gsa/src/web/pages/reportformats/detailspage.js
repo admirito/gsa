@@ -20,15 +20,17 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import ManualIcon from 'web/components/icon/manualicon';
-import Icon from 'web/components/icon/icon';
-import ListIcon from 'web/components/icon/listicon';
-import ReportFormatIcon from 'web/components/icon/reportformaticon';
-import VerifyIcon from 'web/components/icon/verifyicon';
-
+import CreateIcon from 'web/entity/icon/createicon';
+import DeleteIcon from 'web/entity/icon/deleteicon';
 import Divider from 'web/components/layout/divider';
+import EditIcon from 'web/entity/icon/editicon';
+import ExportIcon from 'web/components/icon/exporticon';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
+import ListIcon from 'web/components/icon/listicon';
+import ManualIcon from 'web/components/icon/manualicon';
+import ReportFormatIcon from 'web/components/icon/reportformaticon';
 
 import Tab from 'web/components/tab/tab';
 import TabLayout from 'web/components/tab/tablayout';
@@ -53,12 +55,6 @@ import withEntityContainer, {
   permissionsResourceFilter,
 } from 'web/entity/withEntityContainer';
 
-import ExportIcon from 'web/components/icon/exporticon';
-import CloneIcon from 'web/entity/icon/cloneicon';
-import CreateIcon from 'web/entity/icon/createicon';
-import EditIcon from 'web/entity/icon/editicon';
-import DeleteIcon from 'web/entity/icon/deleteicon';
-
 import {selector, loadEntity} from 'web/store/entities/reportformats';
 
 import {
@@ -76,19 +72,17 @@ const ToolBarIcons = withCapabilities(
   ({
     capabilities,
     entity,
-    onReportFormatCloneClick,
     onReportFormatImportClick,
     onReportFormatDeleteClick,
     onReportFormatDownloadClick,
     onReportFormatEditClick,
-    onReportFormatVerifyClick,
   }) => (
     <Divider margin="10px">
       <IconDivider>
         <ManualIcon
           page="reports"
-          anchor="report-plugins"
-          title={_('Help: Report Format Details')}
+          anchor="managing-report-formats"
+          title={_('Help: Report Formats')}
         />
         <ListIcon title={_('Report Formats List')} page="reportformats" />
       </IconDivider>
@@ -97,11 +91,6 @@ const ToolBarIcons = withCapabilities(
           displayName={_('Report Format')}
           entity={entity}
           onClick={onReportFormatImportClick}
-        />
-        <CloneIcon
-          displayName={_('Report Format')}
-          entity={entity}
-          onClick={onReportFormatCloneClick}
         />
         <EditIcon
           displayName={_('Report Format')}
@@ -118,18 +107,6 @@ const ToolBarIcons = withCapabilities(
           title={_('Export Report Format as XML')}
           onClick={onReportFormatDownloadClick}
         />
-        {capabilities.mayOp('verify_report_format') ? (
-          <VerifyIcon
-            value={entity}
-            title={_('Verify Report Format')}
-            onClick={onReportFormatVerifyClick}
-          />
-        ) : (
-          <Icon
-            img="verify_inactive.svg"
-            title={_('Permission to verify Report Format denied')}
-          />
-        )}
       </IconDivider>
     </Divider>
   ),
@@ -137,7 +114,6 @@ const ToolBarIcons = withCapabilities(
 
 ToolBarIcons.propTypes = {
   entity: PropTypes.model.isRequired,
-  onReportFormatCloneClick: PropTypes.func.isRequired,
   onReportFormatDeleteClick: PropTypes.func.isRequired,
   onReportFormatDownloadClick: PropTypes.func.isRequired,
   onReportFormatEditClick: PropTypes.func.isRequired,
@@ -200,8 +176,6 @@ const Page = ({
   ...props
 }) => (
   <ReportFormatComponent
-    onCloned={goto_details('reportformat', props)}
-    onCloneError={onError}
     onDeleted={goto_list('reportformats', props)}
     onDeleteError={onError}
     onDownloaded={onDownloaded}
@@ -209,18 +183,8 @@ const Page = ({
     onImported={goto_details('reportformat', props)}
     onInteraction={onInteraction}
     onSaved={onChanged}
-    onVerify={onChanged}
-    onVerifyError={onError}
   >
-    {({
-      clone,
-      delete: delete_func,
-      download,
-      edit,
-      import: import_func,
-      save,
-      verify,
-    }) => (
+    {({delete: delete_func, download, edit, import: import_func, save}) => (
       <EntityPage
         {...props}
         entity={entity}
@@ -228,65 +192,68 @@ const Page = ({
         title={_('Report Format')}
         toolBarIcons={ToolBarIcons}
         onInteraction={onInteraction}
-        onReportFormatCloneClick={clone}
         onReportFormatImportClick={import_func}
         onReportFormatDeleteClick={delete_func}
         onReportFormatDownloadClick={download}
         onReportFormatEditClick={edit}
         onReportFormatSaveClick={save}
-        onReportFormatVerifyClick={verify}
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.params}>
-                    {_('Parameters')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+            <React.Fragment>
+              <PageTitle
+                title={_('Report Format: {{name}}', {name: entity.name})}
+              />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.params}>
+                      {_('Parameters')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <Details entity={entity} links={links} />
-                  </TabPanel>
-                  <TabPanel>
-                    <Parameters entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <Details entity={entity} links={links} />
+                    </TabPanel>
+                    <TabPanel>
+                      <Parameters entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>

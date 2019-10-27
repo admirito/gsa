@@ -16,18 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/set';
+import 'core-js/features/set';
 
 import registerCommand from '../command';
 
 import logger from '../log';
 
-import {isArray, isDefined} from '../utils/identity';
-import {map} from '../utils/array';
+import {isArray} from '../utils/identity';
 
-import Model from '../model';
-
-import Permission from '../models/permission';
 import Role from '../models/role';
 
 import EntitiesCommand from './entities';
@@ -61,51 +57,6 @@ class RoleCommand extends EntityCommand {
     };
     log.debug('Saving role', data);
     return this.action(data);
-  }
-
-  editRoleSettings({id}) {
-    return this.httpGet({
-      cmd: 'edit_role',
-      id,
-    }).then(response => {
-      const {capabilities, edit_role} = response.data;
-
-      edit_role.role = new Role(edit_role.get_roles_response.role);
-
-      delete edit_role.get_roles_response;
-
-      const perm_names = new Set();
-
-      edit_role.permissions = map(
-        edit_role.get_permissions_response.permission,
-        permission => {
-          const perm = new Permission(permission);
-          if (!isDefined(perm.resource)) {
-            perm_names.add(permission.name);
-          }
-          return perm;
-        },
-      );
-
-      delete edit_role.get_permissions_response;
-
-      const caps = map(capabilities.help_response.schema.command, cap => {
-        cap.name = cap.name.toLowerCase();
-        return cap;
-      }).filter(cap => {
-        return cap.name !== 'get_version' && !perm_names.has(cap.name);
-      });
-
-      edit_role.all_permissions = caps;
-
-      edit_role.groups = map(edit_role.get_groups_response.group, group => {
-        return new Model(group);
-      });
-
-      delete edit_role.get_groups_response;
-
-      return response.setData(edit_role);
-    });
   }
 
   getElementFromRoot(root) {

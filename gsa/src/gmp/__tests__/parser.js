@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/keys';
+import 'core-js/features/object/keys';
 
 import {isDate, isDuration} from 'gmp/models/date';
 
@@ -24,6 +24,7 @@ import {
   parseCsv,
   parseCvssBaseVector,
   parseCvssBaseFromVector,
+  parseBoolean,
   parseDate,
   parseDuration,
   parseEnvelopeMeta,
@@ -54,6 +55,11 @@ describe('parseInt tests', () => {
   test('should shut cut float strings', () => {
     expect(parseInt('5.9999')).toBe(5);
     expect(parseInt('5.1')).toBe(5);
+  });
+
+  test('should parse int numbers', () => {
+    expect(parseInt(5)).toBe(5);
+    expect(parseInt(-5)).toBe(-5);
   });
 
   test('should cut float numbers', () => {
@@ -150,14 +156,14 @@ describe('parseTextElement tests', () => {
       }),
     ).toEqual({
       text: 'foo',
-      text_excerpt: '1',
+      textExcerpt: '1',
     });
   });
 
   test('should convert plain text elements', () => {
     expect(parseTextElement('foo')).toEqual({
       text: 'foo',
-      text_excerpt: '0',
+      textExcerpt: '0',
     });
   });
 });
@@ -324,6 +330,13 @@ describe('setProperties tests', () => {
     expect(obj.lorem).toEqual('ipsum');
 
     expect(Object.keys(obj)).toEqual(expect.arrayContaining(['foo', 'lorem']));
+  });
+
+  test('should not allow to override set properties', () => {
+    const obj = setProperties({
+      foo: 'bar',
+      lorem: 'ipsum',
+    });
 
     expect(() => {
       obj.foo = 'a';
@@ -331,6 +344,26 @@ describe('setProperties tests', () => {
     expect(() => {
       obj.lorem = 'a';
     }).toThrow();
+  });
+
+  test('should allow to override set properties if requested', () => {
+    const obj = setProperties(
+      {
+        foo: 'bar',
+        lorem: 'ipsum',
+      },
+      {},
+      {writable: true},
+    );
+
+    expect(obj.foo).toEqual('bar');
+    expect(obj.lorem).toEqual('ipsum');
+
+    obj.foo = 'a';
+    obj.lorem = 'b';
+
+    expect(obj.foo).toEqual('a');
+    expect(obj.lorem).toEqual('b');
   });
 
   test('should skip properties starting with underscore', () => {
@@ -522,7 +555,7 @@ describe('parseCvssBaseVector tests', () => {
     expect(parseCvssBaseVector({authentication: 'MULTIPLE_INSTANCES'})).toEqual(
       'AV:ERROR/AC:ERROR/Au:M/C:ERROR/I:ERROR/A:ERROR',
     );
-    expect(parseCvssBaseVector({authentication: 'SINGLE_INSTANCES'})).toEqual(
+    expect(parseCvssBaseVector({authentication: 'SINGLE_INSTANCE'})).toEqual(
       'AV:ERROR/AC:ERROR/Au:S/C:ERROR/I:ERROR/A:ERROR',
     );
   });
@@ -670,7 +703,7 @@ describe('parseCvssBaseFromVector tests', () => {
     expect(parseCvssBaseFromVector('AU:S')).toEqual({
       accessVector: undefined,
       accessComplexity: undefined,
-      authentication: 'SINGLE_INSTANCES',
+      authentication: 'SINGLE_INSTANCE',
       availabilityImpact: undefined,
       confidentialityImpact: undefined,
       integrityImpact: undefined,
@@ -770,7 +803,7 @@ describe('parseCvssBaseFromVector tests', () => {
     expect(parseCvssBaseFromVector('AV:N/AC:H/AU:S/C:C/I:C/A:C')).toEqual({
       accessVector: 'NETWORK',
       accessComplexity: 'HIGH',
-      authentication: 'SINGLE_INSTANCES',
+      authentication: 'SINGLE_INSTANCE',
       availabilityImpact: 'COMPLETE',
       confidentialityImpact: 'COMPLETE',
       integrityImpact: 'COMPLETE',
@@ -789,6 +822,39 @@ describe('parseText tests', () => {
 
   test('should return __text if set', () => {
     expect(parseText({__text: 'foo'})).toEqual('foo');
+  });
+});
+
+describe('parseBoolean tests', () => {
+  test('should parse int numbers', () => {
+    expect(parseBoolean(1)).toBe(true);
+    expect(parseBoolean(0)).toBe(false);
+    expect(parseBoolean(2)).toBe(true);
+    expect(parseBoolean(-2)).toBe(true);
+  });
+
+  test('should parse int number strings', () => {
+    expect(parseBoolean('1')).toBe(true);
+    expect(parseBoolean('0')).toBe(false);
+    expect(parseBoolean('2')).toBe(true);
+    expect(parseBoolean('-2')).toBe(true);
+  });
+
+  test('should parse undefined', () => {
+    expect(parseBoolean()).toBe(false);
+  });
+
+  test('should parse empty string', () => {
+    expect(parseBoolean('')).toBe(false);
+  });
+
+  test('should parse non number strings', () => {
+    expect(parseBoolean('foo')).toBe(false);
+  });
+
+  test('should parse boolean', () => {
+    expect(parseBoolean(false)).toBe(false);
+    expect(parseBoolean(true)).toBe(true);
   });
 });
 

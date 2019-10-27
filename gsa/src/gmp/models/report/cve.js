@@ -23,43 +23,48 @@ import {setProperties, parseSeverity} from '../../parser';
 import Nvt from '../nvt';
 
 class ReportCve {
-  constructor(elem) {
-    this.parseProperties(elem);
-
+  constructor() {
     this.occurrences = 0;
+
+    this.hosts = {
+      hostsByIp: {},
+      count: 0,
+    };
+  }
+
+  static fromElement(element) {
+    const cve = new ReportCve();
+
+    setProperties(this.parseElement(element), cve);
+
+    return cve;
   }
 
   addHost(host) {
-    if (!(host.ip in this.hosts.hosts_by_ip)) {
-      this.hosts.hosts_by_ip[host.ip] = host;
+    if (!(host.ip in this.hosts.hostsByIp)) {
+      this.hosts.hostsByIp[host.ip] = host;
       this.hosts.count++;
     }
   }
 
-  addResult(result) {
+  addResult({severity: resultSeverity}) {
     this.occurrences += 1;
 
-    const severity = parseSeverity(result.severity);
+    const severity = parseSeverity(resultSeverity);
 
     if (!isDefined(this.severity) || severity > this.severity) {
       this.severity = severity;
     }
   }
 
-  parseProperties(elem) {
+  static parseElement(element) {
     const copy = {};
 
-    const nvt = new Nvt(elem);
+    const nvt = Nvt.fromElement(element);
 
     copy.id = nvt.id;
+    copy.nvtName = nvt.name;
     copy.cves = nvt.cves;
-
-    copy.hosts = {
-      hosts_by_ip: {},
-      count: 0,
-    };
-
-    setProperties(copy, this);
 
     return copy;
   }

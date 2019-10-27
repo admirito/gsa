@@ -32,13 +32,14 @@ import PasswordField from 'web/components/form/passwordfield';
 import Radio from 'web/components/form/radio';
 import TextField from 'web/components/form/textfield';
 import YesNoRadio from 'web/components/form/yesnoradio';
-import {noop_convert} from 'web/components/form/withChangeHandler';
 
 import Divider from 'web/components/layout/divider';
 import Layout from 'web/components/layout/layout';
 
 import TableData from 'web/components/table/data';
 import TableRow from 'web/components/table/row';
+
+const noop_convert = value => value;
 
 class NvtPreference extends React.Component {
   constructor(...args) {
@@ -67,7 +68,7 @@ class NvtPreference extends React.Component {
   }
 
   render() {
-    const {preference, value} = this.props;
+    const {preference, value = ''} = this.props;
 
     const {checked} = this.state;
     const {type} = preference;
@@ -156,7 +157,13 @@ class NvtPreference extends React.Component {
 }
 
 NvtPreference.propTypes = {
-  preference: PropTypes.object.isRequired,
+  preference: PropTypes.shape({
+    default: PropTypes.any,
+    hr_name: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    value: PropTypes.any,
+    alt: PropTypes.array,
+  }).isRequired,
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
 };

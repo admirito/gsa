@@ -42,8 +42,8 @@ describe('Result model tests', () => {
         __text: 'foo',
       },
     };
-    const result = new Result(elem);
-    const result2 = new Result(elem2);
+    const result = Result.fromElement(elem);
+    const result2 = Result.fromElement(elem2);
     const res = {
       name: 'foo',
       id: '123',
@@ -51,7 +51,6 @@ describe('Result model tests', () => {
     };
     const res2 = {
       name: 'foo',
-      id: 'foo',
       hostname: '',
     };
     expect(result.host).toEqual(res);
@@ -59,14 +58,27 @@ describe('Result model tests', () => {
   });
 
   test('should parse host string', () => {
-    const result = new Result({host: 'foo'});
+    const result = Result.fromElement({host: 'foo'});
     const res = {
       name: 'foo',
-      id: 'foo',
       hostname: '',
     };
 
     expect(result.host).toEqual(res);
+  });
+
+  test('should remove empty host id', () => {
+    const host = {
+      _asset_id: '',
+      __text: 'foo',
+      hostname: 'bar',
+    };
+    const result = Result.fromElement({host});
+
+    expect(result.host).toEqual({
+      name: 'foo',
+      hostname: 'bar',
+    });
   });
 
   test('should parse NVTs', () => {
@@ -75,14 +87,15 @@ describe('Result model tests', () => {
         _oid: 'bar',
       },
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.nvt).toBeInstanceOf(Nvt);
+    expect(result.nvt.oid).toEqual('bar');
   });
 
   test('should parse severity', () => {
-    const result = new Result({severity: '4.2'});
-    const result2 = new Result({});
+    const result = Result.fromElement({severity: '4.2'});
+    const result2 = Result.fromElement({});
 
     expect(result.severity).toEqual(4.2);
     expect(result2.severity).toBeUndefined();
@@ -94,22 +107,22 @@ describe('Result model tests', () => {
         _oid: '42',
       },
     };
-    const result = new Result({name: 'foo'});
-    const result2 = new Result(elem);
+    const result = Result.fromElement({name: 'foo'});
+    const result2 = Result.fromElement(elem);
 
     expect(result.vulnerability).toEqual('foo');
     expect(result2.vulnerability).toEqual('42');
   });
 
   test('should parse report', () => {
-    const result = new Result({report: 'foo'});
+    const result = Result.fromElement({report: 'foo'});
 
     expect(result.report).toBeInstanceOf(Model);
     expect(result.report.entityType).toEqual('report');
   });
 
   test('should parse task', () => {
-    const result = new Result({task: 'foo'});
+    const result = Result.fromElement({task: 'foo'});
 
     expect(result.task).toBeInstanceOf(Model);
     expect(result.task.entityType).toEqual('task');
@@ -144,13 +157,13 @@ describe('Result model tests', () => {
         },
       },
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.detection).toEqual(res);
   });
 
   test('should parse delta string', () => {
-    const result = new Result({delta: 'foo'});
+    const result = Result.fromElement({delta: 'foo'});
 
     expect(result.delta).toBeInstanceOf(Delta);
     expect(result.delta).toEqual({delta_type: 'foo'});
@@ -162,14 +175,34 @@ describe('Result model tests', () => {
         __text: 'foo',
       },
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.delta).toBeInstanceOf(Delta);
-    expect(result.delta).toEqual({delta_type: 'foo'});
+    expect(result.delta.delta_type).toEqual('foo');
+  });
+
+  test('should parse changed delta object', () => {
+    const elem = {
+      delta: {
+        __text: Delta.TYPE_CHANGED,
+        diff: 'some foobar diff',
+        result: {
+          _id: 'r1',
+          description: 'some result description',
+        },
+      },
+    };
+    const result = Result.fromElement(elem);
+
+    expect(result.delta).toBeInstanceOf(Delta);
+    expect(result.delta.delta_type).toEqual(Delta.TYPE_CHANGED);
+    expect(result.delta.diff).toEqual('some foobar diff');
+    expect(result.delta.result).toBeInstanceOf(Model);
+    expect(result.delta.result.description).toEqual('some result description');
   });
 
   test('should parse original severity', () => {
-    const result = new Result({original_severity: '4.2'});
+    const result = Result.fromElement({original_severity: '4.2'});
 
     expect(result.original_severity).toEqual(4.2);
   });
@@ -185,7 +218,7 @@ describe('Result model tests', () => {
       type: 'foo',
       value: 42.5,
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.qod).toEqual(res);
   });
@@ -196,14 +229,16 @@ describe('Result model tests', () => {
         note: ['foo', 'bar'],
       },
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.notes[0]).toBeInstanceOf(Note);
+    expect(result.notes[0].entityType).toEqual('note');
     expect(result.notes[1]).toBeInstanceOf(Note);
+    expect(result.notes[1].entityType).toEqual('note');
   });
 
   test('should return empty array if no notes are given', () => {
-    const result = new Result({});
+    const result = Result.fromElement({});
 
     expect(result.notes).toEqual([]);
   });
@@ -214,21 +249,23 @@ describe('Result model tests', () => {
         override: ['foo', 'bar'],
       },
     };
-    const result = new Result(elem);
+    const result = Result.fromElement(elem);
 
     expect(result.overrides[0]).toBeInstanceOf(Override);
+    expect(result.overrides[0].entityType).toEqual('override');
     expect(result.overrides[1]).toBeInstanceOf(Override);
+    expect(result.overrides[1].entityType).toEqual('override');
   });
 
   test('should return empty array if no overrides are given', () => {
-    const result = new Result({});
+    const result = Result.fromElement({});
 
     expect(result.overrides).toEqual([]);
   });
 
   test('hasDelta() should return correct true/false', () => {
-    const result = new Result({delta: 'defined'});
-    const result2 = new Result({});
+    const result = Result.fromElement({delta: 'defined'});
+    const result2 = Result.fromElement({});
 
     expect(result.hasDelta()).toEqual(true);
     expect(result2.hasDelta()).toEqual(false);

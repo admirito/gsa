@@ -242,8 +242,7 @@ class HostsTopologyChart extends React.Component {
     if (host.isScanner) {
       return Theme.green;
     }
-
-    if (isDefined(host.uuid)) {
+    if (isDefined(host.uuid) && isDefined(host.severity)) {
       return color(this.colorScale(host.severity)).darker();
     }
 
@@ -461,7 +460,7 @@ class HostsTopologyChart extends React.Component {
           onMouseDown={this.handleMouseDown}
           onMouseUp={this.handleMousUp}
           onMouseMove={this.handleMousMove}
-          innerRef={setRef(ref => (this.svg = ref), svgRef)}
+          ref={setRef(ref => (this.svg = ref), svgRef)}
         >
           <Group left={translateX} top={translateY} scale={scale}>
             {links.map(link => {

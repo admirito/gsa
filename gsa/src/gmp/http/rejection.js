@@ -22,13 +22,15 @@ class Rejection {
   static REASON_ERROR = 'error';
   static REASON_TIMEOUT = 'timeout';
   static REASON_CANCEL = 'cancel';
+  static REASON_UNAUTHORIZED = 'unauthorized';
 
   constructor(xhr, reason = Rejection.REASON_ERROR, message = '', error) {
     this.name = 'Rejection';
     this.message = message;
     this.reason = reason;
-    this.xhr = xhr;
     this.error = error;
+
+    this._xhr = xhr;
 
     if (!isDefined(error)) {
       error = new Error();
@@ -37,21 +39,27 @@ class Rejection {
     this.stack = error.stack;
   }
 
-  isCancel() {
-    return this.reason === Rejection.REASON_CANCEL;
+  plainData(type = '') {
+    if (type === 'xml') {
+      return this._xhr.responseXML;
+    }
+    if (type === 'text') {
+      return this._xhr.responseText;
+    }
+    return this._xhr.response;
   }
 
   isError() {
     return this.reason === Rejection.REASON_ERROR;
   }
 
-  isTimeout() {
-    return this.reason === Rejection.REASON_TIMEOUT;
-  }
-
   setMessage(message) {
     this.message = message;
     return this;
+  }
+
+  get status() {
+    return isDefined(this._xhr) ? this._xhr.status : undefined;
   }
 }
 

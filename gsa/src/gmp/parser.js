@@ -16,10 +16,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/object/entries';
+import 'core-js/features/string/starts-with';
 
-import {isDefined, isString} from './utils/identity';
+import {isDefined, isString, isNumber} from './utils/identity';
 import {isEmpty} from './utils/string';
 
 import date, {duration} from './models/date';
@@ -51,13 +51,13 @@ export const parseTextElement = (text = {}) => {
   if (isDefined(text.__text)) {
     return {
       text: text.__text,
-      text_excerpt: text.__excerpt,
+      textExcerpt: text.__excerpt,
     };
   }
 
   return {
     text,
-    text_excerpt: '0',
+    textExcerpt: '0',
   };
 };
 
@@ -119,6 +119,7 @@ export const parseEnvelopeMeta = envelope => {
 
   for (const [name, to] of ENVELOPE_PROPS) {
     meta[to] = envelope[name];
+    delete envelope[name];
   }
   return meta;
 };
@@ -147,10 +148,6 @@ export const parseProperties = (element = {}, object = {}) => {
     copy.id = element._id;
   }
 
-  if (isString(element.name) && element.name.length > 0) {
-    copy.name = parseXmlEncodedString(element.name);
-  }
-
   if (isDefined(element.creation_time)) {
     copy.creationTime = parseDate(element.creation_time);
     delete copy.creation_time;
@@ -169,13 +166,17 @@ export const parseProperties = (element = {}, object = {}) => {
   return copy;
 };
 
-export const setProperties = (properties, object = {}) => {
+export const setProperties = (
+  properties,
+  object = {},
+  {writable = false} = {},
+) => {
   if (isDefined(properties)) {
     for (const [key, value] of Object.entries(properties)) {
       if (!key.startsWith('_')) {
         Object.defineProperty(object, key, {
           value,
-          writable: false,
+          writable,
           enumerable: true,
         });
       }
@@ -242,7 +243,7 @@ export const parseCvssBaseVector = ({
     case 'MULTIPLE_INSTANCES':
       vector += 'M';
       break;
-    case 'SINGLE_INSTANCES':
+    case 'SINGLE_INSTANCE':
       vector += 'S';
       break;
     default:
@@ -339,7 +340,7 @@ export const parseCvssBaseFromVector = vector => {
         if (value === 'm') {
           au = 'MULTIPLE_INSTANCES';
         } else if (value === 's') {
-          au = 'SINGLE_INSTANCES';
+          au = 'SINGLE_INSTANCE';
         } else if (value === 'n') {
           au = 'NONE';
         }
@@ -410,6 +411,27 @@ export const parseDuration = value => {
     return undefined;
   }
   return duration(value, 'seconds');
+};
+
+/**
+ * Parse Numbers, Number Strings and Boolean to Boolean
+ *
+ * Number Strings are converted to Numbers by using the parseInt function.
+ * A Number is considered true if the value is not equal zero.
+ * All other values are compared against true.
+ *
+ * @param {String, Number, Boolean} value Value to convert to boolean
+ *
+ * @returns true if value is considered true else false
+ */
+export const parseBoolean = value => {
+  if (isString(value)) {
+    value = parseInt(value);
+  }
+  if (isNumber(value)) {
+    return value !== 0;
+  }
+  return value === true;
 };
 
 // vim: set ts=2 sw=2 tw=80:

@@ -1,6 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Select component tests should render 1`] = `
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
 .c5 {
   background-color: transparent;
   border: none;
@@ -23,7 +41,7 @@ exports[`Select component tests should render 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 .c4 {
@@ -35,24 +53,6 @@ exports[`Select component tests should render 1`] = `
 .c4 * {
   height: inherit;
   width: inherit;
-}
-
-.c3 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
 }
 
 .c1 {
@@ -109,18 +109,21 @@ exports[`Select component tests should render 1`] = `
   white-space: nowrap;
   overflow: hidden;
   cursor: default;
+  cursor: default;
 }
 
 <div
+  aria-expanded="false"
+  aria-haspopup="listbox"
+  aria-labelledby="downshift-0-label"
   class="c0"
+  role="combobox"
   width="180px"
 >
   <div
-    aria-expanded="false"
     aria-haspopup="true"
     aria-label="open menu"
     class="c1"
-    data-testid="select-open-button"
     data-toggle="true"
     disabled=""
     role="button"
@@ -136,7 +139,7 @@ exports[`Select component tests should render 1`] = `
     >
       <span
         class="c4 c5"
-        disabled=""
+        data-testid="select-open-button"
       >
         ▼
       </span>

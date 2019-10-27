@@ -22,19 +22,22 @@ import {parseSeverity} from '../parser';
 class OperatingSystem extends Asset {
   static entityType = 'operatingsystem';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem);
+  static parseElement(element) {
+    const ret = super.parseElement(element);
 
     if (ret.os) {
-      ret.average_severity = ret.os.average_severity
+      ret.averageSeverity = ret.os.average_severity
         ? parseSeverity(ret.os.average_severity.value)
         : undefined;
-      ret.latest_severity = ret.os.latest_severity
+      delete ret.os.average_severity;
+      ret.latestSeverity = ret.os.latest_severity
         ? parseSeverity(ret.os.latest_severity.value)
         : undefined;
-      ret.highest_severity = ret.os.highest_severity
+      delete ret.os.latest_severity;
+      ret.highestSeverity = ret.os.highest_severity
         ? parseSeverity(ret.os.highest_severity.value)
         : undefined;
+      delete ret.os.highest_severity;
 
       ret.title = ret.os.title;
       ret.hosts = {

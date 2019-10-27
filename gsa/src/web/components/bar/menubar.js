@@ -18,18 +18,13 @@
  */
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import styled from 'styled-components';
 
 import _ from 'gmp/locale';
 
 import {isDefined} from 'gmp/utils/identity';
-
-import PropTypes from 'web/utils/proptypes';
-import withGmp from 'web/utils/withGmp';
-import withCapabilities from 'web/utils/withCapabilities';
-import compose from 'web/utils/compose';
-
-import Theme from 'web/utils/theme';
 
 import Layout from 'web/components/layout/layout';
 
@@ -37,6 +32,14 @@ import Menu from 'web/components/menu/menu';
 import MenuEntry from 'web/components/menu/menuentry';
 import MenuHelpEntry from 'web/components/menu/menuhelpentry';
 import MenuSection from 'web/components/menu/menusection';
+
+import {isLoggedIn} from 'web/store/usersettings/selectors';
+
+import compose from 'web/utils/compose';
+import PropTypes from 'web/utils/proptypes';
+import Theme from 'web/utils/theme';
+import withGmp from 'web/utils/withGmp';
+import withCapabilities from 'web/utils/withCapabilities';
 
 const MENU_BAR_HEIGHT = '35px';
 
@@ -63,8 +66,9 @@ const MenuBarPlaceholder = styled.div`
   height: ${MENU_BAR_HEIGHT};
 `;
 
-const MenuBar = ({gmp, capabilities}) => {
-  if (!gmp.isLoggedIn() || !isDefined(capabilities)) {
+// eslint-disable-next-line no-shadow
+const MenuBar = ({isLoggedIn, capabilities}) => {
+  if (!isLoggedIn || !isDefined(capabilities)) {
     return null;
   }
 
@@ -72,9 +76,9 @@ const MenuBar = ({gmp, capabilities}) => {
     'tasks',
     'reports',
     'results',
+    'vulns',
     'overrides',
     'notes',
-    'tickets',
   ].reduce((sum, cur) => sum || capabilities.mayAccess(cur), false);
 
   const may_op_configuration = [
@@ -89,7 +93,6 @@ const MenuBar = ({gmp, capabilities}) => {
     'scanners',
     'filters',
     'tags',
-    'permissions',
   ].reduce((sum, cur) => sum || capabilities.mayAccess(cur), false);
 
   const mayOpNotesOverrides = ['notes', 'overrides'].reduce(
@@ -104,19 +107,21 @@ const MenuBar = ({gmp, capabilities}) => {
     'agents',
   ].reduce((sum, cur) => sum || capabilities.mayAccess(cur), false);
 
-  const mayOpScannersFiltersTagsPermissions = [
-    'scanners',
-    'filters',
-    'tags',
-    'permissions',
-  ].reduce((sum, cur) => sum || capabilities.mayAccess(cur), false);
+  const mayOpScannersFiltersTags = ['scanners', 'filters', 'tags'].reduce(
+    (sum, cur) => sum || capabilities.mayAccess(cur),
+    false,
+  );
 
-  const may_op_admin =
-    ['users', 'roles', 'groups'].reduce(
-      (sum, cur) => sum || capabilities.mayAccess(cur),
-      false,
-    ) ||
-    (capabilities.mayOp('describe_auth') && capabilities.mayOp('modify_auth'));
+  const mayOpResilience = ['tickets', 'policies', 'audits'].reduce(
+    (sum, cur) => sum || capabilities.mayAccess(cur),
+    false,
+  );
+
+  const mayOpAssets = ['assets', 'tls_certificates'].reduce(
+    (sum, cur) => sum || capabilities.mayAccess(cur),
+    false,
+  );
+
   return (
     <React.Fragment>
       <MenuBarPlaceholder />
@@ -137,11 +142,6 @@ const MenuBar = ({gmp, capabilities}) => {
               {capabilities.mayAccess('vulns') && (
                 <MenuEntry title={_('Vulnerabilities')} to="vulnerabilities" />
               )}
-              {capabilities.mayAccess('tickets') && (
-                <MenuSection>
-                  <MenuEntry title={_('Remediation Tickets')} to="tickets" />
-                </MenuSection>
-              )}
               {mayOpNotesOverrides && (
                 <MenuSection>
                   {capabilities.mayAccess('notes') && (
@@ -154,10 +154,35 @@ const MenuBar = ({gmp, capabilities}) => {
               )}
             </Menu>
           )}
-          {capabilities.mayAccess('assets') && (
+          {mayOpAssets && (
             <Menu title={_('Assets')}>
-              <MenuEntry title={_('Hosts')} to="hosts" />
-              <MenuEntry title={_('Operating Systems')} to="operatingsystems" />
+              {capabilities.mayAccess('assets') && (
+                <MenuEntry title={_('Hosts')} to="hosts" />
+              )}
+              {capabilities.mayAccess('assets') && (
+                <MenuEntry
+                  title={_('Operating Systems')}
+                  to="operatingsystems"
+                />
+              )}
+              {capabilities.mayAccess('tls_certificates') && (
+                <MenuEntry title={_('TLS Certificates')} to="tlscertificates" />
+              )}
+            </Menu>
+          )}
+          {mayOpResilience && (
+            <Menu title={_('Resilience')}>
+              {capabilities.mayAccess('tickets') && (
+                <MenuEntry title={_('Remediation Tickets')} to="tickets" />
+              )}
+              <MenuSection>
+                {capabilities.mayAccess('policies') && (
+                  <MenuEntry title={_('Compliance Policies')} to="policies" />
+                )}
+                {capabilities.mayAccess('audits') && (
+                  <MenuEntry title={_('Compliance Audits')} to="audits" />
+                )}
+              </MenuSection>
             </Menu>
           )}
           {capabilities.mayAccess('info') && (
@@ -203,7 +228,7 @@ const MenuBar = ({gmp, capabilities}) => {
                   )}
                 </MenuSection>
               )}
-              {mayOpScannersFiltersTagsPermissions && (
+              {mayOpScannersFiltersTags && (
                 <MenuSection>
                   {capabilities.mayAccess('scanners') && (
                     <MenuEntry title={_('Scanners')} to="scanners" />
@@ -214,57 +239,54 @@ const MenuBar = ({gmp, capabilities}) => {
                   {capabilities.mayAccess('tags') && (
                     <MenuEntry title={_('Tags')} to="tags" />
                   )}
-                  {capabilities.mayAccess('permissions') && (
-                    <MenuEntry title={_('Permissions')} to="permissions" />
-                  )}
                 </MenuSection>
               )}
             </Menu>
           )}
-          <Menu title={_('Extras')}>
-            <MenuEntry title={_('Trashcan')} to="trashcan" />
-            <MenuEntry title={_('My Settings')} to="usersettings" />
-            {capabilities.mayAccess('system_reports') && (
-              <MenuEntry
-                title={_('Performance')}
-                caps="get_system_reports"
-                to="performance"
-              />
+          <Menu title={_('Administration')}>
+            {capabilities.mayAccess('users') && (
+              <MenuEntry title={_('Users')} to="users" />
             )}
-            <MenuEntry title={_('CVSS Calculator')} to="cvsscalculator" />
-            {capabilities.mayAccess('feeds') && (
-              <MenuEntry
-                title={_('Feed Status')}
-                to="feedstatus"
-                caps="get_feeds"
-              />
+            {capabilities.mayAccess('groups') && (
+              <MenuEntry title={_('Groups')} to="groups" />
             )}
+            {capabilities.mayAccess('roles') && (
+              <MenuEntry title={_('Roles')} to="roles" />
+            )}
+            {capabilities.mayAccess('permissions') && (
+              <MenuEntry title={_('Permissions')} to="permissions" />
+            )}
+            <MenuSection>
+              {capabilities.mayAccess('system_reports') && (
+                <MenuEntry
+                  title={_('Performance')}
+                  caps="get_system_reports"
+                  to="performance"
+                />
+              )}
+              <MenuEntry title={_('Trashcan')} to="trashcan" />
+              {capabilities.mayAccess('feeds') && (
+                <MenuEntry
+                  title={_('Feed Status')}
+                  to="feedstatus"
+                  caps="get_feeds"
+                />
+              )}
+            </MenuSection>
+            <MenuSection>
+              {capabilities.mayOp('describe_auth') &&
+                capabilities.mayOp('modify_auth') && (
+                  <MenuEntry title={_('LDAP')} to="ldap" />
+                )}
+              {capabilities.mayOp('describe_auth') &&
+                capabilities.mayOp('modify_auth') && (
+                  <MenuEntry title={_('Radius')} to="radius" />
+                )}
+            </MenuSection>
           </Menu>
-          {may_op_admin && (
-            <Menu title={_('Administration')}>
-              {capabilities.mayAccess('users') && (
-                <MenuEntry title={_('Users')} to="users" />
-              )}
-              {capabilities.mayAccess('groups') && (
-                <MenuEntry title={_('Groups')} to="groups" />
-              )}
-              {capabilities.mayAccess('roles') && (
-                <MenuEntry title={_('Roles')} to="roles" />
-              )}
-              <MenuSection>
-                {capabilities.mayOp('describe_auth') &&
-                  capabilities.mayOp('modify_auth') && (
-                    <MenuEntry title={_('LDAP')} to="ldap" />
-                  )}
-                {capabilities.mayOp('describe_auth') &&
-                  capabilities.mayOp('modify_auth') && (
-                    <MenuEntry title={_('Radius')} to="radius" />
-                  )}
-              </MenuSection>
-            </Menu>
-          )}
           <Menu title={_('Help')}>
-            <MenuHelpEntry title={_('Contents')} />
+            <MenuHelpEntry title={_('User Manual')} />
+            <MenuEntry title={_('CVSS Calculator')} to="cvsscalculator" />
             <MenuEntry title={_('About')} to="about" />
           </Menu>
         </Ul>
@@ -276,11 +298,17 @@ const MenuBar = ({gmp, capabilities}) => {
 MenuBar.propTypes = {
   capabilities: PropTypes.capabilities,
   gmp: PropTypes.gmp.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
 };
+
+const mapStateToProps = rootState => ({
+  isLoggedIn: isLoggedIn(rootState),
+});
 
 export default compose(
   withCapabilities,
   withGmp,
+  connect(mapStateToProps),
 )(MenuBar);
 
 // vim: set ts=2 sw=2 tw=80:

@@ -20,9 +20,10 @@
 import React from 'react';
 
 import _ from 'gmp/locale';
-import {dateTimeWithTimeZone} from 'gmp/locale/date';
 
 import {isDefined} from 'gmp/utils/identity';
+
+import DateTime from 'web/components/date/datetime';
 
 import ExportIcon from 'web/components/icon/exporticon';
 
@@ -95,7 +96,7 @@ const Row = ({
   onToggleDetailsClick,
   ...props
 }) => {
-  const {event} = entity;
+  const {event = {}, timezone} = entity;
   const {startDate, nextDate, duration, recurrence} = event;
   return (
     <TableRow>
@@ -106,9 +107,19 @@ const Row = ({
         displayName={_('Schedule')}
         onToggleDetailsClick={onToggleDetailsClick}
       />
-      <TableData>{dateTimeWithTimeZone(startDate)}</TableData>
       <TableData>
-        {isDefined(nextDate) ? dateTimeWithTimeZone(nextDate) : '-'}
+        {isDefined(startDate) ? (
+          <DateTime date={startDate} timezone={timezone} />
+        ) : (
+          '-'
+        )}
+      </TableData>
+      <TableData>
+        {isDefined(nextDate) ? (
+          <DateTime date={nextDate} timezone={timezone} />
+        ) : (
+          '-'
+        )}
       </TableData>
       <TableData>{renderRecurrence(recurrence)}</TableData>
       <TableData>{renderDuration(duration)}</TableData>

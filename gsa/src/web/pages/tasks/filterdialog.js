@@ -18,7 +18,7 @@
  */
 import React from 'react';
 
-import {_l} from 'gmp/locale/lang';
+import {_l, _} from 'gmp/locale/lang';
 
 import Layout from 'web/components/layout/layout';
 
@@ -27,7 +27,7 @@ import withCapabilities from 'web/utils/withCapabilities';
 
 /* eslint-disable max-len */
 
-import ApplyOverridesGroup from 'web/components/powerfilter/applyoverridesgroup';
+import BooleanFilterGroup from 'web/components/powerfilter/booleanfiltergroup';
 import CreateNamedFilterGroup from 'web/components/powerfilter/createnamedfiltergroup';
 import FilterStringGroup from 'web/components/powerfilter/filterstringgroup';
 import FirstResultGroup from 'web/components/powerfilter/firstresultgroup';
@@ -36,6 +36,9 @@ import ResultsPerPageGroup from 'web/components/powerfilter/resultsperpagegroup'
 import SortByGroup from 'web/components/powerfilter/sortbygroup';
 import FilterDialogPropTypes from 'web/components/powerfilter/dialogproptypes';
 import withFilterDialog from 'web/components/powerfilter/withFilterDialog';
+import TaskTrendGroup from 'web/components/powerfilter/tasktrendgroup';
+import SeverityValuesGroup from 'web/components/powerfilter/severityvaluesgroup';
+import FilterSearchGroup from 'web/components/powerfilter/filtersearchgroup';
 
 /* eslint-enable */
 
@@ -64,6 +67,14 @@ const SORT_FIELDS = [
     name: 'trend',
     displayName: _l('Trend'),
   },
+  {
+    name: 'false_positive',
+    displayName: _l('False Positive'),
+  },
+  {
+    name: 'hosts',
+    displayName: _l('Number of Hosts'),
+  },
 ];
 
 const TaskFilterDialogComponent = ({
@@ -74,6 +85,7 @@ const TaskFilterDialogComponent = ({
   saveNamedFilter,
   onFilterStringChange,
   onFilterValueChange,
+  onSearchTermChange,
   onSortOrderChange,
   onSortByChange,
   onValueChange,
@@ -90,12 +102,47 @@ const TaskFilterDialogComponent = ({
         onChange={onFilterStringChange}
       />
 
-      <ApplyOverridesGroup filter={filter} onChange={onFilterValueChange} />
+      <BooleanFilterGroup
+        name="apply_overrides"
+        title={_('Apply Overrides')}
+        filter={filter}
+        onChange={onFilterValueChange}
+      />
+
+      <FilterSearchGroup
+        name="name"
+        title={_('Task Name')}
+        filter={filter}
+        onChange={onSearchTermChange}
+      />
+
+      <SeverityValuesGroup
+        name="severity"
+        title={_('Severity of Last Report')}
+        filter={filter}
+        onChange={onFilterValueChange}
+      />
 
       <MinQodGroup
         name="min_qod"
         filter={filter}
         onChange={onFilterValueChange}
+      />
+
+      <TaskTrendGroup filter={filter} onChange={onFilterValueChange} />
+
+      <FilterSearchGroup
+        name="schedule"
+        title={_('Schedule')}
+        filter={filter}
+        onChange={onSearchTermChange}
+      />
+
+      <FilterSearchGroup
+        name="comment"
+        title={_('Comment')}
+        filter={filter}
+        onChange={onSearchTermChange}
       />
 
       <FirstResultGroup filter={filter} onChange={onFilterValueChange} />

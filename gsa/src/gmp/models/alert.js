@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
 import {isDefined, isObject} from '../utils/identity';
 import {isEmpty} from '../utils/string';
@@ -24,7 +24,7 @@ import {forEach, map} from '../utils/array';
 
 import {parseYesNo, YES_VALUE} from '../parser.js';
 
-import Model from '../model.js';
+import Model, {parseModelFromElement} from '../model.js';
 
 export const EVENT_TYPE_UPDATED_SECINFO = 'Updated SecInfo arrived';
 export const EVENT_TYPE_NEW_SECINFO = 'New SecInfo arrived';
@@ -56,6 +56,7 @@ export const METHOD_TYPE_VERINICE = 'verinice Connector';
 export const METHOD_TYPE_TIPPING_POINT = 'TippingPoint SMS';
 
 export const EMAIL_NOTICE_INCLUDE = '0';
+export const EMAIL_NOTICE_SIMPLE = '1';
 export const EMAIL_NOTICE_ATTACH = '2';
 
 export const DELTA_TYPE_NONE = 'None';
@@ -92,8 +93,8 @@ const create_values = data => {
 class Alert extends Model {
   static entityType = 'alert';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem);
+  static parseElement(element) {
+    const ret = super.parseElement(element);
 
     const types = ['condition', 'method', 'event'];
 
@@ -118,11 +119,13 @@ class Alert extends Model {
     }
 
     if (isDefined(ret.filter)) {
-      ret.filter = new Model(ret.filter, 'filter');
+      ret.filter = parseModelFromElement(ret.filter, 'filter');
     }
 
-    if (isDefined(elem.tasks)) {
-      ret.tasks = map(elem.tasks.task, task => new Model(task, 'task'));
+    if (isDefined(element.tasks)) {
+      ret.tasks = map(element.tasks.task, task =>
+        parseModelFromElement(task, 'task'),
+      );
     } else {
       ret.tasks = [];
     }
@@ -136,7 +139,7 @@ class Alert extends Model {
       ret.method.data.report_formats = [];
     }
 
-    ret.active = parseYesNo(elem.active);
+    ret.active = parseYesNo(element.active);
 
     return ret;
   }

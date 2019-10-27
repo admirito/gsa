@@ -24,8 +24,6 @@ import {parseInt} from 'gmp/parser';
 
 import {NVT_FEED, SCAP_FEED, CERT_FEED} from 'gmp/commands/feedstatus';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
-
 import CertBundAdvIcon from 'web/components/icon/certbundadvicon';
 import CveIcon from 'web/components/icon/cveicon';
 import DfnCertAdvIcon from 'web/components/icon/dfncertadvicon';
@@ -38,6 +36,7 @@ import CpeLogoIcon from 'web/components/icon/cpelogoicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Link from 'web/components/link/link';
 
@@ -55,8 +54,8 @@ import withGmp from 'web/utils/withGmp';
 
 const ToolBarIcons = () => (
   <ManualIcon
-    page="search"
-    searchTerm="feed"
+    page="web-interface"
+    anchor="displaying-the-feed-status"
     size="small"
     title={_('Help: Feed Status')}
   />
@@ -107,7 +106,8 @@ class FeedStatus extends React.Component {
   render() {
     const {feeds} = this.state;
     return (
-      <ErrorBoundary errElement={_('page')}>
+      <React.Fragment>
+        <PageTitle title={_('Feed Status')} />
         <Layout flex="column">
           <ToolBarIcons />
           <Section img={<FeedIcon size="large" />} title={_('Feed Status')} />
@@ -187,7 +187,7 @@ class FeedStatus extends React.Component {
             </TableBody>
           </Table>
         </Layout>
-      </ErrorBoundary>
+      </React.Fragment>
     );
   }
 }

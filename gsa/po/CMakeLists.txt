@@ -43,7 +43,7 @@ macro (MAKE_TRANSLATION _LANG)
 endmacro ()
 
 if (GETTEXT_FOUND)
-  if (PY_POLIB_FOUND)
+  if (POLIB_FOUND)
 
     file (MAKE_DIRECTORY ${GSA_LOCALE_DIR})
 
@@ -54,6 +54,7 @@ if (GETTEXT_FOUND)
     MAKE_TRANSLATION (ru)
     MAKE_TRANSLATION (tr)
     MAKE_TRANSLATION (zh_CN)
+    MAKE_TRANSLATION (zh_TW)
 
     # Installed files
     add_custom_target (gettext-json
@@ -65,6 +66,7 @@ if (GETTEXT_FOUND)
                        DEPENDS ${GSA_LOCALE_DIR}/gsa-ru.json
                        DEPENDS ${GSA_LOCALE_DIR}/gsa-tr.json
                        DEPENDS ${GSA_LOCALE_DIR}/gsa-zh_CN.json
+                       DEPENDS ${GSA_LOCALE_DIR}/gsa-zh_TW.json
                        COMMENT "Created translation .json files")
 
     # Merged .po files
@@ -81,6 +83,7 @@ if (GETTEXT_FOUND)
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/gsa-ru-merged.po
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/gsa-tr-merged.po
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/gsa-zh_CN-merged.po
+                       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/gsa-zh_TW-merged.po
                        COMMENT "Merged translation .po files for JS")
 
     # Template (.pot) files
@@ -101,12 +104,12 @@ if (GETTEXT_FOUND)
                         COMMENT "Creating translation template (.pot) file from JS")
 
     install (DIRECTORY
-             ${GSA_BUILD_DIR}/locales
+             ${GSA_LOCALE_DIR}
              DESTINATION ${GSA_DEST_DIR})
 
-  else (PY_POLIB_FOUND)
+  else (POLIB_FOUND)
     message (WARNING "Could not build translation files: Python interpreter or polib Python module not found.")
-  endif (PY_POLIB_FOUND)
+  endif (POLIB_FOUND)
 
 else (GETTEXT_FOUND)
   message (WARNING "Could not build translation files: gettext not found.")

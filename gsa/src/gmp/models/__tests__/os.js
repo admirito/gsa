@@ -26,7 +26,7 @@ testModel(OperatingSystem, 'operatingsystem');
 
 describe('OperatingSystem model tests', () => {
   test('should be an instance of Asset', () => {
-    const os = new OperatingSystem({});
+    const os = OperatingSystem.fromElement({});
 
     expect(os instanceof Asset).toBe(true);
   });
@@ -45,15 +45,15 @@ describe('OperatingSystem model tests', () => {
         },
       },
     };
-    const os1 = new OperatingSystem(elem);
-    const os2 = new OperatingSystem({});
+    const os1 = OperatingSystem.fromElement(elem);
+    const os2 = OperatingSystem.fromElement({});
 
-    expect(os1.average_severity).toEqual(7);
-    expect(os1.latest_severity).toEqual(8);
-    expect(os1.highest_severity).toEqual(8.5);
-    expect(os2.average_severity).toBeUndefined();
-    expect(os2.latest_severity).toBeUndefined();
-    expect(os2.highest_severity).toBeUndefined();
+    expect(os1.averageSeverity).toEqual(7);
+    expect(os1.latestSeverity).toEqual(8);
+    expect(os1.highestSeverity).toEqual(8.5);
+    expect(os2.averageSeverity).toBeUndefined();
+    expect(os2.latestSeverity).toBeUndefined();
+    expect(os2.highestSeverity).toBeUndefined();
   });
 
   test('should have title equal to os.title', () => {
@@ -62,7 +62,7 @@ describe('OperatingSystem model tests', () => {
         title: 'foo',
       },
     };
-    const os = new OperatingSystem(elem);
+    const os = OperatingSystem.fromElement(elem);
 
     expect(os.title).toEqual('foo');
   });
@@ -73,7 +73,7 @@ describe('OperatingSystem model tests', () => {
         installs: '42',
       },
     };
-    const os = new OperatingSystem(elem);
+    const os = OperatingSystem.fromElement(elem);
 
     expect(os.hosts.length).toEqual('42');
   });
@@ -84,7 +84,7 @@ describe('OperatingSystem model tests', () => {
         installs: '42',
       },
     };
-    const os = new OperatingSystem(elem);
+    const os = OperatingSystem.fromElement(elem);
 
     expect(os.os).toBeUndefined();
   });

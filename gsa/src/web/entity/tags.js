@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/array/from';
-import 'core-js/fn/set';
+import 'core-js/features/array/from';
+import 'core-js/features/set';
 
 import React from 'react';
 
@@ -139,9 +139,11 @@ class EntityTagsTable extends React.Component {
                 return (
                   <TableRow key={tag.id}>
                     <TableData>
-                      <DetailsLink id={tag.id} type="tag">
-                        {tag.name}
-                      </DetailsLink>
+                      <span>
+                        <DetailsLink id={tag.id} type="tag">
+                          {tag.name}
+                        </DetailsLink>
+                      </span>
                     </TableData>
                     <TableData>{tag.value}</TableData>
                     <TableData>{tag.comment}</TableData>

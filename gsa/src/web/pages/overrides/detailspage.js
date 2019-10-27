@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import _ from 'gmp/locale';
 import {longDate} from 'gmp/locale/date';
 
@@ -32,6 +34,7 @@ import OverrideIcon from 'web/components/icon/overrideicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import DetailsLink from 'web/components/link/detailslink';
 
@@ -71,6 +74,8 @@ import {
   loadEntities as loadPermissions,
 } from 'web/store/entities/permissions';
 
+import {getTimezone} from 'web/store/usersettings/selectors';
+
 import PropTypes from 'web/utils/proptypes';
 import {renderYesNo} from 'web/utils/render';
 
@@ -88,8 +93,8 @@ const ToolBarIcons = ({
   <Divider margin="10px">
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="overrides-and-false-positives"
+        page="reports"
+        anchor="managing-overrides"
         title={_('Help: Overrides')}
       />
       <ListIcon title={_('Override List')} page="overrides" />
@@ -117,7 +122,9 @@ ToolBarIcons.propTypes = {
   onOverrideEditClick: PropTypes.func.isRequired,
 };
 
-const Details = ({entity, ...props}) => {
+const Details = connect(rootState => ({
+  timezone: getTimezone(rootState),
+}))(({entity, timezone, ...props}) => {
   const {nvt} = entity;
   return (
     <Layout flex="column">
@@ -131,9 +138,11 @@ const Details = ({entity, ...props}) => {
             <TableData>{_('NVT Name')}</TableData>
             <TableData>
               {isDefined(nvt) ? (
-                <DetailsLink id={nvt.id} type="nvt">
-                  {nvt.name}
-                </DetailsLink>
+                <span>
+                  <DetailsLink id={nvt.id} type="nvt">
+                    {nvt.name}
+                  </DetailsLink>
+                </span>
               ) : (
                 _('None. Result was an open port.')
               )}
@@ -152,7 +161,9 @@ const Details = ({entity, ...props}) => {
               {entity.isActive() &&
                 isDefined(entity.endTime) &&
                 ' ' +
-                  _('until {{- enddate}}', {enddate: longDate(entity.endTime)})}
+                  _('until {{- enddate}}', {
+                    enddate: longDate(entity.endTime, timezone),
+                  })}
             </TableData>
           </TableRow>
         </TableBody>
@@ -161,7 +172,7 @@ const Details = ({entity, ...props}) => {
       <OverrideDetails entity={entity} {...props} />
     </Layout>
   );
-};
+});
 
 Details.propTypes = {
   entity: PropTypes.model.isRequired,
@@ -188,71 +199,74 @@ const Page = ({
     onSaved={onChanged}
   >
     {({clone, create, delete: delete_func, download, edit, save}) => (
-      <EntityPage
-        {...props}
-        entity={entity}
-        sectionIcon={<OverrideIcon size="large" />}
-        title={_('Override')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onInteraction={onInteraction}
-        onOverrideCloneClick={clone}
-        onOverrideCreateClick={create}
-        onOverrideDeleteClick={delete_func}
-        onOverrideDownloadClick={download}
-        onOverrideEditClick={edit}
-        onOverrideSaveClick={save}
-      >
-        {({activeTab = 0, onActivateTab}) => {
-          return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+      <React.Fragment>
+        <PageTitle title={_('Override Details')} />
+        <EntityPage
+          {...props}
+          entity={entity}
+          sectionIcon={<OverrideIcon size="large" />}
+          title={_('Override')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onInteraction={onInteraction}
+          onOverrideCloneClick={clone}
+          onOverrideCreateClick={create}
+          onOverrideDeleteClick={delete_func}
+          onOverrideDownloadClick={download}
+          onOverrideEditClick={edit}
+          onOverrideSaveClick={save}
+        >
+          {({activeTab = 0, onActivateTab}) => {
+            return (
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <Details entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
-          );
-        }}
-      </EntityPage>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <Details entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            );
+          }}
+        </EntityPage>
+      </React.Fragment>
     )}
   </OverrideComponent>
 );

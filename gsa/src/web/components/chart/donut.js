@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/array/for-each';
+import 'core-js/features/array/for-each';
 
 import React from 'react';
 
@@ -275,7 +275,7 @@ class DonutChart extends React.Component {
         <Svg
           width={width}
           height={height}
-          innerRef={setRef(svgRef, ref => (this.svg = ref))}
+          ref={setRef(svgRef, ref => (this.svg = ref))}
         >
           {data.length > 0 ? (
             <React.Fragment>
@@ -329,7 +329,7 @@ class DonutChart extends React.Component {
         {data.length > 0 && showLegend && (
           <Legend
             data={data}
-            innerRef={this.legendRef}
+            ref={this.legendRef}
             onItemClick={onLegendItemClick}
           />
         )}

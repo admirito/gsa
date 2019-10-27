@@ -26,13 +26,9 @@ import EntityNameTableData from 'web/entities/entitynametabledata';
 
 import Comment from 'web/components/comment/comment';
 
-import CloneIcon from 'web/entity/icon/cloneicon';
 import EditIcon from 'web/entity/icon/editicon';
-import TrashIcon from 'web/entity/icon/trashicon';
-
 import ExportIcon from 'web/components/icon/exporticon';
-import Icon from 'web/components/icon/icon';
-import VerifyIcon from 'web/components/icon/verifyicon';
+import TrashIcon from 'web/entity/icon/trashicon';
 
 import IconDivider from 'web/components/layout/icondivider';
 
@@ -52,11 +48,9 @@ const Actions = compose(
   ({
     capabilities,
     entity,
-    onReportFormatCloneClick,
     onReportFormatDeleteClick,
     onReportFormatDownloadClick,
     onReportFormatEditClick,
-    onReportFormatVerifyClick,
   }) => (
     <IconDivider align={['center', 'center']} grow>
       <TrashIcon
@@ -71,42 +65,20 @@ const Actions = compose(
         entity={entity}
         onClick={onReportFormatEditClick}
       />
-      <CloneIcon
-        displayName={_('Report Format')}
-        name="report_format"
-        entity={entity}
-        title={_('Clone Report Format')}
-        value={entity}
-        onClick={onReportFormatCloneClick}
-      />
       <ExportIcon
         value={entity}
         title={_('Export Report Format')}
         onClick={onReportFormatDownloadClick}
       />
-      {capabilities.mayOp('verify_report_format') ? (
-        <VerifyIcon
-          value={entity}
-          title={_('Verify Report Format')}
-          onClick={onReportFormatVerifyClick}
-        />
-      ) : (
-        <Icon
-          img="verify_inactive.svg"
-          title={_('Permission to verify Report Format denied')}
-        />
-      )}
     </IconDivider>
   ),
 );
 
 Actions.propTypes = {
   entity: PropTypes.model.isRequired,
-  onReportFormatCloneClick: PropTypes.func.isRequired,
   onReportFormatDeleteClick: PropTypes.func.isRequired,
   onReportFormatDownloadClick: PropTypes.func.isRequired,
   onReportFormatEditClick: PropTypes.func.isRequired,
-  onReportFormatVerifyClick: PropTypes.func.isRequired,
 };
 
 const Row = ({

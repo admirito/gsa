@@ -28,7 +28,7 @@ import Layout from 'web/components/layout/layout';
 
 /* eslint-disable max-len */
 
-import ApplyOverridesGroup from 'web/components/powerfilter/applyoverridesgroup';
+import BooleanFilterGroup from 'web/components/powerfilter/booleanfiltergroup';
 import AutoFpGroup from 'web/components/powerfilter/autofpgroup';
 import FilterStringGroup from 'web/components/powerfilter/filterstringgroup';
 import FirstResultGroup from 'web/components/powerfilter/firstresultgroup';
@@ -38,10 +38,16 @@ import SolutionTypeGroup from 'web/components/powerfilter/solutiontypegroup';
 import withFilterDialog from 'web/components/powerfilter/withFilterDialog';
 import FilterDialogPropTypes from 'web/components/powerfilter/dialogproptypes';
 import SeverityLevelsGroup from 'web/components/powerfilter/severitylevelsgroup';
+import SeverityValuesGroup from 'web/components/powerfilter/severityvaluesgroup';
+import CreateNamedFilterGroup from 'web/components/powerfilter/createnamedfiltergroup';
+import FilterSearchGroup from 'web/components/powerfilter/filtersearchgroup';
 
 /* eslint-enable */
 
 import DeltaResultsFilterGroup from './deltaresultsfiltergroup';
+
+import compose from 'web/utils/compose';
+import withCapabilities from 'web/utils/withCapabilities';
 
 const FilterDialog = ({
   delta = false,
@@ -49,6 +55,11 @@ const FilterDialog = ({
   filterstring,
   onFilterStringChange,
   onFilterValueChange,
+  onSearchTermChange,
+  capabilities,
+  filterName,
+  saveNamedFilter,
+  onValueChange,
 }) => {
   const result_hosts_only = filter.get('result_hosts_only');
   return (
@@ -66,7 +77,12 @@ const FilterDialog = ({
         />
       )}
 
-      <ApplyOverridesGroup filter={filter} onChange={onFilterValueChange} />
+      <BooleanFilterGroup
+        name="apply_overrides"
+        title={_('Apply Overrides')}
+        filter={filter}
+        onChange={onFilterValueChange}
+      />
 
       <AutoFpGroup filter={filter} onChange={onFilterValueChange} />
 
@@ -88,17 +104,57 @@ const FilterDialog = ({
 
       <SeverityLevelsGroup filter={filter} onChange={onFilterValueChange} />
 
+      <SeverityValuesGroup
+        name="severity"
+        title={_('Severity')}
+        filter={filter}
+        onChange={onFilterValueChange}
+      />
+
       <SolutionTypeGroup filter={filter} onChange={onFilterValueChange} />
+
+      <FilterSearchGroup
+        name="vulnerability"
+        filter={filter}
+        title={_('Vulnerability')}
+        onChange={onSearchTermChange}
+      />
+
+      <FilterSearchGroup
+        name="host"
+        filter={filter}
+        title={_('Host (IP)')}
+        onChange={onSearchTermChange}
+      />
+
+      <FilterSearchGroup
+        name="location"
+        filter={filter}
+        title={_('Location (eg. port/protocol)')}
+        onChange={onSearchTermChange}
+      />
 
       <FirstResultGroup filter={filter} onChange={onFilterValueChange} />
 
       <ResultsPerPageGroup filter={filter} onChange={onFilterValueChange} />
+
+      {capabilities.mayCreate('filter') && (
+        <CreateNamedFilterGroup
+          filter={filter}
+          filterName={filterName}
+          saveNamedFilter={saveNamedFilter}
+          onValueChange={onValueChange}
+        />
+      )}
     </Layout>
   );
 };
 
 FilterDialog.propTypes = FilterDialogPropTypes;
 
-export default withFilterDialog()(FilterDialog);
+export default compose(
+  withCapabilities,
+  withFilterDialog(),
+)(FilterDialog);
 
 // vim: set ts=2 sw=2 tw=80:

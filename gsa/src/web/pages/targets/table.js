@@ -27,12 +27,6 @@ import {withEntitiesHeader} from 'web/entities/header';
 import {createEntitiesTable} from 'web/entities/table';
 import withRowDetails from 'web/entities/withRowDetails';
 
-import Select from 'web/components/form/select';
-
-import Divider from 'web/components/layout/divider';
-
-import Sort from 'web/components/sortby/sortby';
-
 import TableHead from 'web/components/table/head';
 import TableHeader from 'web/components/table/header';
 import TableRow from 'web/components/table/row';
@@ -49,16 +43,6 @@ const Header = ({
   currentSortDir,
   onSortChange,
 }) => {
-  let selectSort = 'ssh_credential';
-  const sortBy = filter ? filter.getSortBy() : undefined;
-
-  if (
-    sortBy === 'smb_credential' ||
-    sortBy === 'esxi_credential' ||
-    sortBy === 'snmp_credential'
-  ) {
-    selectSort = sortBy;
-  }
   return (
     <TableHeader>
       <TableRow>
@@ -68,67 +52,33 @@ const Header = ({
           currentSortBy={currentSortBy}
           sortBy={sort ? 'name' : false}
           onSortChange={onSortChange}
-        >
-          {_('Name')}
-        </TableHead>
+          title={_('Name')}
+        />
         <TableHead
           width="20%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'hosts' : false}
           onSortChange={onSortChange}
-        >
-          {_('Hosts')}
-        </TableHead>
+          title={_('Hosts')}
+        />
         <TableHead
           width="5%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'ips' : false}
           onSortChange={onSortChange}
-        >
-          {_('IPs')}
-        </TableHead>
+          title={_('IPs')}
+        />
         <TableHead
           width="15%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'port_list' : false}
           onSortChange={onSortChange}
-        >
-          {_('Port List')}
-        </TableHead>
-        <TableHead width="22%">
-          <Divider>
-            <Sort by={sort ? selectSort : false} onClick={onSortChange}>
-              {_('Credentials')}
-            </Sort>
-            {sort !== false && (
-              <Select
-                items={[
-                  {
-                    value: 'ssh_credential',
-                    label: _('SSH'),
-                  },
-                  {
-                    value: 'smb_credential',
-                    label: _('SMB'),
-                  },
-                  {
-                    value: 'esxi_credential',
-                    label: _('ESXi'),
-                  },
-                  {
-                    value: 'snmp_credential',
-                    label: _('SNMP'),
-                  },
-                ]}
-                value={selectSort}
-                onChange={onSortChange}
-              />
-            )}
-          </Divider>
-        </TableHead>
+          title={_('Port List')}
+        />
+        <TableHead width="15%">{_('Credentials')}</TableHead>
         {actionsColumn}
       </TableRow>
     </TableHeader>

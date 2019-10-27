@@ -36,9 +36,14 @@ export const getEntityType = (model = {}) => model.entityType;
  *
  * @returns {String} The pluralized entity type
  */
-export const pluralizeType = type =>
-  type[type.length - 1] === 's' || type === 'info' ? type : type + 's';
-
+export const pluralizeType = type => {
+  if (type[type.length - 1] === 's' || type === 'info') {
+    return type;
+  } else if (type === 'policy') {
+    return 'policies';
+  }
+  return type + 's';
+};
 const TYPES = {
   config: 'scanconfig',
   cert_bund_adv: 'certbund',
@@ -47,6 +52,7 @@ const TYPES = {
   port_list: 'portlist',
   port_range: 'portrange',
   report_format: 'reportformat',
+  tls_certificate: 'tlscertificate',
   vuln: 'vulnerability',
 };
 
@@ -95,6 +101,7 @@ const ENTITY_TYPES = {
   target: _l('Target'),
   task: _l('Task'),
   ticket: _l('Ticket'),
+  tlscertificate: _l('TLS Certificate'),
   user: _l('User'),
   vulnerability: _l('Vulnerability'),
 };
@@ -120,6 +127,7 @@ const CMD_TYPES = {
   portlist: 'port_list',
   portrange: 'port_range',
   reportformat: 'report_format',
+  tlscertificate: 'tls_certificate',
   vulnerability: 'vuln',
 };
 

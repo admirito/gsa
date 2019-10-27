@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/keys';
-import 'core-js/fn/object/values';
+import 'core-js/features/object/keys';
+import 'core-js/features/object/values';
 
 import {isString} from 'gmp/utils/identity';
 
@@ -25,7 +25,7 @@ import Languages, {getLanguageCodes} from '../languages';
 
 describe('Language tests', () => {
   test('should contain list of languagegs', () => {
-    expect(Object.keys(Languages).length).toEqual(11);
+    expect(Object.keys(Languages).length).toEqual(2);
 
     let called = false;
 
@@ -44,7 +44,7 @@ describe('getLanguageCodes test', () => {
   test('should return list of language codes', () => {
     const codes = getLanguageCodes();
 
-    expect(codes.length).toEqual(11);
+    expect(codes.length).toEqual(2);
 
     let called = false;
 

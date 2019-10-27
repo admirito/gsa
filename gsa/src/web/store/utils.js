@@ -16,19 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
-import {isDefined} from 'gmp/utils/identity';
+import {hasValue} from 'gmp/utils/identity';
 
 /**
  * Return a unique identifier string for a filter
  *
- * @param {Filter} filter A Filter model (may be undefined)
+ * @param {Filter} filter A Filter model (may be undefined or null)
  *
  * @returns {String} A filter identifier to be used in the store
  */
+
 export const filterIdentifier = filter =>
-  isDefined(filter) ? `filter:${filter.toFilterString()}` : 'default';
+  hasValue(filter) ? `filter:${filter.toFilterString()}` : 'default';
 
 /**
  * A combineReducers version to allow to return undefined for a state.

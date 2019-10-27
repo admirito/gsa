@@ -55,6 +55,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/command.js
      ${GSA_SRC_DIR}/src/gmp/commands/agents.js
      ${GSA_SRC_DIR}/src/gmp/commands/alerts.js
+     ${GSA_SRC_DIR}/src/gmp/commands/audits.js
      ${GSA_SRC_DIR}/src/gmp/commands/auth.js
      ${GSA_SRC_DIR}/src/gmp/commands/certbund.js
      ${GSA_SRC_DIR}/src/gmp/commands/cpes.js
@@ -80,6 +81,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/commands/ovaldefs.js
      ${GSA_SRC_DIR}/src/gmp/commands/overrides.js
      ${GSA_SRC_DIR}/src/gmp/commands/permissions.js
+     ${GSA_SRC_DIR}/src/gmp/commands/policies.js
      ${GSA_SRC_DIR}/src/gmp/commands/portlists.js
      ${GSA_SRC_DIR}/src/gmp/commands/reportformats.js
      ${GSA_SRC_DIR}/src/gmp/commands/reports.js
@@ -93,6 +95,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/commands/targets.js
      ${GSA_SRC_DIR}/src/gmp/commands/tasks.js
      ${GSA_SRC_DIR}/src/gmp/commands/tickets.js
+     ${GSA_SRC_DIR}/src/gmp/commands/tlscertificates.js
      ${GSA_SRC_DIR}/src/gmp/commands/trashcan.js
      ${GSA_SRC_DIR}/src/gmp/commands/users.js
      ${GSA_SRC_DIR}/src/gmp/commands/vulns.js
@@ -104,7 +107,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/http/response.js
      ${GSA_SRC_DIR}/src/gmp/http/transform/default.js
      ${GSA_SRC_DIR}/src/gmp/http/transform/fastxml.js
-     ${GSA_SRC_DIR}/src/gmp/http/transform/x2js.js
      ${GSA_SRC_DIR}/src/gmp/http/utils.js
      ${GSA_SRC_DIR}/src/gmp/index.js
      ${GSA_SRC_DIR}/src/gmp/locale/date.js
@@ -118,6 +120,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/models/agent.js
      ${GSA_SRC_DIR}/src/gmp/models/alert.js
      ${GSA_SRC_DIR}/src/gmp/models/asset.js
+     ${GSA_SRC_DIR}/src/gmp/models/audit.js
      ${GSA_SRC_DIR}/src/gmp/models/certbund.js
      ${GSA_SRC_DIR}/src/gmp/models/cpe.js
      ${GSA_SRC_DIR}/src/gmp/models/credential.js
@@ -140,6 +143,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/models/ovaldef.js
      ${GSA_SRC_DIR}/src/gmp/models/override.js
      ${GSA_SRC_DIR}/src/gmp/models/permission.js
+     ${GSA_SRC_DIR}/src/gmp/models/policy.js
      ${GSA_SRC_DIR}/src/gmp/models/portlist.js
      ${GSA_SRC_DIR}/src/gmp/models/reportformat.js
      ${GSA_SRC_DIR}/src/gmp/models/report.js
@@ -152,7 +156,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/models/report/report.js
      ${GSA_SRC_DIR}/src/gmp/models/report/task.js
      ${GSA_SRC_DIR}/src/gmp/models/report/tlscertificate.js
-     ${GSA_SRC_DIR}/src/gmp/models/report/vulnerability.js
      ${GSA_SRC_DIR}/src/gmp/models/result.js
      ${GSA_SRC_DIR}/src/gmp/models/role.js
      ${GSA_SRC_DIR}/src/gmp/models/scanconfig.js
@@ -164,6 +167,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/models/target.js
      ${GSA_SRC_DIR}/src/gmp/models/task.js
      ${GSA_SRC_DIR}/src/gmp/models/ticket.js
+     ${GSA_SRC_DIR}/src/gmp/models/tlscertificate.js
      ${GSA_SRC_DIR}/src/gmp/models/user.js
      ${GSA_SRC_DIR}/src/gmp/models/vulnerability.js
      ${GSA_SRC_DIR}/src/gmp/parser.js
@@ -178,6 +182,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/gmp/utils/string.js
      ${GSA_SRC_DIR}/src/web/app.js
      ${GSA_SRC_DIR}/src/web/components/badge/badge.js
+     ${GSA_SRC_DIR}/src/web/components/bar/compliancestatusbar.js
      ${GSA_SRC_DIR}/src/web/components/bar/menubar.js
      ${GSA_SRC_DIR}/src/web/components/bar/progressbar.js
      ${GSA_SRC_DIR}/src/web/components/bar/severitybar.js
@@ -245,11 +250,13 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/dialog/scrollablecontent.js
      ${GSA_SRC_DIR}/src/web/components/dialog/title.js
      ${GSA_SRC_DIR}/src/web/components/dialog/twobuttonfooter.js
-     ${GSA_SRC_DIR}/src/web/components/errorboundary/errorboundary.js
-     ${GSA_SRC_DIR}/src/web/components/errorboundary/errorcontainer.js
+     ${GSA_SRC_DIR}/src/web/components/error/errorboundary.js
+     ${GSA_SRC_DIR}/src/web/components/error/errorcontainer.js
+     ${GSA_SRC_DIR}/src/web/components/error/errormessage.js
      ${GSA_SRC_DIR}/src/web/components/folding/folding.js
      ${GSA_SRC_DIR}/src/web/components/footnote/footnote.js
      ${GSA_SRC_DIR}/src/web/components/form/button.js
+     ${GSA_SRC_DIR}/src/web/components/form/loadingbutton.js
      ${GSA_SRC_DIR}/src/web/components/form/checkbox.js
      ${GSA_SRC_DIR}/src/web/components/form/datepicker.js
      ${GSA_SRC_DIR}/src/web/components/form/download.js
@@ -267,7 +274,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/form/textfield.js
      ${GSA_SRC_DIR}/src/web/components/form/timezoneselect.js
      ${GSA_SRC_DIR}/src/web/components/form/togglebutton.js
-     ${GSA_SRC_DIR}/src/web/components/form/withChangeHandler.js
      ${GSA_SRC_DIR}/src/web/components/form/withClickHandler.js
      ${GSA_SRC_DIR}/src/web/components/form/withDownload.js
      ${GSA_SRC_DIR}/src/web/components/form/yesnoradio.js
@@ -277,6 +283,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/allinfoicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/alterableicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/arrowicon.js
+     ${GSA_SRC_DIR}/src/web/components/icon/auditicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/calendaricon.js
      ${GSA_SRC_DIR}/src/web/components/icon/certbundadvicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/cloneicon.js
@@ -318,6 +325,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/legendicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/listicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/listsvgicon.js
+     ${GSA_SRC_DIR}/src/web/components/icon/logouticon.js
      ${GSA_SRC_DIR}/src/web/components/icon/manualicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/mysettingsicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/newicon.js
@@ -333,6 +341,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/overrideicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/performanceicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/permissionicon.js
+     ${GSA_SRC_DIR}/src/web/components/icon/policyicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/portlisticon.js
      ${GSA_SRC_DIR}/src/web/components/icon/previousicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/provideviewicon.js
@@ -368,6 +377,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/targeticon.js
      ${GSA_SRC_DIR}/src/web/components/icon/taskicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/ticketicon.js
+     ${GSA_SRC_DIR}/src/web/components/icon/tlscertificateicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/toggle3dicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/trashcanicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/trashdeleteicon.js
@@ -381,6 +391,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/uploadicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/usericon.js
      ${GSA_SRC_DIR}/src/web/components/icon/verifyicon.js
+     ${GSA_SRC_DIR}/src/web/components/icon/verifynoicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/viewothericon.js
      ${GSA_SRC_DIR}/src/web/components/icon/vulnerabilityicon.js
      ${GSA_SRC_DIR}/src/web/components/icon/withIconSize.js
@@ -391,6 +402,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/alert.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/allinfo.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/alterable.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/audit.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/calendar.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/cert_bund_adv.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/clone.svg
@@ -419,6 +431,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/filter.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/first.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/feed.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/greenbone.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/group.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/help.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/host.svg
@@ -428,6 +441,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/ldap.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/legend.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/list.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/logout.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/st_mitigate.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/st_nonavailable.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/st_unknown.svg
@@ -447,6 +461,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/override.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/performance.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/permission.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/policy.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/port_list.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/previous.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/provide_view.svg
@@ -472,6 +487,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/target.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/task.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/ticket.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/tlscertificate.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/toggle3d.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/trashcan.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/trend_down.svg
@@ -482,6 +498,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/icon/svg/upload.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/user.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/verify.svg
+     ${GSA_SRC_DIR}/src/web/components/icon/svg/verify_no.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/view_other.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/vulnerability.svg
      ${GSA_SRC_DIR}/src/web/components/icon/svg/wizard.svg
@@ -490,6 +507,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/img/product.js
      ${GSA_SRC_DIR}/src/web/components/label/severityclass.js
      ${GSA_SRC_DIR}/src/web/components/layout/divider.js
+     ${GSA_SRC_DIR}/src/web/components/layout/globalstyles.js
      ${GSA_SRC_DIR}/src/web/components/layout/icondivider.js
      ${GSA_SRC_DIR}/src/web/components/layout/layout.js
      ${GSA_SRC_DIR}/src/web/components/layout/withLayout.js
@@ -504,12 +522,12 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/link/manuallink.js
      ${GSA_SRC_DIR}/src/web/components/link/protocoldoclink.js
      ${GSA_SRC_DIR}/src/web/components/link/target.js
-     ${GSA_SRC_DIR}/src/web/components/link/userlink.js
      ${GSA_SRC_DIR}/src/web/components/menu/iconmenu.js
      ${GSA_SRC_DIR}/src/web/components/menu/menu.js
      ${GSA_SRC_DIR}/src/web/components/menu/menuentry.js
      ${GSA_SRC_DIR}/src/web/components/menu/menuhelpentry.js
      ${GSA_SRC_DIR}/src/web/components/menu/menusection.js
+     ${GSA_SRC_DIR}/src/web/components/menu/usermenu.js
      ${GSA_SRC_DIR}/src/web/components/notification/dialognotification.js
      ${GSA_SRC_DIR}/src/web/components/notification/withDialogNotifiaction.js
      ${GSA_SRC_DIR}/src/web/components/observer/localeobserver.js
@@ -567,6 +585,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/entities/actions.js
      ${GSA_SRC_DIR}/src/web/entities/container.js
      ${GSA_SRC_DIR}/src/web/entities/entitynametabledata.js
+     ${GSA_SRC_DIR}/src/web/entities/filterprovider.js
      ${GSA_SRC_DIR}/src/web/entities/footer.js
      ${GSA_SRC_DIR}/src/web/entities/header.js
      ${GSA_SRC_DIR}/src/web/entities/page.js
@@ -587,6 +606,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/entity/icon/editicon.js
      ${GSA_SRC_DIR}/src/web/entity/icon/observericon.js
      ${GSA_SRC_DIR}/src/web/entity/icon/trashicon.js
+     ${GSA_SRC_DIR}/src/web/entity/icon/verifyicon.js
      ${GSA_SRC_DIR}/src/web/entity/info.js
      ${GSA_SRC_DIR}/src/web/entity/link.js
      ${GSA_SRC_DIR}/src/web/entity/note.js
@@ -630,6 +650,16 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/pages/alerts/ticketeventpart.js
      ${GSA_SRC_DIR}/src/web/pages/alerts/tippingpointmethodpart.js
      ${GSA_SRC_DIR}/src/web/pages/alerts/verinicemethodpart.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/actions.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/component.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/details.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/detailspage.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/dialog.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/icons/resumeicon.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/icons/starticon.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/listpage.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/row.js
+     ${GSA_SRC_DIR}/src/web/pages/audits/table.js
      ${GSA_SRC_DIR}/src/web/pages/credentials/component.js
      ${GSA_SRC_DIR}/src/web/pages/credentials/details.js
      ${GSA_SRC_DIR}/src/web/pages/credentials/detailspage.js
@@ -804,6 +834,14 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/pages/permissions/multipledialog.js
      ${GSA_SRC_DIR}/src/web/pages/permissions/row.js
      ${GSA_SRC_DIR}/src/web/pages/permissions/table.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/component.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/details.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/detailspage.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/dialog.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/header.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/listpage.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/row.js
+     ${GSA_SRC_DIR}/src/web/pages/policies/table.js
      ${GSA_SRC_DIR}/src/web/pages/portlists/component.js
      ${GSA_SRC_DIR}/src/web/pages/portlists/details.js
      ${GSA_SRC_DIR}/src/web/pages/portlists/detailspage.js
@@ -889,7 +927,9 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/pages/scanconfigs/importdialog.js
      ${GSA_SRC_DIR}/src/web/pages/scanconfigs/listpage.js
      ${GSA_SRC_DIR}/src/web/pages/scanconfigs/row.js
+     ${GSA_SRC_DIR}/src/web/pages/scanconfigs/table.js
      ${GSA_SRC_DIR}/src/web/pages/scanconfigs/trend.js
+     ${GSA_SRC_DIR}/src/web/pages/scanconfigs/scannerpreferences.js
      ${GSA_SRC_DIR}/src/web/pages/scanners/component.js
      ${GSA_SRC_DIR}/src/web/pages/scanners/details.js
      ${GSA_SRC_DIR}/src/web/pages/scanners/detailspage.js
@@ -953,6 +993,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/pages/tasks/dashboard/severityclassdisplay.js
      ${GSA_SRC_DIR}/src/web/pages/tasks/dashboard/statusdisplay.js
      ${GSA_SRC_DIR}/src/web/pages/tasks/details.js
+     ${GSA_SRC_DIR}/src/web/pages/tasks/detailspage.js
      ${GSA_SRC_DIR}/src/web/pages/tasks/dialog.js
      ${GSA_SRC_DIR}/src/web/pages/tasks/filterdialog.js
      ${GSA_SRC_DIR}/src/web/pages/tasks/icons/importreporticon.js
@@ -979,6 +1020,17 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/pages/tickets/editdialog.js
      ${GSA_SRC_DIR}/src/web/pages/tickets/listpage.js
      ${GSA_SRC_DIR}/src/web/pages/tickets/table.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/component.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/details.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/detailspage.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/filterdialog.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/listpage.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/row.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/table.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/dashboard/index.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/dashboard/loaders.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/dashboard/modifieddisplay.js
+     ${GSA_SRC_DIR}/src/web/pages/tlscertificates/dashboard/timestatusdisplay.js
      ${GSA_SRC_DIR}/src/web/pages/users/component.js
      ${GSA_SRC_DIR}/src/web/pages/users/confirmdeletedialog.js
      ${GSA_SRC_DIR}/src/web/pages/users/details.js
@@ -1016,6 +1068,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/store/reducers.js
      ${GSA_SRC_DIR}/src/web/store/entities/agents.js
      ${GSA_SRC_DIR}/src/web/store/entities/alerts.js
+     ${GSA_SRC_DIR}/src/web/store/entities/audits.js
      ${GSA_SRC_DIR}/src/web/store/entities/certbund.js
      ${GSA_SRC_DIR}/src/web/store/entities/cpes.js
      ${GSA_SRC_DIR}/src/web/store/entities/credentials.js
@@ -1030,6 +1083,7 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/store/entities/ovaldefs.js
      ${GSA_SRC_DIR}/src/web/store/entities/overrides.js
      ${GSA_SRC_DIR}/src/web/store/entities/permissions.js
+     ${GSA_SRC_DIR}/src/web/store/entities/policies.js
      ${GSA_SRC_DIR}/src/web/store/entities/portlists.js
      ${GSA_SRC_DIR}/src/web/store/entities/reducers.js
      ${GSA_SRC_DIR}/src/web/store/entities/reportformats.js
@@ -1065,7 +1119,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/utils/compose.js
      ${GSA_SRC_DIR}/src/web/utils/constants.js
      ${GSA_SRC_DIR}/src/web/utils/cpe.js
-     ${GSA_SRC_DIR}/src/web/utils/globalcss.js
      ${GSA_SRC_DIR}/src/web/utils/os.js
      ${GSA_SRC_DIR}/src/web/utils/proptypes.js
      ${GSA_SRC_DIR}/src/web/utils/render.js
@@ -1077,7 +1130,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/utils/urls.js
      ${GSA_SRC_DIR}/src/web/utils/withCapabilities.js
      ${GSA_SRC_DIR}/src/web/utils/withComponentDefaults.js
-     ${GSA_SRC_DIR}/src/web/utils/withContext.js
      ${GSA_SRC_DIR}/src/web/utils/withGmp.js
      ${GSA_SRC_DIR}/src/web/utils/withPrefix.js
      ${GSA_SRC_DIR}/src/web/utils/withSubscription.js
@@ -1101,7 +1153,7 @@ add_custom_command (OUTPUT node-modules.stamp
 
 
 add_custom_command (OUTPUT bundle.stamp
-                    COMMAND ${INSTALLER} "${INSTALLER_ARGS}" run build
+                    COMMAND ${CMAKE_COMMAND} -E env REACT_APP_VERSION=${PROJECT_VERSION_STRING} ${INSTALLER} "${INSTALLER_ARGS}" run build
                     COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/bundle.stamp
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/node-modules.stamp

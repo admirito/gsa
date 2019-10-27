@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import _ from 'gmp/locale';
 
 import Filter, {REPORTS_FILTER_FILTER} from 'gmp/models/filter';
@@ -26,7 +28,6 @@ import Filter, {REPORTS_FILTER_FILTER} from 'gmp/models/filter';
 import {isActive} from 'gmp/models/task';
 
 import {isDefined} from 'gmp/utils/identity';
-import {selectSaveId} from 'gmp/utils/id';
 
 import EntitiesPage from 'web/entities/page';
 import withEntitiesContainer from 'web/entities/withEntitiesContainer';
@@ -38,6 +39,7 @@ import UploadIcon from 'web/components/icon/uploadicon';
 import ReportIcon from 'web/components/icon/reporticon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import ContainerTaskDialog from 'web/pages/tasks/containerdialog';
 
@@ -45,6 +47,11 @@ import {
   loadEntities,
   selector as entitiesSelector,
 } from 'web/store/entities/reports';
+
+import {
+  loadAllEntities as loadAllTasks,
+  selector as tasksSelector,
+} from 'web/store/entities/tasks';
 
 import {DEFAULT_RELOAD_INTERVAL_ACTIVE} from 'web/utils/constants';
 import compose from 'web/utils/compose';
@@ -57,11 +64,13 @@ import ReportsTable from './table';
 
 import ReportsDashboard, {REPORTS_DASHBOARD_ID} from './dashboard';
 
+const CONTAINER_TASK_FILTER = Filter.fromString('target=""');
+
 const ToolBarIcons = ({onUploadReportClick}) => (
   <IconDivider>
     <ManualIcon
-      page="vulnerabilitymanagement"
-      anchor="reading-of-the-reports"
+      page="reports"
+      anchor="using-and-managing-reports"
       title={_('Help: Reports')}
     />
     <UploadIcon title={_('Upload report')} onClick={onUploadReportClick} />
@@ -91,7 +100,6 @@ class Page extends React.Component {
     this.openImportDialog = this.openImportDialog.bind(this);
     this.handleCloseImportDialog = this.handleCloseImportDialog.bind(this);
     this.openCreateTaskDialog = this.openCreateTaskDialog.bind(this);
-    this.loadTasks = this.loadTasks.bind(this);
   }
 
   componentWillReceiveProps(next) {
@@ -108,26 +116,16 @@ class Page extends React.Component {
     }
   }
 
-  loadTasks() {
-    const {gmp} = this.props;
-    return gmp.tasks.get().then(response => {
-      const {data: tasks} = response;
-      return tasks.filter(task => task.isContainer());
-    });
-  }
-
   openCreateTaskDialog() {
     this.setState({containerTaskDialogVisible: true});
   }
 
   openImportDialog(task_id) {
-    this.loadTasks().then(tasks =>
+    this.props.loadTasks().then(() => {
       this.setState({
-        tasks,
-        task_id: selectSaveId(tasks),
         importDialogVisible: true,
-      }),
-    );
+      });
+    });
   }
 
   closeImportDialog() {
@@ -152,16 +150,12 @@ class Page extends React.Component {
 
   handleCreateContainerTask(data) {
     const {gmp} = this.props;
-    let task_id;
-    return gmp.task
-      .createContainer(data)
-      .then(response => {
-        const {data: task} = response;
-        task_id = task.id;
-      })
-      .then(this.loadTasks)
-      .then(tasks => this.setState({tasks, task_id}))
-      .then(() => this.closeContainerTaskDialog());
+    return gmp.task.createContainer(data).then(response => {
+      const {data: task} = response;
+      this.props.loadTasks();
+      this.setState({task_id: task.id});
+      this.closeContainerTaskDialog();
+    });
   }
 
   handleCloseContainerTask() {
@@ -181,7 +175,12 @@ class Page extends React.Component {
     } else {
       const {filter = new Filter()} = this.props;
 
-      onFilterChanged(filter.copy().set('task_id', report.task.id));
+      onFilterChanged(
+        filter
+          .copy()
+          .set('first', 1) // reset to first page
+          .set('task_id', report.task.id),
+      );
 
       this.setState({
         beforeSelectFilter: filter,
@@ -200,16 +199,16 @@ class Page extends React.Component {
   }
 
   render() {
-    const {filter, onFilterChanged, onInteraction} = this.props;
+    const {filter, onFilterChanged, onInteraction, tasks} = this.props;
     const {
       containerTaskDialogVisible,
       importDialogVisible,
       task_id,
-      tasks,
     } = this.state;
 
     return (
       <React.Fragment>
+        <PageTitle title={_('Reports')} />
         <EntitiesPage
           {...this.props}
           {...this.state}
@@ -262,6 +261,8 @@ Page.propTypes = {
   filter: PropTypes.filter,
   gmp: PropTypes.gmp.isRequired,
   history: PropTypes.object.isRequired,
+  loadTasks: PropTypes.func.isRequired,
+  tasks: PropTypes.arrayOf(PropTypes.model),
   onChanged: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
   onFilterChanged: PropTypes.func.isRequired,
@@ -273,9 +274,29 @@ const reportsReloadInterval = ({entities = [], defaultReloadInterval}) =>
     ? DEFAULT_RELOAD_INTERVAL_ACTIVE
     : defaultReloadInterval;
 
+const mapStateToProps = rootState => {
+  const sel = tasksSelector(rootState);
+  return {
+    tasks: sel.getAllEntities(CONTAINER_TASK_FILTER),
+  };
+};
+
+const mapDispatchToProps = (dispatch, {gmp}) => ({
+  loadTasks: () => dispatch(loadAllTasks(gmp)(CONTAINER_TASK_FILTER)),
+});
+
+const FALLBACK_REPORT_LIST_FILTER = Filter.fromString(
+  'sort-reverse=date first=1',
+);
+
 export default compose(
   withGmp,
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  ),
   withEntitiesContainer('report', {
+    fallbackFilter: FALLBACK_REPORT_LIST_FILTER,
     entitiesSelector,
     loadEntities,
     reloadInterval: reportsReloadInterval,

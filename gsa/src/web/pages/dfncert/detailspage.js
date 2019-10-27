@@ -30,6 +30,7 @@ import ListIcon from 'web/components/icon/listicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Tab from 'web/components/tab/tab';
 import TabLayout from 'web/components/tab/tablayout';
@@ -58,8 +59,8 @@ const ToolBarIcons = ({entity, onDfnCertAdvDownloadClick}) => (
   <Divider margin="10px">
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="id15"
+        page="managing-secinfo"
+        anchor="dfn-cert-advisories"
         title={_('Help: DFN-CERT Advisories')}
       />
       <ListIcon title={_('DFN-CERT Advisories')} page="dfncerts" />
@@ -78,7 +79,7 @@ ToolBarIcons.propTypes = {
 };
 
 const Details = ({entity, links = true}) => {
-  const {cves, summary, additional_links} = entity;
+  const {cves, summary, additionalLinks} = entity;
   return (
     <Layout flex="column">
       <DfnCertAdvDetails entity={entity} />
@@ -87,10 +88,10 @@ const Details = ({entity, links = true}) => {
         {isDefined(summary) ? <p>{summary}</p> : _('None')}
       </DetailsBlock>
 
-      {additional_links.length > 0 && (
+      {additionalLinks.length > 0 && (
         <DetailsBlock title={_('Other Links')}>
           <ul>
-            {additional_links.map(link => (
+            {additionalLinks.map(link => (
               <li key={link}>
                 <ExternalLink to={link}>{link}</ExternalLink>
               </li>
@@ -149,36 +150,41 @@ const DfnCertAdvPage = ({
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+            <React.Fragment>
+              <PageTitle
+                title={_('DFN-CERT Advisory: {{title}}', {title: entity.title})}
+              />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <Details entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <Details entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>

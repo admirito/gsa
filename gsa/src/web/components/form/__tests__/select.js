@@ -18,23 +18,28 @@
  */
 import React from 'react';
 
-import {render, fireEvent, queryAllByTestId} from 'web/utils/testing';
+import {
+  render,
+  fireEvent,
+  queryAllByTestId,
+  getByTestId,
+} from 'web/utils/testing';
 
 import Select from '../select.js';
 
-const openSelectElement = element => {
-  const button = element.querySelector('[type="button"]');
-  fireEvent.click(button);
+export const openSelectElement = element => {
+  const openButton = getByTestId(element, 'select-open-button');
+  fireEvent.click(openButton);
 };
 
-const getItemElements = baseElement => {
+export const getItemElements = baseElement => {
   const portal = baseElement.querySelector('#portals');
   return queryAllByTestId(portal, 'select-item');
 };
 
-const getInputBox = baseElement => {
+export const getInputBox = baseElement => {
   const portal = baseElement.querySelector('#portals');
-  return portal.querySelector('[role="combobox"]');
+  return getByTestId(portal, 'select-search-input');
 };
 
 describe('Select component tests', () => {
@@ -92,6 +97,8 @@ describe('Select component tests', () => {
 
     const domItems = getItemElements(baseElement);
 
+    expect(domItems.length).toEqual(2);
+
     fireEvent.click(domItems[0]);
 
     expect(onChange).toBeCalled();
@@ -140,12 +147,12 @@ describe('Select component tests', () => {
 
     const onChange = jest.fn();
 
-    const {baseElement, element} = render(
+    // eslint-disable-next-line no-shadow
+    const {baseElement, element, getByTestId} = render(
       <Select items={items} value="bar" onChange={onChange} />,
     );
 
-    const displayedValue = element.querySelector('[type="button"]').firstChild;
-
+    const displayedValue = getByTestId('select-selected-value');
     expect(displayedValue).toHaveTextContent('Bar');
 
     openSelectElement(element);

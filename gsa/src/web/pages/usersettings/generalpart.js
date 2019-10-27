@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
 import React from 'react';
 import styled from 'styled-components';
@@ -52,15 +52,26 @@ const NotificationDiv = styled.div`
 const Notification = ({newPassword, oldPassword, confPassword}) => {
   let color;
   let text;
-  if (newPassword === '' && confPassword === '') {
+
+  if (oldPassword === '' && newPassword === '' && confPassword === '') {
     text = null;
-  } else if (newPassword !== confPassword) {
+  } else if (oldPassword !== '' && newPassword === '' && confPassword === '') {
+    color = Theme.warningRed;
+    text = _('Please enter a new password!');
+  } else if (
+    oldPassword === '' &&
+    (newPassword !== '' || confPassword !== '')
+  ) {
+    color = Theme.warningRed;
+    text = _('Please enter your old password!');
+  } else if (oldPassword !== '' && newPassword !== confPassword) {
     color = Theme.warningRed;
     text = _('Confirmation does not match new password!');
-  } else if (newPassword === confPassword) {
+  } else if (oldPassword !== '' && newPassword === confPassword) {
     color = Theme.darkGreen;
     text = _('Confirmation matches new password!');
   }
+
   return <NotificationDiv color={color}>{text}</NotificationDiv>;
 };
 
@@ -89,7 +100,7 @@ const GeneralPart = ({
       <FormGroup title={_('Timezone')} titleSize="3">
         <TimeZoneSelect name="timezone" value={timezone} onChange={onChange} />
       </FormGroup>
-      <FormGroup title={_('Password')} titleSize="3">
+      <FormGroup title={_('Change Password')} titleSize="3">
         <Divider flex="column">
           <FormGroup title={_('Old')}>
             <PasswordField

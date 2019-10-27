@@ -16,25 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import {isDefined} from '../utils/identity';
-import {forEach, map} from '../utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {forEach, map} from 'gmp/utils/array';
 
-import {parseSeverity} from '../parser';
+import {parseSeverity} from 'gmp/parser';
 
 import Info from './info';
 
 class DfnCertAdv extends Info {
   static entityType = 'dfncert';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem, 'dfn_cert_adv');
+  static parseElement(element) {
+    const ret = super.parseElement(element, 'dfn_cert_adv');
 
     ret.severity = parseSeverity(ret.max_cvss);
     delete ret.max_cvss;
 
     const {raw_data} = ret;
 
-    ret.additional_links = [];
+    ret.additionalLinks = [];
     ret.cves = [];
 
     if (isDefined(raw_data) && isDefined(raw_data.entry)) {
@@ -43,9 +43,9 @@ class DfnCertAdv extends Info {
       if (isDefined(entry.link)) {
         forEach(entry.link, link => {
           if (link._rel === 'alternate') {
-            ret.advisory_link = link._href;
+            ret.advisoryLink = link._href;
           } else {
-            ret.additional_links.push(link._href);
+            ret.additionalLinks.push(link._href);
           }
         });
       }

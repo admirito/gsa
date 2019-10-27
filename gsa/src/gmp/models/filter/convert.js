@@ -20,7 +20,7 @@
 import {isDefined} from '../../utils/identity';
 import {isEmpty} from '../../utils/string';
 
-import {parseInt} from '../../parser.js';
+import {parseInt} from '../../parser';
 
 const convertBooleanInt = (keyword, value, relation) => ({
   keyword,
@@ -75,6 +75,7 @@ const VALUE_CONVERTERS = {
 
 const convert = (keyword, value, relation) => {
   let converter = KEYWORD_CONVERTERS[keyword];
+
   if (isDefined(converter)) {
     return converter(keyword, value, relation);
   }

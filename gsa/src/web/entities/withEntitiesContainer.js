@@ -18,9 +18,13 @@
  */
 import React from 'react';
 
+import {withRouter} from 'react-router-dom';
+
 import {connect} from 'react-redux';
 
 import {isDefined} from 'gmp/utils/identity';
+
+import FilterProvider from 'web/entities/filterprovider';
 
 import SubscriptionProvider from 'web/components/provider/subscriptionprovider';
 import withDownload from 'web/components/form/withDownload';
@@ -31,25 +35,42 @@ import {pageFilter} from 'web/store/pages/actions';
 import {renewSessionTimeout} from 'web/store/usersettings/actions';
 
 import compose from 'web/utils/compose';
+import PropTypes from 'web/utils/proptypes';
 import withGmp from 'web/utils/withGmp';
 
 import EntitiesContainer from './container';
 
 const withEntitiesContainer = (
   gmpname,
-  {entitiesSelector, loadEntities, reloadInterval},
+  {
+    entitiesSelector,
+    loadEntities,
+    reloadInterval,
+    defaultFilter,
+    fallbackFilter,
+  },
 ) => Component => {
   let EntitiesContainerWrapper = props => (
     <SubscriptionProvider>
       {({notify}) => (
-        <EntitiesContainer
-          {...props}
-          notify={notify}
+        <FilterProvider
+          fallbackFilter={fallbackFilter}
           gmpname={gmpname}
-          reloadInterval={reloadInterval}
+          history={props.history}
+          locationQuery={props.location.query}
         >
-          {pageProps => <Component {...pageProps} />}
-        </EntitiesContainer>
+          {({filter}) => (
+            <EntitiesContainer
+              {...props}
+              filter={filter}
+              notify={notify}
+              gmpname={gmpname}
+              reloadInterval={reloadInterval}
+            >
+              {pageProps => <Component {...pageProps} />}
+            </EntitiesContainer>
+          )}
+        </FilterProvider>
       )}
     </SubscriptionProvider>
   );
@@ -57,14 +78,18 @@ const withEntitiesContainer = (
   const mapStateToProps = (state, {gmp}) => {
     const eSelector = entitiesSelector(state);
     const pSelector = getPage(state);
-    const filter = pSelector.getFilter(gmpname);
+    let filter = pSelector.getFilter(gmpname);
+    if (!isDefined(filter)) {
+      filter = defaultFilter;
+    }
     const entities = eSelector.getEntities(filter);
     return {
       defaultReloadInterval: gmp.reloadInterval,
       entities,
       entitiesCounts: eSelector.getEntitiesCounts(filter),
+      entitiesError: eSelector.getEntitiesError(filter),
       filter,
-      isLoading: !isDefined(entities) || eSelector.isLoadingEntities(filter),
+      isLoading: eSelector.isLoadingEntities(filter),
       loadedFilter: eSelector.getLoadedFilter(filter),
     };
   };
@@ -75,10 +100,16 @@ const withEntitiesContainer = (
     onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
   });
 
+  EntitiesContainerWrapper.propTypes = {
+    filter: PropTypes.filter,
+    history: PropTypes.object.isRequired,
+  };
+
   EntitiesContainerWrapper = compose(
     withDialogNotification,
     withDownload,
     withGmp,
+    withRouter,
     connect(
       mapStateToProps,
       mapDispatchToProps,

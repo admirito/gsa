@@ -20,12 +20,15 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
+import {isString} from 'gmp/utils/identity';
+
 import PropTypes from 'web/utils/proptypes';
 
 import DetailsLink from './detailslink';
 
 const CertLink = ({id, textOnly = false, type}) => {
-  if (type !== 'CERT-Bund' && type !== 'DFN-CERT') {
+  const lcType = isString(type) ? type.toLowerCase() : undefined;
+  if (lcType !== 'cert-bund' && lcType !== 'dfn-cert') {
     return (
       <span>
         <b>?</b>
@@ -37,10 +40,10 @@ const CertLink = ({id, textOnly = false, type}) => {
   let info_type;
   let title;
 
-  if (type === 'CERT-Bund') {
+  if (lcType === 'cert-bund') {
     info_type = 'certbund';
     title = _('View details of CERT-Bund Advisory {{name}}', {name: id});
-  } else if (type === 'DFN-CERT') {
+  } else if (lcType === 'dfn-cert') {
     title = _('View details of DFN-CERT Advisory {{name}}', {name: id});
     info_type = 'dfncert';
   }

@@ -28,7 +28,7 @@ import {
   LOG_VALUE,
 } from 'web/utils/severity';
 
-import Divider from 'web/components/layout/divider';
+import HorizontalSep from 'web/components/layout/horizontalsep';
 import Layout from 'web/components/layout/layout';
 
 import InfoTable from 'web/components/table/infotable';
@@ -58,11 +58,11 @@ const NoteDetails = ({entity}) => {
               <TableData>{_('Hosts')}</TableData>
               <TableData>
                 {hosts.length > 0 ? (
-                  <Divider>
+                  <HorizontalSep>
                     {hosts.map(host => (
                       <span key={host}>{host}</span>
                     ))}
-                  </Divider>
+                  </HorizontalSep>
                 ) : (
                   _('Any')
                 )}
@@ -91,7 +91,9 @@ const NoteDetails = ({entity}) => {
                 {entity.isOrphan() ? (
                   <b>{_('Orphan')}</b>
                 ) : isDefined(task) ? (
-                  <EntityLink entity={task} />
+                  <span>
+                    <EntityLink entity={task} />
+                  </span>
                 ) : (
                   _('Any')
                 )}
@@ -104,7 +106,9 @@ const NoteDetails = ({entity}) => {
                 {entity.isOrphan() ? (
                   <b>{_('Orphan')}</b>
                 ) : isDefined(result) ? (
-                  <EntityLink entity={result} />
+                  <span>
+                    <EntityLink entity={result} />
+                  </span>
                 ) : (
                   _('Any')
                 )}

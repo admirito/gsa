@@ -26,15 +26,15 @@ import _ from 'gmp/locale';
 
 import {isDefined} from 'gmp/utils/identity';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
-import ErrorContainer from 'web/components/errorboundary/errorcontainer';
+import ErrorDialog from 'web/components/dialog/errordialog';
 
-import Button from 'web/components/form/button';
+import LoadingButton from 'web/components/form/loadingbutton';
 
 import ManualIcon from 'web/components/icon/manualicon';
 import TrashcanIcon from 'web/components/icon/trashcanicon';
 
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import InnerLink from 'web/components/link/innerlink';
 import LinkTarget from 'web/components/link/target';
@@ -66,6 +66,7 @@ import GroupsTable from '../groups/table';
 import NotesTable from '../notes/table';
 import OverridesTable from '../overrides/table';
 import PermissionsTable from '../permissions/table';
+import PoliciesTable from '../policies/table';
 import PortListsTable from '../portlists/table';
 import ReportFormatsTable from '../reportformats/table';
 import RolesTable from '../roles/table';
@@ -83,25 +84,49 @@ const Col = styled.col`
 `;
 
 const ToolBarIcons = () => (
-  <ManualIcon page="search" searchTerm="trashcan" title={_('Help: Trashcan')} />
+  <ManualIcon
+    page="web-interface"
+    anchor="using-the-trashcan"
+    title={_('Help: Trashcan')}
+  />
 );
 
-const EmptyTrashButton = withCapabilities(({onClick, capabilities}) => {
-  if (!capabilities.mayOp('empty_trashcan')) {
-    return null;
+const EmptyTrashButton = withCapabilities(
+  ({onClick, capabilities, loading}) => {
+    if (!capabilities.mayOp('empty_trashcan')) {
+      return null;
+    }
+    return (
+      <Layout align="end">
+        <LoadingButton onClick={onClick} loading={loading}>
+          {_('Empty Trash')}
+        </LoadingButton>
+      </Layout>
+    );
+  },
+);
+
+const separateByUsageType = inputList => {
+  const scan = [];
+  const compliance = [];
+  if (isDefined(inputList)) {
+    for (const elem of inputList) {
+      if (elem.usage_type === 'scan') {
+        scan.push(elem);
+      } else {
+        compliance.push(elem);
+      }
+    }
   }
-  return (
-    <Layout align="end">
-      <Button onClick={onClick}>{_('Empty Trash')}</Button>
-    </Layout>
-  );
-});
+  return {scan, compliance};
+};
 
 class Trashcan extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
       trash: undefined,
+      loading: false,
     };
 
     this.createContentRow = this.createContentRow.bind(this);
@@ -110,6 +135,7 @@ class Trashcan extends React.Component {
     this.handleEmpty = this.handleEmpty.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleRestore = this.handleRestore.bind(this);
+    this.handleErrorClose = this.handleErrorClose.bind(this);
   }
 
   componentDidMount() {
@@ -142,7 +168,14 @@ class Trashcan extends React.Component {
 
     this.handleInteraction();
 
-    gmp.trashcan.restore(entity).then(this.getTrash);
+    gmp.trashcan
+      .restore(entity)
+      .then(this.getTrash)
+      .catch(error => {
+        this.setState({
+          error: error,
+        });
+      });
   }
 
   handleDelete(entity) {
@@ -150,15 +183,40 @@ class Trashcan extends React.Component {
 
     this.handleInteraction();
 
-    gmp.trashcan.delete(entity).then(this.getTrash);
+    gmp.trashcan
+      .delete(entity)
+      .then(this.getTrash)
+      .catch(error => {
+        this.setState({
+          error: error,
+        });
+      });
   }
 
   handleEmpty() {
     const {gmp} = this.props;
-
     this.handleInteraction();
 
-    gmp.trashcan.empty().then(this.getTrash);
+    this.setState({loading: true});
+
+    gmp.trashcan
+      .empty()
+      .then(() => {
+        this.getTrash();
+        this.setState({loading: false});
+      })
+      .catch(error => {
+        this.setState({
+          error: error,
+          loading: false,
+        });
+      });
+  }
+
+  handleErrorClose() {
+    this.setState({
+      error: undefined,
+    });
   }
 
   createContentRow(type, title, count) {
@@ -175,7 +233,6 @@ class Trashcan extends React.Component {
   createContentsTable(trash) {
     const render_agents = isDefined(trash.agent_list);
     const render_alerts = isDefined(trash.alert_list);
-    const render_configs = isDefined(trash.config_list);
     const render_credentials = isDefined(trash.credential_list);
     const render_filters = isDefined(trash.filter_list);
     const render_groups = isDefined(trash.group_list);
@@ -189,8 +246,19 @@ class Trashcan extends React.Component {
     const render_schedules = isDefined(trash.schedule_list);
     const render_tags = isDefined(trash.tag_list);
     const render_targets = isDefined(trash.target_list);
-    const render_tasks = isDefined(trash.task_list);
     const render_tickets = isDefined(trash.ticket_list);
+
+    const {scan: tasks, compliance: audits} = separateByUsageType(
+      trash.task_list,
+    );
+    const renderTasks = isDefined(trash.task_list);
+    const renderAudits = isDefined(trash.task_list);
+
+    const {scan: configs, compliance: policies} = separateByUsageType(
+      trash.config_list,
+    );
+    const renderConfigs = isDefined(trash.config_list);
+    const renderPolicies = isDefined(trash.config_list);
 
     return (
       <TableBody>
@@ -198,8 +266,10 @@ class Trashcan extends React.Component {
           this.createContentRow('agent', 'Agents', trash.agent_list.length)}
         {render_alerts &&
           this.createContentRow('alert', 'Alerts', trash.alert_list.length)}
-        {render_configs &&
-          this.createContentRow('config', 'Configs', trash.config_list.length)}
+        {renderAudits &&
+          this.createContentRow('audit', 'Audits', audits.length)}
+        {renderConfigs &&
+          this.createContentRow('config', 'Configs', configs.length)}
         {render_credentials &&
           this.createContentRow(
             'credential',
@@ -224,6 +294,8 @@ class Trashcan extends React.Component {
             'Permissions',
             trash.permission_list.length,
           )}
+        {renderPolicies &&
+          this.createContentRow('policy', 'Policies', policies.length)}
         {render_port_lists &&
           this.createContentRow(
             'port_list',
@@ -254,8 +326,7 @@ class Trashcan extends React.Component {
           this.createContentRow('tag', 'Tags', trash.tag_list.length)}
         {render_targets &&
           this.createContentRow('target', 'Targets', trash.target_list.length)}
-        {render_tasks &&
-          this.createContentRow('task', 'Tasks', trash.task_list.length)}
+        {renderTasks && this.createContentRow('task', 'Tasks', tasks.length)}
         {render_tickets &&
           this.createContentRow('ticket', 'Tickets', trash.ticket_list.length)}
       </TableBody>
@@ -263,14 +334,18 @@ class Trashcan extends React.Component {
   }
 
   render() {
-    const {error, trash} = this.state;
+    const {error, trash, loading} = this.state;
 
-    if (isDefined(error)) {
-      return <ErrorContainer>{error.message}</ErrorContainer>;
-    }
-    if (!isDefined(trash)) {
+    if (!isDefined(trash) && !isDefined(error)) {
       return <Loading />;
     }
+
+    const {scan: tasks, compliance: audits} = separateByUsageType(
+      trash.task_list,
+    );
+    const {scan: configs, compliance: policies} = separateByUsageType(
+      trash.config_list,
+    );
 
     const contents_table = this.createContentsTable(trash);
 
@@ -284,12 +359,19 @@ class Trashcan extends React.Component {
     };
 
     return (
-      <ErrorBoundary errElement={_('page')}>
+      <React.Fragment>
+        <PageTitle title={_('Trashcan')} />
         <Layout flex="column">
           <ToolBarIcons />
+          {error && (
+            <ErrorDialog
+              text={error.message}
+              title={_('Error')}
+              onClose={this.handleErrorClose}
+            />
+          )}
           <Section img={<TrashcanIcon size="large" />} title={_('Trashcan')} />
-          <EmptyTrashButton onClick={this.handleEmpty} />
-
+          <EmptyTrashButton onClick={this.handleEmpty} loading={loading} />
           <LinkTarget id="Contents" />
           <h1>{_('Contents')}</h1>
           <Table>
@@ -320,11 +402,18 @@ class Trashcan extends React.Component {
               <AlertsTable entities={trash.alert_list} {...table_props} />
             </span>
           )}
+          {isDefined(trash.task_list) && (
+            <span>
+              <LinkTarget id="audit" />
+              <h1>{_('Audits')}</h1>
+              <TasksTable entities={audits} {...table_props} />
+            </span>
+          )}
           {isDefined(trash.config_list) && (
             <span>
               <LinkTarget id="config" />
               <h1>{_('Scan Configs')}</h1>
-              <ScanConfigsTable entities={trash.config_list} {...table_props} />
+              <ScanConfigsTable entities={configs} {...table_props} />
             </span>
           )}
           {isDefined(trash.credential_list) && (
@@ -373,6 +462,13 @@ class Trashcan extends React.Component {
                 entities={trash.permission_list}
                 {...table_props}
               />
+            </span>
+          )}
+          {isDefined(trash.config_list) > 0 && (
+            <span>
+              <LinkTarget id="policy" />
+              <h1>{_('Policies')}</h1>
+              <PoliciesTable entities={policies} {...table_props} />
             </span>
           )}
           {isDefined(trash.port_list_list) && (
@@ -430,14 +526,13 @@ class Trashcan extends React.Component {
               <TargetsTable entities={trash.target_list} {...table_props} />
             </span>
           )}
-          {isDefined(trash.task_list) && (
+          {isDefined(trash.task_list) > 0 && (
             <span>
               <LinkTarget id="task" />
               <h1>{_('Tasks')}</h1>
-              <TasksTable entities={trash.task_list} {...table_props} />
+              <TasksTable entities={tasks} {...table_props} />
             </span>
           )}
-
           {isDefined(trash.ticket_list) && (
             <span>
               <LinkTarget id="ticket" />
@@ -446,7 +541,7 @@ class Trashcan extends React.Component {
             </span>
           )}
         </Layout>
-      </ErrorBoundary>
+      </React.Fragment>
     );
   }
 }

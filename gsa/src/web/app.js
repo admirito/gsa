@@ -25,19 +25,23 @@ import GmpSettings from 'gmp/gmpsettings';
 
 import {LOG_LEVEL_DEBUG} from 'gmp/log';
 
-import {initLocale} from 'gmp/locale/lang';
+import {_, initLocale} from 'gmp/locale/lang';
 
 import {isDefined} from 'gmp/utils/identity';
 
-import ErrorBoundary from 'web/components/errorboundary/errorboundary';
+import ErrorBoundary from 'web/components/error/errorboundary';
+
+import GlobalStyles from 'web/components/layout/globalstyles';
 
 import LocaleObserver from 'web/components/observer/localeobserver';
 
-import GmpProvider from 'web/components/provider/gmpprovider';
+import GmpContext from 'web/components/provider/gmpprovider';
 
-import {setUsername, setTimezone} from 'web/store/usersettings/actions';
-
-import globalcss from 'web/utils/globalcss';
+import {
+  setUsername,
+  setTimezone,
+  setIsLoggedIn,
+} from 'web/store/usersettings/actions';
 
 import configureStore from './store';
 
@@ -50,11 +54,13 @@ initLocale();
 const settings = new GmpSettings(global.localStorage, global.config);
 const gmp = new Gmp(settings);
 
-const store = configureStore(settings.loglevel === LOG_LEVEL_DEBUG);
+const store = configureStore(
+  isDefined(settings.enableStoreDebugLog)
+    ? settings.enableStoreDebugLog
+    : settings.loglevel === LOG_LEVEL_DEBUG,
+);
 
 window.gmp = gmp;
-
-globalcss();
 
 const initStore = () => {
   const {timezone, username} = gmp.settings;
@@ -65,6 +71,7 @@ const initStore = () => {
   if (isDefined(username)) {
     store.dispatch(setUsername(username));
   }
+  store.dispatch(setIsLoggedIn(gmp.isLoggedIn()));
 };
 
 class App extends React.Component {
@@ -93,15 +100,18 @@ class App extends React.Component {
 
   render() {
     return (
-      <GmpProvider gmp={gmp}>
-        <ErrorBoundary>
-          <StoreProvider store={store}>
-            <LocaleObserver>
-              <Routes />
-            </LocaleObserver>
-          </StoreProvider>
+      <React.Fragment>
+        <GlobalStyles />
+        <ErrorBoundary message={_('An error occurred on this page')}>
+          <GmpContext.Provider value={gmp}>
+            <StoreProvider store={store}>
+              <LocaleObserver>
+                <Routes />
+              </LocaleObserver>
+            </StoreProvider>
+          </GmpContext.Provider>
         </ErrorBoundary>
-      </GmpProvider>
+      </React.Fragment>
     );
   }
 }

@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import React from 'react';
 
@@ -28,13 +28,15 @@ import {getTranslatableTaskStatus, TASK_STATUS} from 'gmp/models/task';
 
 import PropTypes from 'web/utils/proptypes.js';
 
-import ProgressBar from './progressbar';
+import ProgressBar, {adjustProgress} from './progressbar';
 
 const Span = styled.span`
   white-space: nowrap;
 `;
 
 const StatusBar = ({status = 'Unknown', progress = '0'}) => {
+  progress = adjustProgress(progress);
+
   let text = getTranslatableTaskStatus(status);
   if (
     status === 'Unknown' ||
@@ -51,7 +53,7 @@ const StatusBar = ({status = 'Unknown', progress = '0'}) => {
   }
 
   if (status === TASK_STATUS.stopped || status === TASK_STATUS.interrupted) {
-    text = _('{{status}} at {{progress}} %', {status, progress});
+    text = _('{{status}} at {{progress}} %', {status: text, progress});
   } else if (status === TASK_STATUS.running) {
     text = _('{{progress}} %', {progress});
   }

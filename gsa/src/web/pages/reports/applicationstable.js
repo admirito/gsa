@@ -45,34 +45,30 @@ const Header = ({currentSortBy, currentSortDir, sort = true, onSortChange}) => {
           currentSortBy={currentSortBy}
           sortBy={sort ? 'name' : false}
           onSortChange={onSortChange}
-        >
-          {_('Application CPE')}
-        </TableHead>
+          title={_('Application CPE')}
+        />
         <TableHead
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'hosts' : false}
           onSortChange={onSortChange}
-        >
-          {_('Hosts')}
-        </TableHead>
+          title={_('Hosts')}
+        />
         <TableHead
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'occurrences' : false}
           onSortChange={onSortChange}
-        >
-          {_('Occurrences')}
-        </TableHead>
+          title={_('Occurrences')}
+        />
         <TableHead
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'severity' : false}
           width="10%"
           onSortChange={onSortChange}
-        >
-          {_('Severity')}
-        </TableHead>
+          title={_('Severity')}
+        />
       </TableRow>
     </TableHeader>
   );
@@ -91,12 +87,14 @@ const Row = ({entity, links = true, onToggleDetailsClick, ...props}) => {
   return (
     <TableRow>
       <TableData>
-        <DetailsLink type="cpe" id={name} textOnly={!links}>
-          <IconDivider>
-            <CpeIcon name={name} />
-            <span>{name}</span>
-          </IconDivider>
-        </DetailsLink>
+        <span>
+          <DetailsLink type="cpe" id={name} textOnly={!links}>
+            <IconDivider>
+              <CpeIcon name={name} />
+              <span>{name}</span>
+            </IconDivider>
+          </DetailsLink>
+        </span>
       </TableData>
       <TableData>{hosts.count}</TableData>
       <TableData>{occurrences.total}</TableData>

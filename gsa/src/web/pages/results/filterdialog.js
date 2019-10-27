@@ -18,7 +18,7 @@
  */
 import React from 'react';
 
-import {_l} from 'gmp/locale/lang';
+import {_, _l} from 'gmp/locale/lang';
 
 import Layout from 'web/components/layout/layout';
 
@@ -27,7 +27,7 @@ import withCapabilities from 'web/utils/withCapabilities';
 
 /* eslint-disable max-len */
 
-import ApplyOverridesGroup from 'web/components/powerfilter/applyoverridesgroup';
+import BooleanFilterGroup from 'web/components/powerfilter/booleanfiltergroup';
 import CreateNamedFilterGroup from 'web/components/powerfilter/createnamedfiltergroup';
 import FilterStringGroup from 'web/components/powerfilter/filterstringgroup';
 import FirstResultGroup from 'web/components/powerfilter/firstresultgroup';
@@ -39,6 +39,8 @@ import SolutionTypeGroup from 'web/components/powerfilter/solutiontypegroup';
 import withFilterDialog from 'web/components/powerfilter/withFilterDialog';
 import FilterDialogPropTypes from 'web/components/powerfilter/dialogproptypes';
 import AutoFpGroup from 'web/components/powerfilter/autofpgroup';
+import SeverityValuesGroup from 'web/components/powerfilter/severityvaluesgroup';
+import FilterSearchGroup from 'web/components/powerfilter/filtersearchgroup';
 
 /* eslint-enable */
 
@@ -75,6 +77,10 @@ const SORT_FIELDS = [
     name: 'created',
     displayName: _l('Created'),
   },
+  {
+    name: 'modified',
+    displayName: _l('Modified'),
+  },
 ];
 
 const ResultsFilterDialogComponent = ({
@@ -87,6 +93,7 @@ const ResultsFilterDialogComponent = ({
   onFilterChange,
   onFilterStringChange,
   onFilterValueChange,
+  onSearchTermChange,
   onSortByChange,
   onSortOrderChange,
   onValueChange,
@@ -98,11 +105,23 @@ const ResultsFilterDialogComponent = ({
       onChange={onFilterStringChange}
     />
 
-    <ApplyOverridesGroup filter={filter} onChange={onFilterValueChange} />
+    <BooleanFilterGroup
+      name="apply_overrides"
+      title={_('Apply Overrides')}
+      filter={filter}
+      onChange={onFilterValueChange}
+    />
 
     <AutoFpGroup filter={filter} onChange={onFilterValueChange} />
 
     <SeverityLevelsGroup filter={filter} onChange={onFilterValueChange} />
+
+    <SeverityValuesGroup
+      name="cvss_base"
+      filter={filter}
+      title={_('Severity')}
+      onChange={onFilterValueChange}
+    />
 
     <SolutionTypeGroup filter={filter} onChange={onFilterChange} />
 
@@ -110,6 +129,34 @@ const ResultsFilterDialogComponent = ({
       name="min_qod"
       filter={filter}
       onChange={onFilterValueChange}
+    />
+
+    <FilterSearchGroup
+      name="owner"
+      filter={filter}
+      title={_('Owner')}
+      onChange={onSearchTermChange}
+    />
+
+    <FilterSearchGroup
+      name="vulnerability"
+      filter={filter}
+      title={_('Vulnerability')}
+      onChange={onSearchTermChange}
+    />
+
+    <FilterSearchGroup
+      name="host"
+      filter={filter}
+      title={_('Host (IP)')}
+      onChange={onSearchTermChange}
+    />
+
+    <FilterSearchGroup
+      name="location"
+      filter={filter}
+      title={_('Location (eg. port/protocol)')}
+      onChange={onSearchTermChange}
     />
 
     <FirstResultGroup filter={filter} onChange={onFilterValueChange} />

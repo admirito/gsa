@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/includes';
+import 'core-js/features/string/includes';
 
 import {isDefined} from '../../utils/identity';
 
@@ -41,7 +41,7 @@ class FilterTerm {
    * @param {String} relation Relation between keyword and filter, =,<,>,...
    */
   constructor({keyword, value, relation}) {
-    this.keyword = keyword;
+    this.keyword = isDefined(keyword) ? keyword.toLowerCase() : keyword;
     this.value = value;
     this.relation = relation;
   }

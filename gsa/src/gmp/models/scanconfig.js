@@ -23,7 +23,9 @@ import {isEmpty} from '../utils/string';
 
 import {parseInt} from '../parser';
 
-import Model from '../model';
+import Model, {parseModelFromElement} from '../model';
+
+import _ from '../locale';
 
 export const EMPTY_SCAN_CONFIG_ID = '085569ce-73ed-11df-83c3-002264764cea';
 export const FULL_AND_FAST_SCAN_CONFIG_ID =
@@ -32,7 +34,16 @@ export const FULL_AND_FAST_SCAN_CONFIG_ID =
 export const OSP_SCAN_CONFIG_TYPE = 1;
 export const OPENVAS_SCAN_CONFIG_TYPE = 0;
 
-export const parse_count = count => {
+export const SCANCONFIG_TREND_DYNAMIC = 1;
+export const SCANCONFIG_TREND_STATIC = 0;
+
+export const getTranslatedType = config => {
+  return config.scan_config_type === OSP_SCAN_CONFIG_TYPE
+    ? _('OSP')
+    : _('OpenVAS');
+};
+
+export const parseCount = count => {
   return !isEmpty(count) && count !== '-1' ? parseInt(count) : undefined;
 };
 
@@ -44,25 +55,27 @@ export const openVasScanConfigsFilter = config =>
 export const ospScanConfigsFilter = config =>
   config.scan_config_type === OSP_SCAN_CONFIG_TYPE;
 
+export const parseTrend = parseInt;
+
 class ScanConfig extends Model {
   static entityType = 'scanconfig';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem);
+  static parseElement(element) {
+    const ret = super.parseElement(element);
 
     // for displaying the selected nvts (1 of 33) an object for accessing the
     // family by name is required
     const families = {};
 
-    if (isDefined(elem.families)) {
-      ret.family_list = map(elem.families.family, family => {
+    if (isDefined(element.families)) {
+      ret.family_list = map(element.families.family, family => {
         const {name} = family;
         const new_family = {
           name,
-          trend: family.growing,
+          trend: parseTrend(family.growing),
           nvts: {
-            count: parse_count(family.nvt_count),
-            max: parse_count(family.max_nvt_count),
+            count: parseCount(family.nvt_count),
+            max: parseCount(family.max_nvt_count),
           },
         };
         families[name] = new_family;
@@ -73,8 +86,8 @@ class ScanConfig extends Model {
     }
 
     if (isDefined(ret.family_count)) {
-      families.count = parse_count(ret.family_count.__text);
-      families.trend = ret.family_count.growing;
+      families.count = parseCount(ret.family_count.__text);
+      families.trend = parseTrend(ret.family_count.growing);
 
       delete ret.family_count;
     } else {
@@ -85,19 +98,25 @@ class ScanConfig extends Model {
 
     if (isDefined(ret.nvt_count)) {
       ret.nvts = {
-        count: parse_count(ret.nvt_count.__text),
-        trend: ret.nvt_count.growing,
+        // number of selected nvts
+        count: parseCount(ret.nvt_count.__text),
+        trend: parseTrend(ret.nvt_count.growing),
       };
 
       delete ret.nvt_count;
 
       if (isDefined(ret.known_nvt_count)) {
-        ret.nvts.known = parse_count(ret.known_nvt_count);
+        // number of known nvts by the scanner from last sync. should always be
+        // equal or less then nvt_count because only the db may contain nvts not
+        // known nvts by the scanner e.g. an imported scan config contains
+        // private nvts
+        ret.nvts.known = parseCount(ret.known_nvt_count);
         delete ret.known_nvt_count;
       }
 
       if (isDefined(ret.max_nvt_count)) {
-        ret.nvts.max = parse_count(ret.max_nvt_count);
+        // sum of all available nvts of all selected families
+        ret.nvts.max = parseCount(ret.max_nvt_count);
         delete ret.max_nvt_count;
       }
     } else {
@@ -107,8 +126,8 @@ class ScanConfig extends Model {
     const nvt_preferences = [];
     const scanner_preferences = [];
 
-    if (isDefined(elem.preferences)) {
-      forEach(elem.preferences.preference, preference => {
+    if (isDefined(element.preferences)) {
+      forEach(element.preferences.preference, preference => {
         const pref = {...preference};
         if (isEmpty(pref.nvt.name)) {
           delete pref.nvt;
@@ -130,18 +149,20 @@ class ScanConfig extends Model {
       nvt: nvt_preferences,
     };
 
-    ret.scan_config_type = parseInt(elem.type);
+    ret.scan_config_type = parseInt(element.type);
 
-    if (isDefined(elem.scanner)) {
+    if (isDefined(element.scanner)) {
       const scanner = {
-        ...elem.scanner,
-        name: elem.scanner.__text,
+        ...element.scanner,
+        name: element.scanner.__text,
       };
-      ret.scanner = new Model(scanner, 'scanner');
+      ret.scanner = parseModelFromElement(scanner, 'scanner');
     }
 
-    if (isDefined(elem.tasks)) {
-      ret.tasks = map(elem.tasks.task, task => new Model(task, 'task'));
+    if (isDefined(element.tasks)) {
+      ret.tasks = map(element.tasks.task, task =>
+        parseModelFromElement(task, 'task'),
+      );
     } else {
       ret.tasks = [];
     }

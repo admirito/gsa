@@ -62,6 +62,8 @@ class Badge extends React.Component {
     super(...args);
 
     this.state = {};
+
+    this.icon = React.createRef();
   }
 
   componentDidMount() {
@@ -75,8 +77,8 @@ class Badge extends React.Component {
   }
 
   calcMargin() {
-    if (hasValue(this.icon)) {
-      const {width} = this.icon.getBoundingClientRect();
+    if (hasValue(this.icon.current)) {
+      const {width} = this.icon.current.getBoundingClientRect();
       this.setState({margin: width / 2});
     }
   }
@@ -97,7 +99,8 @@ class Badge extends React.Component {
 
         {isDefined(content) && (
           <BadgeIcon
-            innerRef={ref => (this.icon = ref)}
+            data-testid="badge-icon"
+            ref={this.icon}
             color={color}
             backgroundColor={backgroundColor}
             position={position}

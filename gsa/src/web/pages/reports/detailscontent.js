@@ -22,7 +22,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import _ from 'gmp/locale';
-import {longDate} from 'gmp/locale/date';
 
 import {TASK_STATUS} from 'gmp/models/task';
 
@@ -31,7 +30,9 @@ import {isDefined} from 'gmp/utils/identity';
 import StatusBar from 'web/components/bar/statusbar';
 import ToolBar from 'web/components/bar/toolbar';
 
-import ErrorMessage from 'web/components/errorboundary/errormessage';
+import DateTime from 'web/components/date/datetime';
+
+import ErrorMessage from 'web/components/error/errormessage';
 
 import AddToAssetsIcon from 'web/components/icon/addtoassetsicon';
 import DownloadIcon from 'web/components/icon/downloadicon';
@@ -43,6 +44,7 @@ import RemoveFromAssetsIcon from 'web/components/icon/removefromassetsicon';
 import ReportIcon from 'web/components/icon/reporticon';
 import ResultIcon from 'web/components/icon/resulticon';
 import TaskIcon from 'web/components/icon/taskicon';
+import TlsCertificateIcon from 'web/components/icon/tlscertificateicon';
 
 import IconDivider from 'web/components/layout/icondivider';
 import Divider from 'web/components/layout/divider';
@@ -148,9 +150,9 @@ const ToolBarIcons = ({
     <Divider margin="15px">
       <IconDivider>
         <ManualIcon
-          page="vulnerabilitymanagement"
-          anchor="reports-and-vulnerability-management"
-          title={_('Help: Reports')}
+          page="reports"
+          anchor="reading-a-report"
+          title={_('Help: Reading Reports')}
         />
         <ListIcon title={_('Reports List')} page="reports" />
       </IconDivider>
@@ -189,6 +191,15 @@ const ToolBarIcons = ({
             >
               <VulnerabilityIcon />
             </Link>
+            {!delta && (
+              <Link
+                to="tlscertificates"
+                filter={'report_id=' + report.id}
+                title={_('Corresponding TLS Certificates')}
+              >
+                <TlsCertificateIcon />
+              </Link>
+            )}
             {isDefined(task) && !task.isContainer() && (
               <Link
                 to="performance"
@@ -293,7 +304,7 @@ const PageContent = ({
     ports,
     results,
     result_count = {},
-    tls_certificates,
+    tlsCertificates,
     timestamp,
     scan_run_status,
   } = report;
@@ -319,7 +330,7 @@ const PageContent = ({
         <span>{_('Loading')}</span>
       ) : (
         <Divider>
-          <span>{longDate(timestamp)}</span>
+          <DateTime date={timestamp} />
           <Span>
             <StatusBar status={status} progress={progress} />
           </Span>
@@ -436,7 +447,7 @@ const PageContent = ({
                   <Tab>
                     <TabTitle
                       title={_('TLS Certificates')}
-                      counts={tls_certificates.counts}
+                      counts={tlsCertificates.counts}
                     />
                   </Tab>
                 )}
@@ -726,8 +737,8 @@ const PageContent = ({
                   </TabPanel>
                   <TabPanel>
                     <ReportEntitiesContainer
-                      counts={tls_certificates.counts}
-                      entities={tls_certificates.entities}
+                      counts={tlsCertificates.counts}
+                      entities={tlsCertificates.entities}
                       filter={filter}
                       sortFunctions={tlsCertificatesSortFunctions}
                       sortField={sorting.tlscerts.sortField}

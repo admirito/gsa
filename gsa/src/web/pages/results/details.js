@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/string/starts-with';
+import 'core-js/features/string/starts-with';
 
 import React from 'react';
 
@@ -48,6 +48,8 @@ import References from '../nvts/references';
 import Solution from '../nvts/solution';
 import P from '../nvts/preformatted';
 
+import Diff from './diff';
+
 /*
  security and log messages from nvts are converted to results
  results should preserve newlines AND whitespaces for formatting
@@ -71,22 +73,61 @@ const ResultDetails = ({className, links = true, entity}) => {
     ? result.detection.result.details
     : undefined;
 
+  const result2 = isDefined(result.delta) ? result.delta.result : undefined;
+  const result2Id = isDefined(result2) ? result2.id : undefined;
+  const result2Description = isDefined(result2)
+    ? result2.description
+    : undefined;
+
   return (
     <Layout flex="column" grow="1" className={className}>
       <DetailsBlock title={_('Summary')}>
         <P>{tags.summary}</P>
       </DetailsBlock>
 
-      <DetailsBlock title={_('Detection Result')}>
-        {!isEmpty(result.description) && result.description.length > 1 ? (
-          <Pre>{result.description}</Pre>
-        ) : (
-          _(
-            'Vulnerability was detected according to the ' +
-              'Detection Method.',
-          )
-        )}
-      </DetailsBlock>
+      {result.hasDelta() ? (
+        <DetailsBlock title={_('Detection Results')}>
+          <div>
+            <DetailsLink id={result.id} type="result">
+              <h3>{_('Result 1')}</h3>
+            </DetailsLink>
+            <Pre>
+              {isDefined(result.description) ? result.description : _('N/A')}
+            </Pre>
+          </div>
+          <div>
+            {isDefined(result2Id) ? (
+              <DetailsLink id={result2Id} type="result">
+                <h3>{_('Result 2')}</h3>
+              </DetailsLink>
+            ) : (
+              <h3>{_('Result 2')}</h3>
+            )}
+            <Pre>
+              {isDefined(result2Description) ? result2Description : _('N/A')}
+            </Pre>
+          </div>
+          <div>
+            <h3>{_('Different Lines')}</h3>
+            {isDefined(result.delta.diff) ? (
+              <Diff>{result.delta.diff}</Diff>
+            ) : (
+              <Pre>{_('N/A')}</Pre>
+            )}
+          </div>
+        </DetailsBlock>
+      ) : (
+        <DetailsBlock title={_('Detection Result')}>
+          {!isEmpty(result.description) && result.description.length > 1 ? (
+            <Pre>{result.description}</Pre>
+          ) : (
+            _(
+              'Vulnerability was detected according to the ' +
+                'Detection Method.',
+            )
+          )}
+        </DetailsBlock>
+      )}
 
       {has_detection && (
         <DetailsBlock title={_('Product Detection Result')}>
@@ -95,44 +136,50 @@ const ResultDetails = ({className, links = true, entity}) => {
               <TableRow>
                 <TableData>{_('Product')}</TableData>
                 <TableData>
-                  <DetailsLink
-                    type="cpe"
-                    id={detection_details.product}
-                    textOnly={!links}
-                  >
-                    {detection_details.product}
-                  </DetailsLink>
+                  <span>
+                    <DetailsLink
+                      type="cpe"
+                      id={detection_details.product}
+                      textOnly={!links}
+                    >
+                      {detection_details.product}
+                    </DetailsLink>
+                  </span>
                 </TableData>
               </TableRow>
               <TableRow>
                 <TableData>{_('Method')}</TableData>
                 <TableData>
-                  <DetailsLink
-                    id={detection_details.source_oid}
-                    type={
-                      detection_details.source_oid.startsWith('CVE-')
-                        ? 'cve'
-                        : 'nvt'
-                    }
-                    textOnly={!links}
-                  >
-                    {detection_details.source_name +
-                      ' (OID: ' +
-                      detection_details.source_oid +
-                      ')'}
-                  </DetailsLink>
+                  <span>
+                    <DetailsLink
+                      id={detection_details.source_oid}
+                      type={
+                        detection_details.source_oid.startsWith('CVE-')
+                          ? 'cve'
+                          : 'nvt'
+                      }
+                      textOnly={!links}
+                    >
+                      {detection_details.source_name +
+                        ' (OID: ' +
+                        detection_details.source_oid +
+                        ')'}
+                    </DetailsLink>
+                  </span>
                 </TableData>
               </TableRow>
               <TableRow>
                 <TableData>{_('Log')}</TableData>
                 <TableData>
-                  <DetailsLink
-                    type="result"
-                    id={result.detection.result.id}
-                    textOnly={!links}
-                  >
-                    {_('View details of product detection')}
-                  </DetailsLink>
+                  <span>
+                    <DetailsLink
+                      type="result"
+                      id={result.detection.result.id}
+                      textOnly={!links}
+                    >
+                      {_('View details of product detection')}
+                    </DetailsLink>
+                  </span>
                 </TableData>
               </TableRow>
             </TableBody>
@@ -171,10 +218,12 @@ const ResultDetails = ({className, links = true, entity}) => {
                     </DetailsLink>
                   )}
                   {isDefined(oid) && oid.startsWith('1.3.6.1.4.1.25623.1.0.') && (
-                    <DetailsLink type="nvt" id={oid} textOnly={!links}>
-                      {renderNvtName(oid, nvt.name)}
-                      {' OID: ' + oid}
-                    </DetailsLink>
+                    <span>
+                      <DetailsLink type="nvt" id={oid} textOnly={!links}>
+                        {renderNvtName(oid, nvt.name)}
+                        {' OID: ' + oid}
+                      </DetailsLink>
+                    </span>
                   )}
                   {!isDefined(oid) &&
                     _('No details available for this method.')}

@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2018 Greenbone Networks GmbH
+/* Copyright (C) 2009-2019 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -88,10 +88,6 @@
 #include <gvm/util/fileutils.h>
 #include <microhttpd.h>
 
-#ifdef GIT_REV_AVAILABLE
-#include "gitrevision.h"
-#endif
-
 #undef G_LOG_DOMAIN
 /**
  * @brief GLib log domain.
@@ -167,19 +163,6 @@
   " frame-ancestors 'self'"
 
 /**
- * @brief Default value for HTTP header "X-Frame-Options" for guest charts
- */
-#define DEFAULT_GSAD_GUEST_CHART_X_FRAME_OPTIONS "SAMEORIGIN"
-
-/**
- * @brief Default guest charts value for HTTP header "Content-Security-Policy"
- */
-#define DEFAULT_GSAD_GUEST_CHART_CONTENT_SECURITY_POLICY \
-  "default-src 'self' 'unsafe-inline';"                  \
-  " img-src 'self' blob:;"                               \
-  " frame-ancestors *"
-
-/**
  * @brief Default "max-age" for HTTP header "Strict-Transport-Security"
  */
 #define DEFAULT_GSAD_HSTS_MAX_AGE 31536000
@@ -188,6 +171,12 @@
  * @brief Default value for the maximum number of connection per IP address.
  */
 #define DEFAULT_GSAD_PER_IP_CONNECTION_LIMIT 30
+
+#define COPYRIGHT                                                        \
+  "Copyright (C) 2010 - 2019 Greenbone Networks GmbH\n"                  \
+  "License GPLv2+: GNU GPL version 2 or later\n"                         \
+  "This is free software: you are free to change and redistribute it.\n" \
+  "There is NO WARRANTY, to the extent permitted by law.\n\n"
 
 /**
  * @brief Flag for signal handler.
@@ -284,6 +273,7 @@ init_validator ()
                      "|(create_target)"
                      "|(create_task)"
                      "|(create_ticket)"
+                     "|(create_tls_certificate)"
                      "|(create_user)"
                      "|(cvss_calculator)"
                      "|(delete_agent)"
@@ -308,6 +298,7 @@ init_validator ()
                      "|(delete_target)"
                      "|(delete_task)"
                      "|(delete_ticket)"
+                     "|(delete_tls_certificate)"
                      "|(delete_user)"
                      "|(download_agent)"
                      "|(download_credential)"
@@ -315,10 +306,7 @@ init_validator ()
                      "|(download_ca_pub)"
                      "|(download_key_pub)"
                      "|(edit_alert)"
-                     "|(edit_config)"
                      "|(edit_config_family)"
-                     "|(edit_config_nvt)"
-                     "|(edit_role)"
                      "|(auth_settings)"
                      "|(empty_trashcan)"
                      "|(export_agent)"
@@ -370,6 +358,7 @@ init_validator ()
                      "|(get_alerts)"
                      "|(get_asset)"
                      "|(get_assets)"
+                     "|(get_capabilities)"
                      "|(get_config)"
                      "|(get_config_family)"
                      "|(get_config_nvt)"
@@ -384,6 +373,7 @@ init_validator ()
                      "|(get_info)"
                      "|(get_note)"
                      "|(get_notes)"
+                     "|(get_nvt_families)"
                      "|(get_override)"
                      "|(get_overrides)"
                      "|(get_permission)"
@@ -413,13 +403,14 @@ init_validator ()
                      "|(get_tasks)"
                      "|(get_ticket)"
                      "|(get_tickets)"
+                     "|(get_tls_certificate)"
+                     "|(get_tls_certificates)"
                      "|(get_trash)"
                      "|(get_user)"
                      "|(get_users)"
                      "|(get_vulns)"
                      "|(import_config)"
                      "|(import_port_list)"
-                     "|(import_report)"
                      "|(import_report_format)"
                      "|(login)"
                      "|(move_task)"
@@ -456,6 +447,7 @@ init_validator ()
                      "|(save_target)"
                      "|(save_task)"
                      "|(save_ticket)"
+                     "|(save_tls_certificate)"
                      "|(save_user)"
                      "|(start_task)"
                      "|(stop_task)"
@@ -465,7 +457,6 @@ init_validator ()
                      "|(sync_config)"
                      "|(toggle_tag)"
                      "|(verify_agent)"
-                     "|(verify_report_format)"
                      "|(verify_scanner)"
                      "|(wizard)"
                      "|(wizard_get))$");
@@ -481,7 +472,7 @@ init_validator ()
     "^(agent|alert|config|credential|filter|group|host|nvt|note|os|override|"
     "permission|port_list|report|report_format|result|role|scanner|schedule|"
     "tag|target|task|user|allinfo|cve|cpe|ovaldef|cert_bund_adv|dfn_cert_adv|"
-    "vuln)$");
+    "vuln|tls_certificate)$");
   gvm_validator_add (
     validator, "alive_tests",
     "^(Scan Config Default|ICMP Ping|TCP-ACK Service Ping|TCP-SYN Service "
@@ -520,8 +511,7 @@ init_validator ()
   gvm_validator_add (validator, "create_credentials_type", "^(gen|pass|key)$");
   gvm_validator_add (validator, "credential_type",
                      "^(cc|up|usk|smime|pgp|snmp|pw)$");
-  gvm_validator_add (validator, "credential_login",
-                     "^[-_[:alnum:]\\.@\\\\]*$");
+  gvm_validator_add (validator, "credential_login", "^[-_[:alnum:]\\.@\\\\]*$");
   gvm_validator_add (validator, "condition_data:name", "^.*$");
   gvm_validator_add (validator, "condition_data:value", "(?s)^.*$");
   gvm_validator_add (validator, "cvss_av", "^(L|A|N)$");
@@ -560,8 +550,7 @@ init_validator ()
                      "^.*[[0-9abcdefABCDEF\\-]*]:.*$");
   gvm_validator_add (validator, "exclude_file:value", "^yes$");
   gvm_validator_add (validator, "file", "(?s)^.*$");
-  gvm_validator_add (validator, "file:name",
-                     "^.*[[0-9abcdefABCDEF\\-]*]:.*$");
+  gvm_validator_add (validator, "file:name", "^.*[[0-9abcdefABCDEF\\-]*]:.*$");
   gvm_validator_add (validator, "file:value", "^yes$");
   gvm_validator_add (validator, "settings_changed:name", "^.*$");
   gvm_validator_add (validator, "settings_changed:value", "^[a-z0-9\\-]+$");
@@ -603,6 +592,7 @@ init_validator ()
   gvm_validator_add (validator, "include_id_list:name", "^[[:alnum:]\\-_ ]+$");
   gvm_validator_add (validator, "include_id_list:value", "^(0|1)$");
   gvm_validator_add (validator, "installer_sig", "(?s)^.*$");
+  gvm_validator_add (validator, "isodate", "^.*$");
   gvm_validator_add (validator, "lang",
                      "^(Browser Language|"
                      "([a-z]{2,3})(_[A-Z]{2})?(@[[:alnum:]_-]+)?"
@@ -635,13 +625,11 @@ init_validator ()
   gvm_validator_add (validator, "password", "^.*$");
   gvm_validator_add (validator, "password:value", "(?s)^.*$");
   gvm_validator_add (validator, "port", "^.*$");
-  gvm_validator_add (validator, "port_range",
-                     "^((default)|([-0-9, TU:]+))$");
+  gvm_validator_add (validator, "port_range", "^((default)|([-0-9, TU:]+))$");
   gvm_validator_add (validator, "port_type", "^(tcp|udp)$");
   /** @todo Better regex. */
   gvm_validator_add (validator, "preference_name", "^.*$");
-  gvm_validator_add (validator, "preference:name",
-                     "^([^[]*\\[[^]]*\\]:.*){0,400}$");
+  gvm_validator_add (validator, "preference:name", "^([^:]*:[^:]*:.*){0,400}$");
   gvm_validator_add (validator, "preference:value", "(?s)^.*$");
   gvm_validator_add (validator, "prev_action", "(?s)^.*$");
   gvm_validator_add (validator, "privacy_algorithm", "^(aes|des|)$");
@@ -670,29 +658,23 @@ init_validator ()
   gvm_validator_add (validator, "result_id", "^[a-z0-9\\-]+$");
   gvm_validator_add (validator, "role", "^[[:alnum:] ]+$");
   gvm_validator_add (validator, "permission", "^([_a-z]+|Super)$");
+  gvm_validator_add (validator, "permission_type", "^(read|write)$");
   gvm_validator_add (validator, "port_list_id", "^[a-z0-9\\-]+$");
   gvm_validator_add (validator, "port_range_id", "^[a-z0-9\\-]+$");
   gvm_validator_add (
     validator, "resource_type",
-    "^(agent|alert|asset|config|credential|filter|group|host|nvt|note|os|"
-    "override|permission|port_list|report|report_format|result|role|scanner|"
-    "schedule|tag|target|task|user|info|cve|cpe|ovaldef|cert_bund_adv|dfn_cert_"
-    "adv|vuln|ticket|"
-    "Agent|Alert|Asset|Config|Credential|Filter|Group|Host|Note|NVT|Operating "
-    "System|Override|Permission|Port List|Report|Report "
-    "Format|Result|Role|Scanner|Schedule|Tag|Target|Task|User|SecInfo|CVE|CPE|"
-    "OVAL Definition|CERT-Bund Advisory|DFN-CERT Advisory|Vulnerability)$");
+    "^(agent|alert|asset|cert_bund_adv|config|cpe|credential|cve|dfn_cert_adv|"
+    "filter|group|host|info|nvt|note|os|ovaldef|override|permission|port_list|"
+    "report|report_format|result|role|scanner|schedule|tag|target|task|ticket|"
+    "tls_certificate|user|vuln|)$");
   gvm_validator_add (validator, "resource_id", "^[[:alnum:]-_.:\\/~]*$");
   gvm_validator_add (validator, "resources_action", "^(|add|set|remove)$");
   gvm_validator_add (
     validator, "optional_resource_type",
-    "^(agent|alert|asset|config|credential|filter|group|host|note|nvt|os|"
-    "override|permission|port_list|report|report_format|result|role|scanner|"
-    "schedule|tag|target|task|user|info|vuln|"
-    "Agent|Alert|Asset|Config|Credential|Filter|Group|Host|Note|NVT|Operating "
-    "System|Override|Permission|Port List|Report|Report "
-    "Format|Result|Role|Scanner|Schedule|Tag|Target|Task|User|SecInfo|"
-    "Vulnerability)?$");
+    "^(agent|alert|asset|cert_bund_adv|config|cpe|credential|cve|dfn_cert_adv|"
+    "filter|group|host|info|nvt|note|os|ovaldef|override|permission|port_list|"
+    "report|report_format|result|role|scanner|schedule|tag|target|task|ticket|"
+    "tls_certificate|user|vuln|)?$");
   gvm_validator_add (validator, "select:value", "^.*$");
   gvm_validator_add (validator, "ssl_cert", "^.*$");
   gvm_validator_add (validator, "method_data:name", "^.*$");
@@ -745,6 +727,7 @@ init_validator ()
                      "^(-1(\\.0)?|[0-9](\\.[0-9])?|10(\\.0)?)?$");
   gvm_validator_add (validator, "source_iface", "^(.*){1,16}$");
   gvm_validator_add (validator, "uuid", "^[0-9abcdefABCDEF\\-]{1,40}$");
+  gvm_validator_add (validator, "usage_type", "^(audit|policy|scan|)$");
   /* This must be "login" with space and comma. */
   gvm_validator_add (validator, "users", "^[[:alnum:]-_@., ]*$");
   gvm_validator_add (validator, "x_field", "^[\\[\\]_[:alnum:]]+$");
@@ -759,6 +742,7 @@ init_validator ()
   gvm_validator_add (validator, "icalendar", "(?s)^BEGIN:VCALENDAR.+$");
 
   /* Binary data params that should not use no UTF-8 validation */
+  gvm_validator_add_binary (validator, "certificate_bin");
   gvm_validator_add_binary (validator, "installer");
   gvm_validator_add_binary (validator, "method_data:pkcs12:");
 
@@ -810,13 +794,8 @@ init_validator ()
   gvm_validator_alias (validator, "dynamic_severity", "boolean");
   gvm_validator_alias (validator, "enable", "boolean");
   gvm_validator_alias (validator, "enable_stop", "boolean");
-  gvm_validator_alias (validator, "end_day", "day_of_month");
-  gvm_validator_alias (validator, "end_hour", "hour");
-  gvm_validator_alias (validator, "end_minute", "minute");
-  gvm_validator_alias (validator, "end_month", "month");
-  gvm_validator_alias (validator, "end_year", "year");
+  gvm_validator_alias (validator, "end_time", "isodate");
   gvm_validator_alias (validator, "esxi_credential_id", "credential_id");
-  gvm_validator_alias (validator, "filt_id", "id");
   gvm_validator_alias (validator, "filter_extra", "filter");
   gvm_validator_alias (validator, "filter_id", "id");
   gvm_validator_alias (validator, "filterbox", "boolean");
@@ -835,6 +814,7 @@ init_validator ()
   gvm_validator_alias (validator, "in_assets", "boolean");
   gvm_validator_alias (validator, "in_use", "boolean");
   gvm_validator_alias (validator, "include_related", "number");
+  gvm_validator_alias (validator, "include_certificate_data", "boolean");
   gvm_validator_alias (validator, "inheritor_id", "id");
   gvm_validator_alias (validator, "ignore_pagination", "boolean");
   gvm_validator_alias (validator, "event", "condition");
@@ -845,6 +825,7 @@ init_validator ()
   gvm_validator_alias (validator, "method", "condition");
   gvm_validator_alias (validator, "modify_password", "number");
   gvm_validator_alias (validator, "ldaphost", "hostport");
+  gvm_validator_alias (validator, "lean", "boolean");
   gvm_validator_alias (validator, "level_high", "boolean");
   gvm_validator_alias (validator, "level_medium", "boolean");
   gvm_validator_alias (validator, "level_low", "boolean");
@@ -873,7 +854,6 @@ init_validator ()
   gvm_validator_alias (validator, "old_password", "password");
   gvm_validator_alias (validator, "open_note", "note_optional");
   gvm_validator_alias (validator, "original_overrides", "boolean");
-  gvm_validator_alias (validator, "overrides", "boolean");
   gvm_validator_alias (validator, "owner", "name");
   gvm_validator_alias (validator, "passphrase", "lsc_password");
   gvm_validator_alias (validator, "password:name", "preference_name");
@@ -919,22 +899,17 @@ init_validator ()
   gvm_validator_alias (validator, "smb_credential_id", "credential_id");
   gvm_validator_alias (validator, "snmp_credential_id", "credential_id");
   gvm_validator_alias (validator, "ssh_credential_id", "credential_id");
-  gvm_validator_alias (validator, "start_day", "day_of_month");
-  gvm_validator_alias (validator, "start_hour", "hour");
-  gvm_validator_alias (validator, "start_minute", "minute");
-  gvm_validator_alias (validator, "start_month", "month");
-  gvm_validator_alias (validator, "start_year", "year");
   gvm_validator_alias (validator, "subgroup_column", "group_column");
   gvm_validator_alias (validator, "subject_id", "id");
   gvm_validator_alias (validator, "subject_id_optional", "id_optional");
-  gvm_validator_alias (validator, "subject_name", "name");
   gvm_validator_alias (validator, "subtype", "asset_type");
-  gvm_validator_alias (validator, "task_filter", "filter");
-  gvm_validator_alias (validator, "task_filt_id", "filt_id");
+  gvm_validator_alias (validator, "start_time", "isodate");
   gvm_validator_alias (validator, "task_uuid", "optional_id");
   gvm_validator_alias (validator, "ticket_id", "id");
   gvm_validator_alias (validator, "timeout", "boolean");
+  gvm_validator_alias (validator, "tls_certificate_id", "id");
   gvm_validator_alias (validator, "trend:name", "family");
+  gvm_validator_alias (validator, "trust", "boolean");
   gvm_validator_alias (validator, "user_id", "id");
   gvm_validator_alias (validator, "user_id_optional", "id_optional");
   gvm_validator_alias (validator, "xml", "boolean");
@@ -1328,7 +1303,6 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
   credentials_t *credentials = NULL;
   gchar *res = NULL, *new_sid = NULL;
   const gchar *cmd, *caller, *language;
-  authentication_reason_t auth_reason;
   gvm_connection_t connection;
   cmd_response_data_t *response_data = cmd_response_data_new ();
 
@@ -1410,18 +1384,12 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
                                             BAD_MISSING_COOKIE);
     }
 
-  if (ret == USER_GUEST_LOGIN_FAILED || ret == USER_GMP_DOWN
-      || ret == USER_GUEST_LOGIN_ERROR)
+  if (ret == USER_GMP_DOWN)
     {
-      auth_reason =
-        ret == USER_GMP_DOWN
-          ? GMP_SERVICE_DOWN
-          : (ret == USER_GUEST_LOGIN_ERROR ? LOGIN_ERROR : LOGIN_FAILED);
-
       cmd_response_data_free (response_data);
 
       return handler_send_reauthentication (con, MHD_HTTP_SERVICE_UNAVAILABLE,
-                                            auth_reason);
+                                            GMP_SERVICE_DOWN);
     }
 
   /* From here, the user is authenticated. */
@@ -1512,6 +1480,7 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (create_tag)
   ELSE (create_target)
   ELSE (create_ticket)
+  ELSE (create_tls_certificate)
   ELSE (create_user)
   ELSE (create_role)
   ELSE (delete_agent)
@@ -1536,11 +1505,11 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (delete_target)
   ELSE (delete_task)
   ELSE (delete_ticket)
+  ELSE (delete_tls_certificate)
   ELSE (delete_user)
   ELSE (empty_trashcan)
   ELSE (import_config)
   ELSE (import_port_list)
-  ELSE (import_report)
   ELSE (import_report_format)
   ELSE (move_task)
   ELSE (renew_session)
@@ -1577,6 +1546,7 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (save_task)
   ELSE (save_ticket)
   ELSE (save_container_task)
+  ELSE (save_tls_certificate)
   ELSE (save_user)
   ELSE (start_task)
   ELSE (stop_task)
@@ -1586,7 +1556,6 @@ exec_gmp_post (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (test_alert)
   ELSE (toggle_tag)
   ELSE (verify_agent)
-  ELSE (verify_report_format)
   ELSE (verify_scanner)
   else
   {
@@ -1956,15 +1925,9 @@ exec_gmp_get (http_connection_t *con, gsad_connection_info_t *con_info,
   if (!strcmp (cmd, "cvss_calculator"))
     res = cvss_calculator (&connection, credentials, params, response_data);
 
-  ELSE (new_alert)
-  ELSE (get_task)
-  ELSE (get_tasks)
-  ELSE (edit_alert)
-  ELSE (edit_config)
-  ELSE (edit_config_family)
-  ELSE (edit_config_nvt)
-  ELSE (edit_role)
   ELSE (auth_settings)
+  ELSE (edit_alert)
+  ELSE (edit_config_family)
   ELSE (export_agent)
   ELSE (export_agents)
   ELSE (export_alert)
@@ -2097,8 +2060,14 @@ exec_gmp_get (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (get_aggregate)
   ELSE (get_alert)
   ELSE (get_alerts)
+  ELSE (get_capabilities)
+  ELSE (get_config)
+  ELSE (get_configs)
+  ELSE (get_config_family)
+  ELSE (get_config_nvt)
   ELSE (get_credential)
   ELSE (get_credentials)
+  ELSE (get_feeds)
   ELSE (get_filter)
   ELSE (get_filters)
   ELSE (get_group)
@@ -2106,6 +2075,7 @@ exec_gmp_get (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (get_info)
   ELSE (get_note)
   ELSE (get_notes)
+  ELSE (get_nvt_families)
   ELSE (get_override)
   ELSE (get_overrides)
   ELSE (get_permission)
@@ -2131,19 +2101,18 @@ exec_gmp_get (http_connection_t *con, gsad_connection_info_t *con_info,
   ELSE (get_tags)
   ELSE (get_target)
   ELSE (get_targets)
+  ELSE (get_task)
+  ELSE (get_tasks)
   ELSE (get_ticket)
   ELSE (get_tickets)
+  ELSE (get_tls_certificate)
+  ELSE (get_tls_certificates)
   ELSE (get_trash)
   ELSE (get_user)
   ELSE (get_users)
   ELSE (get_vulns)
-  ELSE (get_feeds)
-  ELSE (get_config)
-  ELSE (get_configs)
-  ELSE (get_config_family)
-  ELSE (get_config_nvt)
+  ELSE (new_alert)
   ELSE (ping)
-  ELSE (sync_config)
   ELSE (wizard)
   ELSE (wizard_get)
 
@@ -2163,12 +2132,6 @@ exec_gmp_get (http_connection_t *con, gsad_connection_info_t *con_info,
 
   response = MHD_create_response_from_buffer (res_len, (void *) res,
                                               MHD_RESPMEM_MUST_FREE);
-  if (get_guest_password ()
-      && str_equal (user_get_username (user), get_guest_username ()) && cmd
-      && str_equal (cmd, "get_aggregate"))
-    {
-      add_guest_chart_content_security_headers (response);
-    }
 
   if (watcher_data)
     {
@@ -2609,6 +2572,7 @@ start_http_daemon (int port,
                    http_handler_t *http_handlers,
                    struct sockaddr_storage *address)
 {
+  unsigned int flags;
   int ipv6_flag;
 
   if (address->ss_family == AF_INET6)
@@ -2620,12 +2584,17 @@ start_http_daemon (int port,
 #endif
   else
     ipv6_flag = MHD_NO_FLAG;
+
+  flags =
+    MHD_USE_THREAD_PER_CONNECTION | MHD_USE_INTERNAL_POLLING_THREAD | ipv6_flag;
+#ifndef NDEBUG
+  flags = flags | MHD_USE_DEBUG;
+#endif
+
   return MHD_start_daemon (
-    MHD_USE_THREAD_PER_CONNECTION | MHD_USE_INTERNAL_POLLING_THREAD
-      | MHD_USE_DEBUG | ipv6_flag,
-    port, NULL, NULL, handler, http_handlers, MHD_OPTION_NOTIFY_COMPLETED,
-    free_resources, NULL, MHD_OPTION_SOCK_ADDR, address,
-    MHD_OPTION_PER_IP_CONNECTION_LIMIT, get_per_ip_connection_limit (),
+    flags, port, NULL, NULL, handler, http_handlers,
+    MHD_OPTION_NOTIFY_COMPLETED, free_resources, NULL, MHD_OPTION_SOCK_ADDR,
+    address, MHD_OPTION_PER_IP_CONNECTION_LIMIT, get_per_ip_connection_limit (),
     MHD_OPTION_EXTERNAL_LOGGER, mhd_logger, NULL, MHD_OPTION_END);
 }
 
@@ -2635,6 +2604,7 @@ start_https_daemon (int port, const char *key, const char *cert,
                     http_handler_t *http_handlers,
                     struct sockaddr_storage *address)
 {
+  unsigned int flags;
   int ipv6_flag;
 
   if (address->ss_family == AF_INET6)
@@ -2646,13 +2616,18 @@ start_https_daemon (int port, const char *key, const char *cert,
 #endif
   else
     ipv6_flag = MHD_NO_FLAG;
+
+  flags = MHD_USE_THREAD_PER_CONNECTION | MHD_USE_INTERNAL_POLLING_THREAD
+          | MHD_USE_SSL | ipv6_flag;
+#ifndef NDEBUG
+  flags = flags | MHD_USE_DEBUG;
+#endif
+
   return MHD_start_daemon (
-    MHD_USE_THREAD_PER_CONNECTION | MHD_USE_INTERNAL_POLLING_THREAD
-      | MHD_USE_DEBUG | MHD_USE_SSL | ipv6_flag,
-    port, NULL, NULL, &handle_request, http_handlers, MHD_OPTION_HTTPS_MEM_KEY,
-    key, MHD_OPTION_HTTPS_MEM_CERT, cert, MHD_OPTION_NOTIFY_COMPLETED,
-    free_resources, NULL, MHD_OPTION_SOCK_ADDR, address,
-    MHD_OPTION_PER_IP_CONNECTION_LIMIT, get_per_ip_connection_limit (),
+    flags, port, NULL, NULL, &handle_request, http_handlers,
+    MHD_OPTION_HTTPS_MEM_KEY, key, MHD_OPTION_HTTPS_MEM_CERT, cert,
+    MHD_OPTION_NOTIFY_COMPLETED, free_resources, NULL, MHD_OPTION_SOCK_ADDR,
+    address, MHD_OPTION_PER_IP_CONNECTION_LIMIT, get_per_ip_connection_limit (),
     MHD_OPTION_HTTPS_PRIORITIES, priorities, MHD_OPTION_EXTERNAL_LOGGER,
     mhd_logger, NULL,
 /* LibmicroHTTPD 0.9.35 and higher. */
@@ -2762,21 +2737,14 @@ main (int argc, char **argv)
   static gchar *gsad_redirect_port_string = NULL;
   static gchar *gsad_manager_port_string = NULL;
   static gchar *gsad_vendor_version_string = NULL;
-  static gchar *gsad_login_label_name = NULL;
   static gchar *ssl_private_key_filename = GVM_SERVER_KEY;
   static gchar *ssl_certificate_filename = GVM_SERVER_CERTIFICATE;
   static gchar *dh_params_filename = NULL;
   static gchar *unix_socket_path = NULL;
   static gchar *gnutls_priorities = "NORMAL";
   static int debug_tls = 0;
-  static gchar *guest_user = NULL;
-  static gchar *guest_pass = NULL;
   static gchar *http_frame_opts = DEFAULT_GSAD_X_FRAME_OPTIONS;
   static gchar *http_csp = DEFAULT_GSAD_CONTENT_SECURITY_POLICY;
-  static gchar *http_guest_chart_frame_opts =
-    DEFAULT_GSAD_GUEST_CHART_X_FRAME_OPTIONS;
-  static gchar *http_guest_chart_csp =
-    DEFAULT_GSAD_GUEST_CHART_CONTENT_SECURITY_POLICY;
   static int hsts_enabled = FALSE;
   static int hsts_max_age = DEFAULT_GSAD_HSTS_MAX_AGE;
   static gchar *http_cors = "";
@@ -2812,8 +2780,6 @@ main (int argc, char **argv)
     {"vendor-version", '\0', 0, G_OPTION_ARG_STRING,
      &gsad_vendor_version_string, "Use <string> as version in interface.",
      "<string>"},
-    {"login-label", '\0', 0, G_OPTION_ARG_STRING, &gsad_login_label_name,
-     "Use <string> as login label.", "<string>"},
     {"ssl-private-key", 'k', 0, G_OPTION_ARG_FILENAME,
      &ssl_private_key_filename, "Use <file> as the private key for HTTPS",
      "<file>"},
@@ -2838,10 +2804,6 @@ main (int argc, char **argv)
      "Enable TLS debugging at <level>", "<level>"},
     {"gnutls-priorities", '\0', 0, G_OPTION_ARG_STRING, &gnutls_priorities,
      "GnuTLS priorities string.", "<string>"},
-    {"guest-username", 0, 0, G_OPTION_ARG_STRING, &guest_user,
-     "Username for guest user.  Enables guest logins.", "<name>"},
-    {"guest-password", 0, 0, G_OPTION_ARG_STRING, &guest_pass,
-     "Password for guest user.  Defaults to guest username.", "<password>"},
     {"http-frame-opts", 0, 0, G_OPTION_ARG_STRING, &http_frame_opts,
      "X-Frame-Options HTTP header.  Defaults to \"" DEFAULT_GSAD_X_FRAME_OPTIONS
      "\".",
@@ -2849,15 +2811,6 @@ main (int argc, char **argv)
     {"http-csp", 0, 0, G_OPTION_ARG_STRING, &http_csp,
      "Content-Security-Policy HTTP header.  Defaults to "
      "\"" DEFAULT_GSAD_CONTENT_SECURITY_POLICY "\".",
-     "<csp>"},
-    {"http-guest-chart-frame-opts", 0, 0, G_OPTION_ARG_STRING,
-     &http_guest_chart_frame_opts,
-     "X-Frame-Options HTTP header for guest charts.  Defaults to "
-     "\"" DEFAULT_GSAD_GUEST_CHART_X_FRAME_OPTIONS "\".",
-     "<frame-opts>"},
-    {"http-guest-chart-csp", 0, 0, G_OPTION_ARG_STRING, &http_guest_chart_csp,
-     "Content-Security-Policy HTTP header.  Defaults to "
-     "\"" DEFAULT_GSAD_GUEST_CHART_CONTENT_SECURITY_POLICY "\".",
      "<csp>"},
     {"http-sts", 0, 0, G_OPTION_ARG_NONE, &hsts_enabled,
      "Enable HTTP Strict-Tranport-Security header.", NULL},
@@ -2882,6 +2835,9 @@ main (int argc, char **argv)
 
   option_context =
     g_option_context_new ("- Greenbone Security Assistant Daemon");
+
+  g_option_context_set_summary (option_context, COPYRIGHT);
+
   g_option_context_add_main_entries (option_context, option_entries, NULL);
   if (!g_option_context_parse (option_context, &argc, &argv, &error))
     {
@@ -2892,8 +2848,6 @@ main (int argc, char **argv)
 
   set_http_x_frame_options (http_frame_opts);
   set_http_content_security_policy (http_csp);
-  set_http_guest_chart_x_frame_options (http_guest_chart_frame_opts);
-  set_http_guest_chart_content_security_policy (http_guest_chart_csp);
   set_http_cors_origin (http_cors);
 
   set_http_only (!!http_only);
@@ -2923,19 +2877,11 @@ main (int argc, char **argv)
   if (print_version)
     {
       printf ("Greenbone Security Assistant %s\n", GSAD_VERSION);
-#ifdef GSAD_GIT_REVISION
-      printf ("GIT revision %s\n", GSAD_GIT_REVISION);
-#endif
       if (debug_tls)
         {
           printf ("gnutls %s\n", gnutls_check_version (NULL));
           printf ("libmicrohttpd %s\n", MHD_get_version ());
         }
-      printf ("Copyright (C) 2010-2016 Greenbone Networks GmbH\n");
-      printf ("License GPLv2+: GNU GPL version 2 or later\n");
-      printf (
-        "This is free software: you are free to change and redistribute it.\n"
-        "There is NO WARRANTY, to the extent permitted by law.\n\n");
       exit (EXIT_SUCCESS);
     }
 
@@ -2955,15 +2901,6 @@ main (int argc, char **argv)
 
   if (gsad_vendor_version_string)
     vendor_version_set (gsad_vendor_version_string);
-
-  if (gsad_login_label_name)
-    {
-      if (label_name_set (gsad_login_label_name))
-        {
-          g_critical ("Invalid character in login label name\n");
-          exit (EXIT_FAILURE);
-        }
-    }
 
   if (no_redirect && gsad_redirect_port_string)
     {
@@ -3000,12 +2937,7 @@ main (int argc, char **argv)
       }
   }
 
-#ifdef GSAD_GIT_REVISION
-  g_message ("Starting GSAD version %s (GIT revision %s)\n", GSAD_VERSION,
-             GSAD_GIT_REVISION);
-#else
   g_message ("Starting GSAD version %s\n", GSAD_VERSION);
-#endif
 
   /* Finish processing the command line options. */
 
@@ -3023,12 +2955,6 @@ main (int argc, char **argv)
   if (client_watch_interval < 0)
     {
       client_watch_interval = 0;
-    }
-
-  if (guest_user)
-    {
-      set_guest_username (guest_user);
-      set_guest_password (guest_pass ? guest_pass : guest_user);
     }
 
   gsad_port = http_only ? DEFAULT_GSAD_HTTP_PORT : DEFAULT_GSAD_HTTPS_PORT;
@@ -3138,8 +3064,7 @@ main (int argc, char **argv)
                        " %s\n",
                        __FUNCTION__, strerror (errno));
 #endif
-          redirect_location =
-            g_strdup_printf ("https://%%s:%i/login/login.html", gsad_port);
+          redirect_location = g_strdup_printf ("https://%%s:%i/", gsad_port);
           break;
         case -1:
           /* Parent when error. */

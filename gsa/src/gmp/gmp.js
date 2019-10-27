@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
 import {isDefined} from './utils/identity';
 import {isEmpty} from './utils/string';
@@ -25,6 +25,7 @@ import logger from './log.js';
 
 import './commands/agents.js';
 import './commands/alerts.js';
+import './commands/audits.js';
 import './commands/auth.js';
 import './commands/certbund.js';
 import './commands/credentials.js';
@@ -39,11 +40,13 @@ import './commands/groups.js';
 import './commands/hosts.js';
 import './commands/notes.js';
 import './commands/nvt.js';
+import './commands/nvtfamilies';
 import './commands/os.js';
 import './commands/ovaldefs.js';
 import './commands/overrides.js';
 import './commands/performance.js';
 import './commands/permissions.js';
+import './commands/policies.js';
 import './commands/portlists.js';
 import './commands/reportformats.js';
 import './commands/reports.js';
@@ -57,6 +60,7 @@ import './commands/tags.js';
 import './commands/targets.js';
 import './commands/tasks.js';
 import './commands/tickets.js';
+import './commands/tlscertificates.js';
 import './commands/trashcan.js';
 import './commands/users.js';
 import './commands/vulns.js';
@@ -75,7 +79,7 @@ import {BROWSER_LANGUAGE} from './locale/languages';
 const log = logger.getLogger('gmp');
 
 class Gmp {
-  constructor(settings = {}) {
+  constructor(settings = {}, http) {
     this.settings = settings;
 
     logger.init(this.settings);
@@ -84,7 +88,7 @@ class Gmp {
 
     this.log = logger;
 
-    this.http = new GmpHttp(this.settings);
+    this.http = isDefined(http) ? http : new GmpHttp(this.settings);
 
     this._login = new LoginCommand(this.http);
 
@@ -124,7 +128,7 @@ class Gmp {
     });
   }
 
-  logout() {
+  doLogout() {
     if (this.isLoggedIn()) {
       const url = this.buildUrl('logout');
       const args = {token: this.settings.token};
@@ -135,24 +139,25 @@ class Gmp {
           args,
           transform: DefaultTransform,
         })
-        .then(xhr => {
-          this.clearToken();
-          log.debug('Logged out successfully');
-          return xhr;
-        })
         .catch(err => {
-          this.clearToken();
           log.error('Error on logout', err);
+        })
+        .then(() => {
+          this.logout();
         });
-
-      for (const listener of this._logoutListeners) {
-        listener();
-      }
 
       return promise;
     }
 
     return Promise.resolve();
+  }
+
+  logout() {
+    this.clearToken();
+
+    for (const listener of this._logoutListeners) {
+      listener();
+    }
   }
 
   isLoggedIn() {

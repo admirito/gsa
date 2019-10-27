@@ -32,6 +32,10 @@ export const SORT_FIELDS = [
     displayName: _l('Name'),
   },
   {
+    name: 'type',
+    displayName: _l('Type'),
+  },
+  {
     name: 'families_total',
     displayName: _l('Families: Total'),
   },
@@ -41,7 +45,7 @@ export const SORT_FIELDS = [
   },
   {
     name: 'nvts_total',
-    displayName: _l('NVTS: Total'),
+    displayName: _l('NVTs: Total'),
   },
   {
     name: 'nvts_trend',

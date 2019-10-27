@@ -16,17 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/keys';
+import 'core-js/features/object/keys';
 
 export const BROWSER_LANGUAGE = 'Browser Language';
 
 export const getLanguageCodes = () => Object.keys(Languages);
 
 const Languages = {
-  ar: {
-    name: 'Arabic',
-    native_name: 'العربية',
-  },
   de: {
     name: 'German',
     native_name: 'Deutsch',
@@ -34,38 +30,6 @@ const Languages = {
   en: {
     name: 'English',
     native_name: 'English',
-  },
-  es: {
-    name: 'Spanish',
-    native_name: 'español',
-  },
-  fr: {
-    name: 'French',
-    native_name: 'français',
-  },
-  it: {
-    name: 'Italian',
-    native_name: 'italiano',
-  },
-  ja: {
-    name: 'Japanese',
-    native_name: '日本語',
-  },
-  'pt-BR': {
-    name: 'Portuguese (Brazil)',
-    native_name: 'português (Brasil)',
-  },
-  ru: {
-    name: 'Russian',
-    native_name: 'ру́сский',
-  },
-  tr: {
-    name: 'Turkish',
-    native_name: 'Türkçe',
-  },
-  'zh-CN': {
-    name: 'Chinese (China)',
-    native_name: '中文 (中国)',
   },
 };
 

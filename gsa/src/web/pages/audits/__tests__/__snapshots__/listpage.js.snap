@@ -1,0 +1,165 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AuditPage ToolBarIcons test should render 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-left: -5px;
+}
+
+.c1 > * {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+}
+
+.c1 > * {
+  margin-left: 5px;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+}
+
+.c3 {
+  cursor: pointer;
+}
+
+.c2 {
+  height: 16px;
+  width: 16px;
+  line-height: 16px;
+}
+
+.c2 * {
+  height: inherit;
+  width: inherit;
+}
+
+@media print {
+  .c3 {
+    display: none;
+  }
+}
+
+<div
+  class="c0"
+>
+  <div
+    class="c1"
+    margin="5px"
+  >
+    <a
+      href="test/en/compliance-and-special-scans.html#configuring-and-managing-audits"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <span
+        class="c2 "
+        data-testid="svg-icon"
+        title="Help: Audits"
+      >
+        <svg>
+          help.svg
+        </svg>
+      </span>
+    </a>
+    <span
+      class="c2 c3"
+      data-testid="svg-icon"
+      title="New Audit"
+    >
+      <svg>
+        new.svg
+      </svg>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`AuditPage tests should render full AuditPage 1`] = `
+.c1 {
+  width: 80px;
+  height: 80px;
+  margin: 40px auto;
+  background-image: url(greenbone.svg);
+  background-size: 90%;
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-animation: fSFzYT 2s infinite ease-in-out;
+  animation: fSFzYT 2s infinite ease-in-out;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  width: 100%;
+}
+
+<body>
+  <div
+    id="portals"
+  />
+  <div>
+    <div
+      class="c0"
+      data-testid="loading"
+    >
+      <div
+        class="c1"
+      />
+    </div>
+    <a
+      aria-hidden="true"
+      style="display: none;"
+    >
+      Download
+    </a>
+  </div>
+</body>
+`;

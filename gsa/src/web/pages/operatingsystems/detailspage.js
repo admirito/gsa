@@ -35,6 +35,7 @@ import OsSvgIcon from 'web/components/icon/ossvgicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Link from 'web/components/link/link';
 
@@ -86,8 +87,8 @@ let ToolBarIcons = ({
     <Divider margin="10px">
       <IconDivider>
         <ManualIcon
-          page="vulnerabilitymanagement"
-          anchor="operating-systems-view"
+          page="managing-assets"
+          anchor="managing-operating-systems"
           title={_('Help: Operating Systems')}
         />
         <ListIcon title={_('Operating System List')} page="operatingsystems" />
@@ -139,7 +140,7 @@ ToolBarIcons.propTypes = {
 ToolBarIcons = withCapabilities(ToolBarIcons);
 
 const Details = ({entity}) => {
-  const {average_severity, highest_severity, latest_severity, name} = entity;
+  const {averageSeverity, highestSeverity, latestSeverity, name} = entity;
   return (
     <Layout flex="column">
       <InfoTable>
@@ -161,21 +162,21 @@ const Details = ({entity}) => {
           <TableRow>
             <TableData>{_('Latest Severity')}</TableData>
             <TableData>
-              <SeverityBar severity={latest_severity} />
+              <SeverityBar severity={latestSeverity} />
             </TableData>
           </TableRow>
 
           <TableRow>
             <TableData>{_('Highest Severity')}</TableData>
             <TableData>
-              <SeverityBar severity={highest_severity} />
+              <SeverityBar severity={highestSeverity} />
             </TableData>
           </TableRow>
 
           <TableRow>
             <TableData>{_('Average Severity')}</TableData>
             <TableData>
-              <SeverityBar severity={average_severity} />
+              <SeverityBar severity={averageSeverity} />
             </TableData>
           </TableRow>
         </TableBody>
@@ -220,49 +221,54 @@ const Page = ({
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+            <React.Fragment>
+              <PageTitle
+                title={_('Operating System: {{name}}', {name: entity.name})}
+              />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <Details entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <Details entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>

@@ -14,7 +14,7 @@ exports[`DownloadRpmIcon component tests should render 1`] = `
 
 <span
   class="c0 "
-  title="Download RPM (.rpm) Package"
+  data-testid="svg-icon"
 >
   <svg>
     dl_rpm.svg

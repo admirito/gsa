@@ -48,6 +48,12 @@ class PermissionCommand extends EntityCommand {
     resourceType,
     subjectType,
   }) {
+    if (resourceType === 'policy') {
+      resourceType = 'config';
+    } else if (resourceType === 'audit') {
+      resourceType = 'task';
+    }
+
     const data = {
       cmd: 'create_permission',
       comment,
@@ -99,7 +105,7 @@ class PermissionsCommand extends EntitiesCommand {
 
   create({
     id,
-    permission,
+    permission, // permission is read or write here
     entityType,
     comment = '',
     groupId,
@@ -109,10 +115,16 @@ class PermissionsCommand extends EntitiesCommand {
     includeRelated,
     related = [],
   }) {
+    if (entityType === 'policy') {
+      entityType = 'config';
+    } else if (entityType === 'audit') {
+      entityType = 'task';
+    }
+
     const data = {
       cmd: 'create_permissions',
       comment,
-      permission,
+      permission_type: permission,
       permission_group_id: groupId,
       permission_role_id: roleId,
       permission_user_id: userId,
@@ -122,9 +134,9 @@ class PermissionsCommand extends EntitiesCommand {
       subject_type: subjectType,
     };
 
-    for (const resource in related) {
-      data['related:' + resource.id] = resource.name;
-    }
+    related.forEach(resource => {
+      data['related:' + resource.id] = apiType(resource.entityType);
+    });
 
     log.debug('Creating new permission', data);
     return this.httpPost(data);

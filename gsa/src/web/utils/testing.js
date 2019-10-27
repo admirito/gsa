@@ -19,7 +19,7 @@
 /* eslint-disable react/prop-types */
 
 import 'jest-styled-components';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 
 import React from 'react';
 
@@ -28,7 +28,7 @@ import {
   cleanup,
   queryAllByAttribute,
   getElementError,
-} from 'react-testing-library';
+} from '@testing-library/react';
 
 import {Router} from 'react-router-dom';
 
@@ -40,12 +40,13 @@ import EverythingCapabilities from 'gmp/capabilities/everything';
 
 import {hasValue, isDefined} from 'gmp/utils/identity';
 
-import GmpProvider from 'web/components/provider/gmpprovider';
-import CapabilitiesProvider from 'web/components/provider/capabilitiesprovider';
+import GmpContext from 'web/components/provider/gmpprovider';
+import CapabilitiesContext from 'web/components/provider/capabilitiesprovider';
 
+import {createQueryHistory} from 'web/routes';
 import configureStore from 'web/store';
 
-export * from 'react-testing-library';
+export * from '@testing-library/react';
 
 afterEach(cleanup);
 
@@ -84,18 +85,21 @@ export const render = ui => {
   };
 };
 
-const withProvider = name => Component => ({children, ...props}) =>
+const withProvider = (name, key = name) => Component => ({
+  children,
+  ...props
+}) =>
   isDefined(props[name]) ? (
-    <Component {...{[name]: props[name]}}>{children}</Component>
+    <Component {...{[key]: props[name]}}>{children}</Component>
   ) : (
     children
   );
 
-const TestingGmpPropvider = withProvider('gmp')(GmpProvider);
+const TestingGmpPropvider = withProvider('gmp', 'value')(GmpContext.Provider);
 const TestingStoreProvider = withProvider('store')(Provider);
 const TestingRouter = withProvider('history')(Router);
-const TestingCapabilitiesProvider = withProvider('capabilities')(
-  CapabilitiesProvider,
+const TestingCapabilitiesProvider = withProvider('capabilities', 'value')(
+  CapabilitiesContext.Provider,
 );
 
 export const rendererWith = (
@@ -110,7 +114,7 @@ export const rendererWith = (
 
   let history;
   if (router === true) {
-    history = createMemoryHistory({initialEntries: ['/']});
+    history = createQueryHistory(createMemoryHistory({initialEntries: ['/']}));
   }
 
   if (capabilities === true) {

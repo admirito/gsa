@@ -14,7 +14,7 @@ exports[`DownloadDebIcon component tests should render 1`] = `
 
 <span
   class="c0 "
-  title="Download Debian (.deb) Package"
+  data-testid="svg-icon"
 >
   <svg>
     dl_deb.svg

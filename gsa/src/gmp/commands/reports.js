@@ -27,14 +27,13 @@ import Report from '../models/report';
 import {ALL_FILTER} from '../models/filter';
 
 import DefaultTransform from '../http/transform/default';
-import FastXmlTransform from '../http/transform/fastxml';
 
 import EntitiesCommand from './entities';
 import EntityCommand from './entity';
 
 const log = logger.getLogger('gmp.commands.reports');
 
-class ReportsCommand extends EntitiesCommand {
+export class ReportsCommand extends EntitiesCommand {
   constructor(http) {
     super(http, 'report', Report);
   }
@@ -59,18 +58,28 @@ class ReportsCommand extends EntitiesCommand {
       filter,
     });
   }
+
+  get(params, options) {
+    return super.get(
+      {
+        details: 0, // ensure to request no details by default
+        ...params,
+      },
+      options,
+    );
+  }
 }
 
-class ReportCommand extends EntityCommand {
+export class ReportCommand extends EntityCommand {
   constructor(http) {
     super(http, 'report', Report);
   }
 
   import(args) {
     const {task_id, in_assets = 1, xml_file} = args;
-    log.debug('Importing report', args);
+    log.debug('Creating report', args);
     return this.httpPost({
-      cmd: 'import_report',
+      cmd: 'create_report',
       task_id,
       in_assets,
       xml_file,
@@ -85,6 +94,7 @@ class ReportCommand extends EntityCommand {
         report_id: id,
         report_format_id: reportFormatId,
         filter: isDefined(filter) ? filter.all() : ALL_FILTER,
+        details: 1,
       },
       {transform: DefaultTransform, responseType: 'arraybuffer'},
     );
@@ -94,7 +104,6 @@ class ReportCommand extends EntityCommand {
     return this.httpPost({
       cmd: 'create_asset',
       report_id: id,
-      no_redirect: '1',
       filter,
     });
   }
@@ -103,9 +112,7 @@ class ReportCommand extends EntityCommand {
     return this.httpPost({
       cmd: 'delete_asset',
       report_id: id,
-      no_redirect: '1',
       filter,
-      next: 'get_report', // seems not to work without next param
     });
   }
 
@@ -126,18 +133,23 @@ class ReportCommand extends EntityCommand {
         filter,
         ignore_pagination: 1,
       },
-      {...options, transform: FastXmlTransform},
+      options,
     ).then(this.transformResponse);
   }
 
-  get({id}, {filter, ...options} = {}) {
+  get(
+    {id},
+    {filter, details = 1, ignorePagination = 1, lean = 1, ...options} = {},
+  ) {
     return this.httpGet(
       {
         id,
         filter,
-        ignore_pagination: 1,
+        lean,
+        ignore_pagination: ignorePagination,
+        details,
       },
-      {...options, transform: FastXmlTransform},
+      options,
     ).then(this.transformResponse);
   }
 

@@ -24,7 +24,7 @@ import {map} from '../utils/array';
 
 import {parseInt, parseYesNo, parseDate} from '../parser';
 
-import Model from '../model';
+import Model, {parseModelFromElement} from '../model';
 
 import Credential from './credential';
 
@@ -32,6 +32,7 @@ export const OSP_SCANNER_TYPE = 1;
 export const OPENVAS_SCANNER_TYPE = 2;
 export const CVE_SCANNER_TYPE = 3;
 export const GMP_SCANNER_TYPE = 4;
+export const GREENBONE_SENSOR_SCANNER_TYPE = 5;
 
 export const OPENVAS_DEFAULT_SCANNER_ID =
   '08b69003-5fc2-4037-a479-93b440211c73';
@@ -55,6 +56,8 @@ export function scannerTypeName(scannerType) {
     return _('CVE Scanner');
   } else if (scannerType === GMP_SCANNER_TYPE) {
     return _('GMP Scanner');
+  } else if (scannerType === GREENBONE_SENSOR_SCANNER_TYPE) {
+    return _('Greenbone Sensor');
   }
   return _('Unknown type ({{type}})', {type: scannerType});
 }
@@ -75,39 +78,39 @@ const parse_scanner_info = (info = {}) => {
 class Scanner extends Model {
   static entityType = 'scanner';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem);
+  static parseElement(element) {
+    const ret = super.parseElement(element);
 
-    ret.scannerType = parseInt(elem.type);
+    ret.scannerType = parseInt(element.type);
 
     ret.credential =
       isDefined(ret.credential) && !isEmpty(ret.credential._id)
-        ? new Credential(ret.credential)
+        ? Credential.fromElement(ret.credential)
         : undefined;
 
-    if (isEmpty(ret.ca_pub)) {
+    if (isEmpty(element.ca_pub)) {
       delete ret.ca_pub;
     } else {
-      ret.ca_pub = {
-        certificate: ret.ca_pub,
+      ret.caPub = {
+        certificate: element.ca_pub,
       };
 
-      if (isDefined(ret.ca_pub_info)) {
-        ret.ca_pub.info = ret.ca_pub_info;
-        ret.ca_pub.info.activationTime = parseDate(
-          ret.ca_pub.info.activation_time,
+      if (isDefined(element.ca_pub_info)) {
+        ret.caPub.info = element.ca_pub_info;
+        ret.caPub.info.activationTime = parseDate(
+          element.ca_pub_info.activation_time,
         );
-        ret.ca_pub.info.expirationTime = parseDate(
-          ret.ca_pub.info.expiration_time,
+        ret.caPub.info.expirationTime = parseDate(
+          element.ca_pub_info.expiration_time,
         );
-        delete ret.ca_pub.info.activation_time;
-        delete ret.ca_pub.info.expiration_time;
         delete ret.ca_pub_info;
       }
     }
 
     if (isDefined(ret.tasks)) {
-      ret.tasks = map(ret.tasks.task, task => new Model(task, 'task'));
+      ret.tasks = map(ret.tasks.task, task =>
+        parseModelFromElement(task, 'task'),
+      );
     } else {
       ret.tasks = [];
     }
@@ -115,9 +118,8 @@ class Scanner extends Model {
     if (isEmpty(ret.configs)) {
       ret.configs = [];
     } else {
-      ret.configs = map(
-        ret.configs.config,
-        config => new Model(config, 'scanconfig'),
+      ret.configs = map(ret.configs.config, config =>
+        parseModelFromElement(config, 'scanconfig'),
       );
     }
 
@@ -137,10 +139,11 @@ class Scanner extends Model {
         ret.info.params = map(ret.info.params.param, param => ({
           name: param.name,
           description: param.description,
-          param_type: param.type,
+          paramType: param.type,
           mandatory: parseYesNo(param.mandatory),
           default: param.default,
         }));
+        delete ret.info.params.param;
       }
     }
 

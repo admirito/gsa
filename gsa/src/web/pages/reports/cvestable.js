@@ -20,6 +20,8 @@ import React from 'react';
 
 import {_, _l} from 'gmp/locale/lang';
 
+import {shorten} from 'gmp/utils/string';
+
 import PropTypes from 'web/utils/proptypes';
 
 import SeverityBar from 'web/components/bar/severitybar';
@@ -27,6 +29,7 @@ import SeverityBar from 'web/components/bar/severitybar';
 import Divider from 'web/components/layout/divider';
 
 import CveLink from 'web/components/link/cvelink';
+import DetailsLink from 'web/components/link/detailslink';
 
 import TableData from 'web/components/table/data';
 import TableHead from 'web/components/table/head';
@@ -42,35 +45,42 @@ const Header = ({currentSortDir, currentSortBy, sort = true, onSortChange}) => (
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'cve' : false}
+        title={_('CVE')}
+        width="50%"
         onSortChange={onSortChange}
-      >
-        {_('CVE')}
-      </TableHead>
+      />
+      <TableHead
+        currentSortDir={currentSortDir}
+        currentSortBy={currentSortBy}
+        sortBy={sort ? 'nvt' : false}
+        title={_('NVT')}
+        width="30%"
+        onSortChange={onSortChange}
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'hosts' : false}
+        title={_('Hosts')}
+        width="5%"
         onSortChange={onSortChange}
-      >
-        {_('Hosts')}
-      </TableHead>
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'occurrences' : false}
+        title={_('Occurrences')}
+        width="5%"
         onSortChange={onSortChange}
-      >
-        {_('Occurrences')}
-      </TableHead>
+      />
       <TableHead
         currentSortDir={currentSortDir}
         currentSortBy={currentSortBy}
         sortBy={sort ? 'severity' : false}
+        title={_('Severity')}
         width="10%"
         onSortChange={onSortChange}
-      >
-        {_('Severity')}
-      </TableHead>
+      />
     </TableRow>
   </TableHeader>
 );
@@ -83,7 +93,7 @@ Header.propTypes = {
 };
 
 const Row = ({entity}) => {
-  const {cves, hosts, occurrences, severity} = entity;
+  const {cves, hosts, occurrences, severity, id, nvtName} = entity;
   return (
     <TableRow>
       <TableData>
@@ -92,6 +102,11 @@ const Row = ({entity}) => {
             <CveLink key={cve} id={cve} />
           ))}
         </Divider>
+      </TableData>
+      <TableData>
+        <DetailsLink type="nvt" id={id} title={nvtName}>
+          {shorten(nvtName, 80)}
+        </DetailsLink>
       </TableData>
       <TableData>{hosts.count}</TableData>
       <TableData>{occurrences}</TableData>

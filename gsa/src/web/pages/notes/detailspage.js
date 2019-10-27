@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import _ from 'gmp/locale';
 import {longDate} from 'gmp/locale/date';
 
@@ -32,6 +34,7 @@ import NoteIcon from 'web/components/icon/noteicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import DetailsLink from 'web/components/link/detailslink';
 
@@ -47,7 +50,7 @@ import TableBody from 'web/components/table/body';
 import TableData from 'web/components/table/data';
 import TableRow from 'web/components/table/row';
 
-import EntityPage from 'web/entity/page';
+import EntityPage, {Col} from 'web/entity/page';
 import {goto_details, goto_list} from 'web/entity/component';
 import EntityPermissions from 'web/entity/permissions';
 import EntitiesTab from 'web/entity/tab';
@@ -68,6 +71,8 @@ import {
   loadEntities as loadPermissions,
 } from 'web/store/entities/permissions';
 
+import {getTimezone} from 'web/store/usersettings/selectors';
+
 import {renderYesNo} from 'web/utils/render';
 import PropTypes from 'web/utils/proptypes';
 
@@ -85,8 +90,8 @@ const ToolBarIcons = ({
   <Divider margin="10px">
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="notes"
+        page="reports"
+        anchor="managing-notes"
         title={_('Help: Notes')}
       />
       <ListIcon title={_('Note List')} page="notes" />
@@ -114,19 +119,27 @@ ToolBarIcons.propTypes = {
   onNoteEditClick: PropTypes.func.isRequired,
 };
 
-const Details = ({entity, ...props}) => {
+const Details = connect(rootState => ({
+  timezone: getTimezone(rootState),
+}))(({entity, timezone, ...props}) => {
   const {nvt} = entity;
   return (
     <Layout flex="column">
       <InfoTable>
+        <colgroup>
+          <Col width="10%" />
+          <Col width="90%" />
+        </colgroup>
         <TableBody>
           <TableRow>
             <TableData>{_('NVT Name')}</TableData>
             <TableData>
               {isDefined(nvt) ? (
-                <DetailsLink id={nvt.id} type="nvt">
-                  {nvt.name}
-                </DetailsLink>
+                <span>
+                  <DetailsLink id={nvt.id} type="nvt">
+                    {nvt.name}
+                  </DetailsLink>
+                </span>
               ) : (
                 _('None. Result was an open port.')
               )}
@@ -145,7 +158,9 @@ const Details = ({entity, ...props}) => {
               {entity.isActive() &&
                 isDefined(entity.endTime) &&
                 ' ' +
-                  _('until {{- enddate}}', {enddate: longDate(entity.endTime)})}
+                  _('until {{- enddate}}', {
+                    enddate: longDate(entity.endTime, timezone),
+                  })}
             </TableData>
           </TableRow>
         </TableBody>
@@ -154,7 +169,7 @@ const Details = ({entity, ...props}) => {
       <NoteDetails entity={entity} {...props} />
     </Layout>
   );
-};
+});
 
 Details.propTypes = {
   entity: PropTypes.model.isRequired,
@@ -200,49 +215,52 @@ const Page = ({
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+            <React.Fragment>
+              <PageTitle title={_('Note Details')} />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <Details entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <Details entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>

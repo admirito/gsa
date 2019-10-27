@@ -19,9 +19,9 @@
 import {isDefined} from './utils/identity';
 
 export const DEFAULT_RELOAD_INTERVAL = 15 * 1000; // fifteen seconds
-export const DEFAULT_MANUAL_URL = 'http://docs.greenbone.net/GSM-Manual/gos-4/';
+export const DEFAULT_MANUAL_URL = 'http://docs.greenbone.net/GSM-Manual/gos-6/';
 export const DEFAULT_PROTOCOLDOC_URL =
-  'http://docs.greenbone.net/API/GMP/gmp-7.0.html';
+  'https://docs.greenbone.net/API/GMP/gmp-9.0.html';
 export const DEFAULT_LOG_LEVEL = 'warn';
 
 const set = (storage, name, value) => {
@@ -32,32 +32,53 @@ const set = (storage, name, value) => {
   }
 };
 
+const setAndFreeze = (obj, name, value) => {
+  Object.defineProperty(obj, name, {
+    value: value,
+    writable: false,
+  });
+};
+
 class GmpSettings {
   constructor(storage = global.localStorage, options = {}) {
     const {
+      enableGreenboneSensor = false,
       disableLoginForm = false,
+      enableStoreDebugLog,
+      guestUsername,
+      guestPassword,
       loglevel = storage.loglevel,
-      manualurl = DEFAULT_MANUAL_URL,
+      manualUrl = DEFAULT_MANUAL_URL,
+      manualLanguageMapping,
       protocol = global.location.protocol,
       protocoldocurl = DEFAULT_PROTOCOLDOC_URL,
       reloadinterval = DEFAULT_RELOAD_INTERVAL,
       server = global.location.host,
       timeout,
-      guestUsername,
-      guestPassword,
+      vendorVersion,
+      vendorLabel,
     } = {...options};
     this.storage = storage;
 
+    if (isDefined(enableStoreDebugLog)) {
+      this.enableStoreDebugLog = enableStoreDebugLog;
+    }
+
     this.loglevel = isDefined(loglevel) ? loglevel : DEFAULT_LOG_LEVEL;
-    this.manualurl = manualurl;
-    this.protocol = protocol;
-    this.protocoldocurl = protocoldocurl;
     this.reloadinterval = reloadinterval;
-    this.server = server;
     this.timeout = timeout;
-    this.guestUsername = guestUsername;
-    this.guestPassword = guestPassword;
-    this.disableLoginForm = disableLoginForm;
+
+    setAndFreeze(this, 'disableLoginForm', disableLoginForm);
+    setAndFreeze(this, 'enableGreenboneSensor', enableGreenboneSensor);
+    setAndFreeze(this, 'guestUsername', guestUsername);
+    setAndFreeze(this, 'guestPassword', guestPassword);
+    setAndFreeze(this, 'manualUrl', manualUrl);
+    setAndFreeze(this, 'manualLanguageMapping', manualLanguageMapping);
+    setAndFreeze(this, 'protocol', protocol);
+    setAndFreeze(this, 'protocoldocurl', protocoldocurl);
+    setAndFreeze(this, 'server', server);
+    setAndFreeze(this, 'vendorVersion', vendorVersion);
+    setAndFreeze(this, 'vendorLabel', vendorLabel);
   }
 
   set token(value) {
@@ -98,6 +119,22 @@ class GmpSettings {
 
   set loglevel(value) {
     set(this.storage, 'loglevel', value);
+  }
+
+  get enableStoreDebugLog() {
+    const enabled = this.storage.enableStoreDebugLog;
+    if (isDefined(enabled)) {
+      return enabled === '1';
+    }
+    return enabled;
+  }
+
+  set enableStoreDebugLog(value) {
+    let storeValue;
+    if (isDefined(value)) {
+      storeValue = value ? '1' : '0';
+    }
+    set(this.storage, 'enableStoreDebugLog', storeValue);
   }
 }
 

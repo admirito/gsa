@@ -33,6 +33,7 @@ import ManualIcon from 'web/components/icon/manualicon';
 import NewIcon from 'web/components/icon/newicon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {createFilterDialog} from 'web/components/powerfilter/dialog';
 
@@ -47,8 +48,8 @@ import Table, {SORT_FIELDS} from './table';
 const ToolBarIcons = withCapabilities(({capabilities, onGroupCreateClick}) => (
   <IconDivider>
     <ManualIcon
-      page="gui_administration"
-      anchor="groups"
+      page="web-interface-access"
+      anchor="managing-groups"
       title={_('Help: Groups')}
     />
     {capabilities.mayCreate('group') && (
@@ -82,25 +83,28 @@ const GroupsPage = ({
     onInteraction={onInteraction}
   >
     {({clone, create, delete: delete_func, download, edit, save}) => (
-      <EntitiesPage
-        {...props}
-        filterEditDialog={GroupsFilterDialog}
-        filtersFilter={GROUPS_FILTER_FILTER}
-        sectionIcon={<GroupIcon size="large" />}
-        table={Table}
-        title={_('Groups')}
-        toolBarIcons={ToolBarIcons}
-        onChanged={onChanged}
-        onDownloaded={onDownloaded}
-        onError={onError}
-        onGroupCloneClick={clone}
-        onGroupCreateClick={create}
-        onGroupDeleteClick={delete_func}
-        onGroupDownloadClick={download}
-        onGroupEditClick={edit}
-        onGroupSaveClick={save}
-        onInteraction={onInteraction}
-      />
+      <React.Fragment>
+        <PageTitle title={_('Groups')} />
+        <EntitiesPage
+          {...props}
+          filterEditDialog={GroupsFilterDialog}
+          filtersFilter={GROUPS_FILTER_FILTER}
+          sectionIcon={<GroupIcon size="large" />}
+          table={Table}
+          title={_('Groups')}
+          toolBarIcons={ToolBarIcons}
+          onChanged={onChanged}
+          onDownloaded={onDownloaded}
+          onError={onError}
+          onGroupCloneClick={clone}
+          onGroupCreateClick={create}
+          onGroupDeleteClick={delete_func}
+          onGroupDownloadClick={download}
+          onGroupEditClick={edit}
+          onGroupSaveClick={save}
+          onInteraction={onInteraction}
+        />
+      </React.Fragment>
     )}
   </GroupComponent>
 );

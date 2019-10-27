@@ -79,6 +79,7 @@ describe('TaskCommand tests', () => {
             source_iface: undefined,
             tag_id: undefined,
             target_id: 't1',
+            usage_type: 'scan',
           },
         });
 
@@ -143,6 +144,34 @@ describe('TaskCommand tests', () => {
             source_iface: 'eth0',
             tag_id: 't1',
             target_id: 't1',
+            usage_type: 'scan',
+          },
+        });
+
+        const {data} = resp;
+        expect(data.id).toEqual('foo');
+      });
+  });
+
+  test('should create new container task', () => {
+    const response = createActionResultResponse();
+    const fakeHttp = createHttp(response);
+
+    expect.hasAssertions();
+
+    const cmd = new TaskCommand(fakeHttp);
+    return cmd
+      .createContainer({
+        name: 'foo',
+        comment: 'comment',
+      })
+      .then(resp => {
+        expect(fakeHttp.request).toHaveBeenCalledWith('post', {
+          data: {
+            cmd: 'create_container_task',
+            comment: 'comment',
+            name: 'foo',
+            usage_type: 'scan',
           },
         });
 
@@ -196,6 +225,7 @@ describe('TaskCommand tests', () => {
             source_iface: undefined,
             task_id: 'task1',
             target_id: 0,
+            usage_type: 'scan',
           },
         });
 
@@ -258,6 +288,7 @@ describe('TaskCommand tests', () => {
             source_iface: 'eth0',
             task_id: 'task1',
             target_id: 't1',
+            usage_type: 'scan',
           },
         });
 

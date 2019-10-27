@@ -36,6 +36,7 @@ import TableRow from '../../components/table/row.js';
 
 import SecinfoDetails from './details.js';
 import Row from './row.js';
+import {normalizeType} from 'gmp/utils/entitytype.js';
 
 const Header = ({
   actionsColumn,
@@ -54,45 +55,40 @@ const Header = ({
           currentSortBy={currentSortBy}
           sortBy={sort ? 'name' : false}
           onSortChange={onSortChange}
-        >
-          {_('Name')}
-        </TableHead>
+          title={_('Name')}
+        />
         <TableHead
           width="55%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'type' : false}
           onSortChange={onSortChange}
-        >
-          {_('Type')}
-        </TableHead>
+          title={_('Type')}
+        />
         <TableHead
           width="10%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'created' : false}
           onSortChange={onSortChange}
-        >
-          {_('Created')}
-        </TableHead>
+          title={_('Created')}
+        />
         <TableHead
           width="10%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'modified' : false}
           onSortChange={onSortChange}
-        >
-          {_('Modified')}
-        </TableHead>
+          title={_('Modified')}
+        />
         <TableHead
           width="8%"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
           sortBy={sort ? 'severity' : false}
           onSortChange={onSortChange}
-        >
-          {_('Severity')}
-        </TableHead>
+          title={_('Severity')}
+        />
         {actionsColumn}
       </TableRow>
     </TableHeader>
@@ -108,12 +104,14 @@ Header.propTypes = {
   onSortChange: PropTypes.func,
 };
 
+const infoType = entity => normalizeType(secInfoType(entity));
+
 export default createEntitiesTable({
   body: false,
   emptyTitle: _l('No SecInfo Information available'),
   row: Row,
   header: withEntitiesHeader(true)(Header),
-  rowDetails: withRowDetails(secInfoType)(SecinfoDetails),
+  rowDetails: withRowDetails(infoType)(SecinfoDetails),
   footer: createEntitiesFooter({
     span: 10,
     download: 'secinfo.xml',

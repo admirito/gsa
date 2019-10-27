@@ -17,13 +17,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
 import {isDefined} from '../utils/identity';
 
 class Settings {
   constructor() {
     this._settings = {};
+  }
+
+  has(name) {
+    return name in this._settings;
   }
 
   set(name, value) {

@@ -20,7 +20,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {RESULTS_FILTER_FILTER} from 'gmp/models/filter';
+import Filter, {RESULTS_FILTER_FILTER} from 'gmp/models/filter';
 
 import EntitiesPage from 'web/entities/page';
 import withEntitiesContainer from 'web/entities/withEntitiesContainer';
@@ -31,6 +31,7 @@ import ManualIcon from 'web/components/icon/manualicon';
 import ResultIcon from 'web/components/icon/resulticon';
 
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import {
   loadEntities,
@@ -46,39 +47,42 @@ import ResultsDashboard, {RESULTS_DASHBOARD_ID} from './dashboard';
 const ToolBarIcons = () => (
   <Layout>
     <ManualIcon
-      page="vulnerabilitymanagement"
-      anchor="results"
+      page="reports"
+      anchor="displaying-all-existing-results"
       title={_('Help: Results')}
     />
   </Layout>
 );
 
 const Page = ({filter, onFilterChanged, onInteraction, ...props}) => (
-  <EntitiesPage
-    {...props}
-    dashboard={() => (
-      <ResultsDashboard
-        filter={filter}
-        onFilterChanged={onFilterChanged}
-        onInteraction={onInteraction}
-      />
-    )}
-    dashboardControls={() => (
-      <DashboardControls
-        dashboardId={RESULTS_DASHBOARD_ID}
-        onInteraction={onInteraction}
-      />
-    )}
-    filter={filter}
-    filtersFilter={RESULTS_FILTER_FILTER}
-    filterEditDialog={ResultsFilterDialog}
-    sectionIcon={<ResultIcon size="large" />}
-    title={_('Results')}
-    toolBarIcons={ToolBarIcons}
-    table={ResultsTable}
-    onFilterChanged={onFilterChanged}
-    onInteraction={onInteraction}
-  />
+  <React.Fragment>
+    <PageTitle title={_('Results')} />
+    <EntitiesPage
+      {...props}
+      dashboard={() => (
+        <ResultsDashboard
+          filter={filter}
+          onFilterChanged={onFilterChanged}
+          onInteraction={onInteraction}
+        />
+      )}
+      dashboardControls={() => (
+        <DashboardControls
+          dashboardId={RESULTS_DASHBOARD_ID}
+          onInteraction={onInteraction}
+        />
+      )}
+      filter={filter}
+      filtersFilter={RESULTS_FILTER_FILTER}
+      filterEditDialog={ResultsFilterDialog}
+      sectionIcon={<ResultIcon size="large" />}
+      title={_('Results')}
+      toolBarIcons={ToolBarIcons}
+      table={ResultsTable}
+      onFilterChanged={onFilterChanged}
+      onInteraction={onInteraction}
+    />
+  </React.Fragment>
 );
 
 Page.propTypes = {
@@ -87,9 +91,12 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
+const fallbackFilter = Filter.fromString('sort-reverse=severity');
+
 export default withEntitiesContainer('result', {
   entitiesSelector,
   loadEntities,
+  fallbackFilter,
 })(Page);
 
 // export default ResultsPage;

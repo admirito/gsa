@@ -24,34 +24,19 @@ import {map, forEach} from '../utils/array';
 import {parseCollectionList} from '../collection/parser.js';
 
 import Filter, {ALL_FILTER} from '../models/filter.js';
-import {filter_string} from '../models/filter/utils.js';
 
 import DefaultTransform from '../http/transform/default.js';
 
-import HttpCommand from './http.js';
-import {BULK_SELECT_BY_IDS, BULK_SELECT_BY_FILTER} from './gmp.js';
+import GmpCommand, {BULK_SELECT_BY_IDS, BULK_SELECT_BY_FILTER} from './gmp.js';
 
 const log = logger.getLogger('gmp.commands.entities');
 
-class EntitiesCommand extends HttpCommand {
+class EntitiesCommand extends GmpCommand {
   constructor(http, name, clazz) {
     super(http, {cmd: 'get_' + name + 's'});
 
     this.clazz = clazz;
     this.name = name;
-  }
-
-  getParams(params = {}, extra_params = {}) {
-    const {filter, ...other} = params;
-    const rparams = super.getParams(other, extra_params);
-
-    if (isDefined(filter)) {
-      if (isDefined(filter.id)) {
-        rparams.filt_id = filter.id;
-      }
-      rparams.filter = filter_string(filter);
-    }
-    return rparams;
   }
 
   getCollectionListFromRoot(root) {
@@ -111,16 +96,16 @@ class EntitiesCommand extends HttpCommand {
     return this.httpPost(params, {transform: DefaultTransform});
   }
 
-  delete(entities, extra_params) {
+  delete(entities, extraParams) {
     return this.deleteByIds(
       map(entities, entity => entity.id),
-      extra_params,
+      extraParams,
     ).then(response => response.setData(entities));
   }
 
-  deleteByIds(ids, extra_params = {}) {
+  deleteByIds(ids, extraParams = {}) {
     const params = {
-      ...extra_params,
+      ...extraParams,
       cmd: 'bulk_delete',
       resource_type: this.name,
     };
@@ -130,13 +115,13 @@ class EntitiesCommand extends HttpCommand {
     return this.httpPost(params).then(response => response.setData(ids));
   }
 
-  deleteByFilter(filter, extra_params) {
+  deleteByFilter(filter, extraParams) {
     // FIXME change gmp to allow deletion by filter
     let deleted;
     return this.get({filter})
       .then(entities => {
         deleted = entities.data;
-        return this.delete(deleted, extra_params);
+        return this.delete(deleted, extraParams);
       })
       .then(response => response.setData(deleted));
   }

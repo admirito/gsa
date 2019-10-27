@@ -27,6 +27,7 @@ import {CVE_SCANNER_TYPE} from 'gmp/models/scanner';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import Tab from 'web/components/tab/tab';
 import TabLayout from 'web/components/tab/tablayout';
@@ -83,8 +84,8 @@ const ToolBarIcons = ({
     <Divider margin="10px">
       <IconDivider>
         <ManualIcon
-          page="search"
-          searchTerm="scanner"
+          page="scanning"
+          anchor="managing-scanners"
           title={_('Help: Scanners')}
         />
         <ListIcon title={_('Scanner List')} page="scanners" />
@@ -117,7 +118,7 @@ const ToolBarIcons = ({
             onClick={onScannerCredentialDownloadClick}
           />
         )}
-        {isDefined(entity.ca_pub) && (
+        {isDefined(entity.caPub) && (
           <DownloadKeyIcon
             title={_('Download CA Certificate')}
             value={entity}
@@ -148,6 +149,7 @@ const Page = ({
   onDownloaded,
   onError,
   onInteraction,
+  showSuccess,
   ...props
 }) => (
   <ScannerComponent
@@ -164,7 +166,10 @@ const Page = ({
     onDownloadError={onError}
     onInteraction={onInteraction}
     onSaved={onChanged}
-    onVerified={onChanged}
+    onVerified={() => {
+      onChanged();
+      showSuccess(_('Scanner Verified'));
+    }}
     onVerifyError={onError}
   >
     {({
@@ -197,49 +202,52 @@ const Page = ({
       >
         {({activeTab = 0, onActivateTab}) => {
           return (
-            <Layout grow="1" flex="column">
-              <TabLayout grow="1" align={['start', 'end']}>
-                <TabList
-                  active={activeTab}
-                  align={['start', 'stretch']}
-                  onActivateTab={onActivateTab}
-                >
-                  <Tab>{_('Information')}</Tab>
-                  <EntitiesTab entities={entity.userTags}>
-                    {_('User Tags')}
-                  </EntitiesTab>
-                  <EntitiesTab entities={permissions}>
-                    {_('Permissions')}
-                  </EntitiesTab>
-                </TabList>
-              </TabLayout>
+            <React.Fragment>
+              <PageTitle title={_('Scanner: {{name}}', {name: entity.name})} />
+              <Layout grow="1" flex="column">
+                <TabLayout grow="1" align={['start', 'end']}>
+                  <TabList
+                    active={activeTab}
+                    align={['start', 'stretch']}
+                    onActivateTab={onActivateTab}
+                  >
+                    <Tab>{_('Information')}</Tab>
+                    <EntitiesTab entities={entity.userTags}>
+                      {_('User Tags')}
+                    </EntitiesTab>
+                    <EntitiesTab entities={permissions}>
+                      {_('Permissions')}
+                    </EntitiesTab>
+                  </TabList>
+                </TabLayout>
 
-              <Tabs active={activeTab}>
-                <TabPanels>
-                  <TabPanel>
-                    <ScannerDetails entity={entity} />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityTags
-                      entity={entity}
-                      onChanged={onChanged}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                  <TabPanel>
-                    <EntityPermissions
-                      entity={entity}
-                      permissions={permissions}
-                      onChanged={onChanged}
-                      onDownloaded={onDownloaded}
-                      onError={onError}
-                      onInteraction={onInteraction}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Layout>
+                <Tabs active={activeTab}>
+                  <TabPanels>
+                    <TabPanel>
+                      <ScannerDetails entity={entity} />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityTags
+                        entity={entity}
+                        onChanged={onChanged}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <EntityPermissions
+                        entity={entity}
+                        permissions={permissions}
+                        onChanged={onChanged}
+                        onDownloaded={onDownloaded}
+                        onError={onError}
+                        onInteraction={onInteraction}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Layout>
+            </React.Fragment>
           );
         }}
       </EntityPage>
@@ -250,6 +258,7 @@ const Page = ({
 Page.propTypes = {
   entity: PropTypes.model,
   permissions: PropTypes.array,
+  showSuccess: PropTypes.func.isRequired,
   onChanged: PropTypes.func.isRequired,
   onDownloaded: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,

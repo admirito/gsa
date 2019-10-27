@@ -20,7 +20,6 @@
 import React from 'react';
 
 import _ from 'gmp/locale';
-import {longDate} from 'gmp/locale/date';
 
 import {isDefined, isString} from 'gmp/utils/identity';
 
@@ -34,6 +33,8 @@ import ObserverIcon from 'web/entity/icon/observericon';
 import SeverityBar from 'web/components/bar/severitybar';
 
 import Comment from 'web/components/comment/comment';
+
+import DateTime from 'web/components/date/datetime';
 
 import AlterableIcon from 'web/components/icon/alterableicon';
 import ProvideViewIcon from 'web/components/icon/provideviewicon';
@@ -52,21 +53,25 @@ import Actions from './actions';
 import TaskStatus from './status';
 import Trend from './trend';
 
-import {GMP_SCANNER_TYPE} from 'gmp/models/scanner';
+import {
+  GMP_SCANNER_TYPE,
+  GREENBONE_SENSOR_SCANNER_TYPE,
+} from 'gmp/models/scanner';
 
-const render_report = (report, links) => {
+export const renderReport = (report, links) => {
   if (!isDefined(report)) {
     return null;
   }
-  const date = longDate(report.timestamp);
   return (
-    <DetailsLink type="report" id={report.id} textOnly={!links}>
-      {date}
-    </DetailsLink>
+    <span>
+      <DetailsLink type="report" id={report.id} textOnly={!links}>
+        <DateTime date={report.timestamp} />
+      </DetailsLink>
+    </span>
   );
 };
 
-const render_report_total = (entity, links) => {
+const renderReportTotal = (entity, links) => {
   if (entity.report_count.total <= 0) {
     return null;
   }
@@ -107,7 +112,7 @@ const Row = ({
         obs.push(_('Role {{name}}', {name: observers.role.name}));
       }
       if (isDefined(observers.group)) {
-        obs.push(_('Group {{name}}', {name: observers.role.name}));
+        obs.push(_('Group {{name}}', {name: observers.group.name}));
       }
     }
   }
@@ -122,15 +127,16 @@ const Row = ({
             {entity.alterable === 1 && (
               <AlterableIcon size="small" title={_('Task is alterable')} />
             )}
-            {isDefined(scanner) && scanner.type === GMP_SCANNER_TYPE && (
-              <SensorIcon
-                size="small"
-                title={_(
-                  'Task is configured to run on slave scanner {{name}}',
-                  {name: scanner.name},
-                )}
-              />
-            )}
+            {isDefined(scanner) &&
+              (scanner.scannerType === GMP_SCANNER_TYPE ||
+                scanner.scannerType === GREENBONE_SENSOR_SCANNER_TYPE) && (
+                <SensorIcon
+                  size="small"
+                  title={_('Task is configured to run on sensor {{name}}', {
+                    name: scanner.name,
+                  })}
+                />
+              )}
             <ObserverIcon
               displayName={_('Task')}
               entity={entity}
@@ -152,8 +158,8 @@ const Row = ({
       <TableData>
         <TaskStatus task={entity} links={links} />
       </TableData>
-      <TableData>{render_report_total(entity, links)}</TableData>
-      <TableData>{render_report(entity.last_report, links)}</TableData>
+      <TableData>{renderReportTotal(entity, links)}</TableData>
+      <TableData>{renderReport(entity.last_report, links)}</TableData>
       <TableData>
         {!entity.isContainer() && isDefined(entity.last_report) && (
           <SeverityBar severity={entity.last_report.severity} />

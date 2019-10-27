@@ -44,8 +44,7 @@ import {SecInfoDashboard, SECINFO_DASHBOARD_ID} from './dashboard';
 
 const ToolBarIcons = () => (
   <ManualIcon
-    page="vulnerabilitymanagement"
-    anchor="secinfo-management"
+    page="managing-secinfo"
     title={_('Help: All SecInfo Information')}
   />
 );
@@ -86,7 +85,7 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
-export default withEntitiesContainer('secinfo', {
+export default withEntitiesContainer('allinfo', {
   entitiesSelector,
   loadEntities,
 })(Page);

@@ -18,6 +18,8 @@
  */
 import React from 'react';
 
+import {connect} from 'react-redux';
+
 import _ from 'gmp/locale';
 
 import {MANUAL, TASK_SELECTED, RESULT_UUID} from 'gmp/models/override';
@@ -43,6 +45,7 @@ import TicketIcon from 'web/components/icon/ticketicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import DetailsLink from 'web/components/link/detailslink';
 import InnerLink from 'web/components/link/innerlink';
@@ -71,6 +74,13 @@ import withEntityContainer from 'web/entity/withEntityContainer';
 
 import {loadEntity, selector} from 'web/store/entities/results';
 
+import {renewSessionTimeout} from 'web/store/usersettings/actions';
+import {loadUserSettingDefaults} from 'web/store/usersettings/defaults/actions';
+import {getUserSettingsDefaults} from 'web/store/usersettings/defaults/selectors';
+import {getUsername} from 'web/store/usersettings/selectors';
+
+import compose from 'web/utils/compose';
+import {generateFilename} from 'web/utils/render';
 import PropTypes from 'web/utils/proptypes';
 import withCapabilities from 'web/utils/withCapabilities';
 
@@ -93,8 +103,8 @@ let ToolBarIcons = ({
   <Divider margin="10px">
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="results"
+        page="reports"
+        anchor="displaying-all-existing-results"
         title={_('Help: Results')}
       />
       <ListIcon title={_('Results List')} page="results" />
@@ -171,90 +181,99 @@ const Details = ({entity, ...props}) => {
   const active_notes = notes.filter(active_filter);
   const active_overrides = overrides.filter(active_filter);
   return (
-    <Layout flex="column">
-      <DetailsBlock title={_('Vulnerability')}>
-        <Layout flex="column">
-          <InfoTable>
-            <colgroup>
-              <Col width="10%" />
-              <Col width="90%" />
-            </colgroup>
-            <TableBody>
-              <TableRow>
-                <TableData>{_('Name')}</TableData>
-                <TableData>{entity.name}</TableData>
-              </TableRow>
-              <TableRow>
-                <TableData>{_('Severity')}</TableData>
-                <TableData align={['center', 'start']}>
-                  <Divider>
-                    <SeverityBar severity={entity.severity} />
-                    {active_overrides.length > 0 && (
-                      <InnerLink to="overrides">
-                        <OverrideIcon title={_('Overrides are applied')} />
-                      </InnerLink>
-                    )}
-                  </Divider>
-                </TableData>
-              </TableRow>
-              <TableRow>
-                <TableData>{_('QoD')}</TableData>
-                <TableData>{qod.value} %</TableData>
-              </TableRow>
-              <TableRow>
-                <TableData>{_('Host')}</TableData>
-                <TableData>
-                  <DetailsLink type="host" id={host.id}>
-                    {host.name}
+    <React.Fragment>
+      <PageTitle title={_('Result: {{name}}', {name: entity.name})} />
+      <Layout flex="column">
+        <DetailsBlock title={_('Vulnerability')}>
+          <Layout flex="column">
+            <InfoTable>
+              <colgroup>
+                <Col width="10%" />
+                <Col width="90%" />
+              </colgroup>
+              <TableBody>
+                <TableRow>
+                  <TableData>{_('Name')}</TableData>
+                  <TableData>{entity.name}</TableData>
+                </TableRow>
+                <TableRow>
+                  <TableData>{_('Severity')}</TableData>
+                  <TableData align={['center', 'start']}>
+                    <Divider>
+                      <SeverityBar severity={entity.severity} />
+                      {active_overrides.length > 0 && (
+                        <InnerLink to="overrides">
+                          <OverrideIcon title={_('Overrides are applied')} />
+                        </InnerLink>
+                      )}
+                    </Divider>
+                  </TableData>
+                </TableRow>
+                <TableRow>
+                  <TableData>{_('QoD')}</TableData>
+                  <TableData>{qod.value} %</TableData>
+                </TableRow>
+                <TableRow>
+                  <TableData>{_('Host')}</TableData>
+                  <TableData>
+                    <span>
+                      {isDefined(host.id) ? (
+                        <DetailsLink type="host" id={host.id}>
+                          {host.name}
+                        </DetailsLink>
+                      ) : (
+                        host.name
+                      )}
+                    </span>
+                  </TableData>
+                </TableRow>
+                <TableRow>
+                  <TableData>{_('Location')}</TableData>
+                  <TableData>{entity.port}</TableData>
+                </TableRow>
+              </TableBody>
+            </InfoTable>
+          </Layout>
+        </DetailsBlock>
+
+        {userTags.length > 0 && (
+          <DetailsBlock title={_('Tags')}>
+            <Divider>
+              {userTags.map(tag => {
+                const valueString = isDefined(tag.value) ? '' : '=' + tag.value;
+                return (
+                  <DetailsLink key={tag.id} id={tag.id} type="tag">
+                    {tag.name + valueString}
                   </DetailsLink>
-                </TableData>
-              </TableRow>
-              <TableRow>
-                <TableData>{_('Location')}</TableData>
-                <TableData>{entity.port}</TableData>
-              </TableRow>
-            </TableBody>
-          </InfoTable>
-        </Layout>
-      </DetailsBlock>
+                );
+              })}
+            </Divider>
+          </DetailsBlock>
+        )}
 
-      {userTags.length > 0 && (
-        <DetailsBlock title={_('Tags')}>
-          <Divider>
-            {userTags.map(tag => {
-              const valueString = isDefined(tag.value) ? '' : '=' + tag.value;
-              return (
-                <DetailsLink key={tag.id} id={tag.id} type="tag">
-                  {tag.name + valueString}
-                </DetailsLink>
-              );
-            })}
-          </Divider>
-        </DetailsBlock>
-      )}
+        <ResultDetails entity={entity} {...props} />
 
-      <ResultDetails entity={entity} {...props} />
+        {active_overrides.length > 0 && (
+          <DetailsBlock id="overrides" title={_('Overrides')}>
+            <Divider wrap align={['start', 'stretch']} width="15px">
+              {active_overrides.map(override => (
+                <Override key={override.id} override={override} />
+              ))}
+            </Divider>
+          </DetailsBlock>
+        )}
 
-      {active_overrides.length > 0 && (
-        <DetailsBlock id="overrides" title={_('Overrides')}>
-          <Divider wrap align={['start', 'stretch']} width="15px">
-            {active_overrides.map(override => (
-              <Override key={override.id} override={override} />
-            ))}
-          </Divider>
-        </DetailsBlock>
-      )}
-
-      {active_notes.length > 0 && (
-        <DetailsBlock id="notes" title={_('Notes')}>
-          <Divider wrap align={['start', 'stretch']} width="15px">
-            {active_notes.map(note => (
-              <Note key={note.id} note={note} />
-            ))}
-          </Divider>
-        </DetailsBlock>
-      )}
-    </Layout>
+        {active_notes.length > 0 && (
+          <DetailsBlock id="notes" title={_('Notes')}>
+            <Divider wrap align={['start', 'stretch']} width="15px">
+              {active_notes.map(note => (
+                <Note key={note.id} note={note} />
+              ))}
+            </Divider>
+          </DetailsBlock>
+        )}
+      </Layout>
+    </React.Fragment>
   );
 };
 
@@ -274,11 +293,20 @@ class Page extends React.Component {
   handleDownload(result) {
     const {gmp} = this.props;
 
-    const {onError, onDownloaded} = this.props;
+    const {detailsExportFileName, username, onError, onDownloaded} = this.props;
     return gmp.result
       .export(result)
       .then(response => {
-        const filename = 'result-' + result.id + '.xml';
+        const {creationTime, entityType, id, modificationTime, name} = result;
+        const filename = generateFilename({
+          creationTime: creationTime,
+          fileNameFormat: detailsExportFileName,
+          id: id,
+          modificationTime,
+          resourceName: name,
+          resourceType: entityType,
+          username,
+        });
         return {filename, data: response.data};
       })
       .then(onDownloaded, onError);
@@ -379,17 +407,42 @@ class Page extends React.Component {
 }
 
 Page.propTypes = {
+  detailsExportFileName: PropTypes.object,
   entity: PropTypes.model,
   gmp: PropTypes.gmp.isRequired,
+  username: PropTypes.string,
   onChanged: PropTypes.func.isRequired,
   onDownloaded: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
   onInteraction: PropTypes.func,
 };
 
-export default withEntityContainer('result', {
-  entitySelector: selector,
-  load: loadEntity,
-})(Page);
+const mapStateToProps = rootState => {
+  const userDefaultsSelector = getUserSettingsDefaults(rootState);
+  const username = getUsername(rootState);
+  const detailsExportFileName = userDefaultsSelector.getValueByName(
+    'detailsexportfilename',
+  );
+  return {
+    detailsExportFileName,
+    username,
+  };
+};
+
+const mapDispatchToProps = (dispatch, {gmp}) => ({
+  loadSettings: () => dispatch(loadUserSettingDefaults(gmp)()),
+  onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
+});
+
+export default compose(
+  withEntityContainer('result', {
+    entitySelector: selector,
+    load: loadEntity,
+  }),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  ),
+)(Page);
 
 // vim: set ts=2 sw=2 tw=80:

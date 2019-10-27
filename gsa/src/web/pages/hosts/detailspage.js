@@ -16,6 +16,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+import 'core-js/features/array/find';
+
 import React from 'react';
 
 import styled from 'styled-components';
@@ -36,6 +39,7 @@ import ResultIcon from 'web/components/icon/resulticon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import DetailsLink from 'web/components/link/detailslink';
 import Link from 'web/components/link/link';
@@ -61,7 +65,6 @@ import withEntityContainer, {
   permissionsResourceFilter,
 } from 'web/entity/withEntityContainer';
 
-import CloneIcon from 'web/entity/icon/cloneicon';
 import CreateIcon from 'web/entity/icon/createicon';
 import EditIcon from 'web/entity/icon/editicon';
 import TrashIcon from 'web/entity/icon/trashicon';
@@ -80,7 +83,6 @@ import HostComponent from './component';
 
 const ToolBarIcons = ({
   entity,
-  onHostCloneClick,
   onHostCreateClick,
   onHostDeleteClick,
   onHostDownloadClick,
@@ -90,9 +92,9 @@ const ToolBarIcons = ({
     <Divider margin="10px">
       <IconDivider>
         <ManualIcon
-          page="vulnerabilitymanagement"
-          anchor="host-details"
-          title={_('Help: Host Details')}
+          page="managing-assets"
+          anchor="managing-hosts"
+          title={_('Help: Hosts')}
         />
         <ListIcon title={_('Host List')} page="hosts" />
       </IconDivider>
@@ -101,11 +103,6 @@ const ToolBarIcons = ({
           entity={entity}
           displayName={_('Host')}
           onClick={onHostCreateClick}
-        />
-        <CloneIcon
-          entity={entity}
-          displayName={_('Host')}
-          onClick={onHostCloneClick}
         />
         <EditIcon
           entity={entity}
@@ -138,7 +135,6 @@ const ToolBarIcons = ({
 
 ToolBarIcons.propTypes = {
   entity: PropTypes.model.isRequired,
-  onHostCloneClick: PropTypes.func.isRequired,
   onHostCreateClick: PropTypes.func.isRequired,
   onHostDeleteClick: PropTypes.func.isRequired,
   onHostDownloadClick: PropTypes.func.isRequired,
@@ -164,13 +160,23 @@ const Hop = styled.div`
 `;
 
 const Details = ({entity, ...props}) => {
-  const {details = {}, routes = [], severity} = entity;
+  const {details = {}, identifiers = [], routes = [], severity} = entity;
+
   const os_cpe = isDefined(details.best_os_cpe)
     ? details.best_os_cpe.value
     : undefined;
   const os_txt = isDefined(details.best_os_txt)
     ? details.best_os_txt.value
     : undefined;
+
+  const bestOsMatchingIdentifier = identifiers.find(
+    identifier => identifier.name === 'OS' && identifier.value === os_cpe,
+  );
+
+  const bestMatchingOsId = isDefined(bestOsMatchingIdentifier)
+    ? bestOsMatchingIdentifier.os.id
+    : undefined;
+
   return (
     <Layout flex="column">
       <InfoTable>
@@ -197,9 +203,15 @@ const Details = ({entity, ...props}) => {
           <TableRow>
             <TableData>{_('OS')}</TableData>
             <TableData>
-              <DetailsLink type="cpe" textOnly={!isDefined(os_cpe)} id={os_cpe}>
-                <OsIcon displayOsName osCpe={os_cpe} osTxt={os_txt} />
-              </DetailsLink>
+              <span>
+                <DetailsLink
+                  type="operatingsystem"
+                  textOnly={!isDefined(bestMatchingOsId)}
+                  id={bestMatchingOsId}
+                >
+                  <OsIcon displayOsName osCpe={os_cpe} osTxt={os_txt} />
+                </DetailsLink>
+              </span>
             </TableData>
           </TableRow>
 
@@ -260,8 +272,6 @@ const Page = ({
     <HostComponent
       onTargetCreated={goto_details('target', props)}
       onTargetCreateError={onError}
-      onCloned={goto_host}
-      onCloneError={onError}
       onCreated={goto_host}
       onDeleted={goto_list('hosts', props)}
       onDownloaded={onDownloaded}
@@ -271,14 +281,7 @@ const Page = ({
       onInteraction={onInteraction}
       onSaved={onChanged}
     >
-      {({
-        clone,
-        create,
-        delete: delete_func,
-        deleteidentifier,
-        download,
-        edit,
-      }) => (
+      {({create, delete: delete_func, deleteidentifier, download, edit}) => (
         <EntityPage
           {...props}
           entity={entity}
@@ -289,7 +292,6 @@ const Page = ({
           onDownloaded={onDownloaded}
           onError={onError}
           onInteraction={onInteraction}
-          onHostCloneClick={clone}
           onHostCreateClick={create}
           onHostDeleteClick={delete_func}
           onHostDownloadClick={download}
@@ -298,49 +300,52 @@ const Page = ({
         >
           {({activeTab = 0, onActivateTab}) => {
             return (
-              <Layout grow="1" flex="column">
-                <TabLayout grow="1" align={['start', 'end']}>
-                  <TabList
-                    active={activeTab}
-                    align={['start', 'stretch']}
-                    onActivateTab={onActivateTab}
-                  >
-                    <Tab>{_('Information')}</Tab>
-                    <EntitiesTab entities={entity.userTags}>
-                      {_('User Tags')}
-                    </EntitiesTab>
-                    <EntitiesTab entities={permissions}>
-                      {_('Permissions')}
-                    </EntitiesTab>
-                  </TabList>
-                </TabLayout>
+              <React.Fragment>
+                <PageTitle title={_('Host: {{name}}', {name: entity.name})} />
+                <Layout grow="1" flex="column">
+                  <TabLayout grow="1" align={['start', 'end']}>
+                    <TabList
+                      active={activeTab}
+                      align={['start', 'stretch']}
+                      onActivateTab={onActivateTab}
+                    >
+                      <Tab>{_('Information')}</Tab>
+                      <EntitiesTab entities={entity.userTags}>
+                        {_('User Tags')}
+                      </EntitiesTab>
+                      <EntitiesTab entities={permissions}>
+                        {_('Permissions')}
+                      </EntitiesTab>
+                    </TabList>
+                  </TabLayout>
 
-                <Tabs active={activeTab}>
-                  <TabPanels>
-                    <TabPanel>
-                      <Details entity={entity} />
-                    </TabPanel>
-                    <TabPanel>
-                      <EntityTags
-                        entity={entity}
-                        onChanged={onChanged}
-                        onError={onError}
-                        onInteraction={onInteraction}
-                      />
-                    </TabPanel>
-                    <TabPanel>
-                      <EntityPermissions
-                        entity={entity}
-                        permissions={permissions}
-                        onChanged={onChanged}
-                        onDownloaded={onDownloaded}
-                        onError={onError}
-                        onInteraction={onInteraction}
-                      />
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              </Layout>
+                  <Tabs active={activeTab}>
+                    <TabPanels>
+                      <TabPanel>
+                        <Details entity={entity} />
+                      </TabPanel>
+                      <TabPanel>
+                        <EntityTags
+                          entity={entity}
+                          onChanged={onChanged}
+                          onError={onError}
+                          onInteraction={onInteraction}
+                        />
+                      </TabPanel>
+                      <TabPanel>
+                        <EntityPermissions
+                          entity={entity}
+                          permissions={permissions}
+                          onChanged={onChanged}
+                          onDownloaded={onDownloaded}
+                          onError={onError}
+                          onInteraction={onInteraction}
+                        />
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </Layout>
+              </React.Fragment>
             );
           }}
         </EntityPage>

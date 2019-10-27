@@ -16,9 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/set';
+import 'core-js/features/set';
 
 import React from 'react';
+
+import {connect} from 'react-redux';
+
+import _ from 'gmp/locale';
 
 import logger from 'gmp/log';
 
@@ -33,15 +37,25 @@ import {
 } from 'gmp/utils/entitytype';
 import {debounce} from 'gmp/utils/event';
 
-import Filter, {RESET_FILTER} from 'gmp/models/filter';
+import {RESET_FILTER} from 'gmp/models/filter';
 
 import {YES_VALUE} from 'gmp/parser';
 
+import {renewSessionTimeout} from 'web/store/usersettings/actions';
+import {loadUserSettingDefaults} from 'web/store/usersettings/defaults/actions';
+import {getUserSettingsDefaults} from 'web/store/usersettings/defaults/selectors';
+import {getUsername} from 'web/store/usersettings/selectors';
+
+import compose from 'web/utils/compose';
+
 import {LOAD_TIME_FACTOR} from 'web/utils/constants';
 import PropTypes from 'web/utils/proptypes';
+import {generateFilename} from 'web/utils/render';
 import SelectionType from 'web/utils/selectiontype';
 
 import SortBy from 'web/components/sortby/sortby';
+
+import {handleDefaultReloadIntervalFunc} from 'web/entity/container';
 
 import TagDialog from 'web/pages/tags/dialog';
 
@@ -128,16 +142,23 @@ class EntitiesContainer extends React.Component {
 
   componentDidMount() {
     this.isRunning = true;
-    const {filter} = this.props.location.query;
 
-    this.startMeasurement();
+    const {filter} = this.props;
 
-    if (isDefined(filter)) {
-      // use filter from url
-      this.load(Filter.fromString(filter));
-    } else {
-      // use last filter
-      this.load(this.props.filter);
+    this.props.loadSettings();
+    this.load(filter);
+  }
+
+  componentDidUpdate() {
+    const {entities = [], loadedFilter: filter} = this.state;
+    if (
+      entities.length === 0 &&
+      isDefined(filter) &&
+      filter.has('first') &&
+      filter.get('first') !== 1
+    ) {
+      // goto first page if first exceeds the last page
+      this.load(filter.first());
     }
   }
 
@@ -157,7 +178,10 @@ class EntitiesContainer extends React.Component {
 
     this.clearTimer();
 
+    this.startMeasurement();
+
     updateFilter(filter);
+
     loadEntities(filter).then(() => this.startTimer());
   }
 
@@ -184,12 +208,16 @@ class EntitiesContainer extends React.Component {
     const {defaultReloadInterval, reloadInterval} = this.props;
 
     return isDefined(reloadInterval)
-      ? reloadInterval(this.props)
+      ? handleDefaultReloadIntervalFunc(reloadInterval)(this.props)
       : defaultReloadInterval;
   }
 
   startTimer() {
-    if (!this.isRunning) {
+    if (!this.isRunning || isDefined(this.timer)) {
+      log.debug('Not starting timer', {
+        isRunning: this.isRunning,
+        timer: this.timer,
+      });
       return;
     }
 
@@ -198,23 +226,30 @@ class EntitiesContainer extends React.Component {
     log.debug('Loading time was', loadTime, 'milliseconds');
 
     let interval = this.getReloadInterval();
+    if (interval <= 0) {
+      log.debug('No reload timer will be started.');
+      return;
+    }
 
     if (loadTime > interval) {
       // ensure timer is longer then the loading procedure
       interval = loadTime * LOAD_TIME_FACTOR;
     }
 
-    if (interval > 0) {
-      this.timer = global.setTimeout(this.handleTimer, interval);
-      log.debug(
-        'Started reload timer with id',
-        this.timer,
-        'and interval of',
-        interval,
-        'milliseconds for',
-        this.props.gmpname,
-      );
-    }
+    this.timer = global.setTimeout(this.handleTimer, interval);
+
+    log.debug(
+      'Started reload timer with id',
+      this.timer,
+      'and interval of',
+      interval,
+      'milliseconds for',
+      this.props.gmpname,
+    );
+  }
+
+  resetTimer() {
+    this.timer = undefined;
   }
 
   clearTimer() {
@@ -225,24 +260,23 @@ class EntitiesContainer extends React.Component {
         'for',
         this.props.gmpname,
       );
+
       global.clearTimeout(this.timer);
+
+      this.resetTimer();
     }
   }
 
   handleTimer() {
     log.debug('Timer', this.timer, 'finished. Reloading data.');
 
-    this.timer = undefined;
-
-    this.startMeasurement();
+    this.resetTimer();
 
     this.notifyTimer();
     this.reload();
   }
 
   handleChanged() {
-    this.startMeasurement();
-
     this.notifyChanged();
     this.reload();
   }
@@ -260,10 +294,10 @@ class EntitiesContainer extends React.Component {
     this.handleInteraction();
   }
 
-  handleDownloadBulk(filename = 'export.xml') {
+  handleDownloadBulk() {
     const {entitiesCommand} = this;
-    const {selected, selectionType} = this.state;
-    const {loadedFilter, onDownload} = this.props;
+    const {entities = [], loadedFilter, selected, selectionType} = this.state;
+    const {listExportFileName, username, onDownload} = this.props;
 
     let promise;
 
@@ -278,6 +312,11 @@ class EntitiesContainer extends React.Component {
     this.handleInteraction();
 
     promise.then(response => {
+      const filename = generateFilename({
+        fileNameFormat: listExportFileName,
+        resourceType: pluralizeType(getEntityType(entities[0])),
+        username,
+      });
       const {data} = response;
       onDownload({filename, data});
     }, this.handleError);
@@ -285,8 +324,7 @@ class EntitiesContainer extends React.Component {
 
   handleDeleteBulk() {
     const {entitiesCommand} = this;
-    const {selected, selectionType} = this.state;
-    const {loadedFilter} = this.props;
+    const {loadedFilter, selected, selectionType} = this.state;
     let promise;
 
     if (selectionType === SelectionType.SELECTION_USER) {
@@ -326,7 +364,7 @@ class EntitiesContainer extends React.Component {
   }
 
   handleSortChange(field) {
-    const {loadedFilter} = this.props;
+    const {loadedFilter} = this.state;
 
     let sort = 'sort';
     const sortField = loadedFilter.getSortBy();
@@ -354,19 +392,19 @@ class EntitiesContainer extends React.Component {
   }
 
   handleFirst() {
-    const {loadedFilter: filter} = this.props;
+    const {loadedFilter: filter} = this.state;
 
     this.changeFilter(filter.first());
   }
 
   handleNext() {
-    const {loadedFilter: filter} = this.props;
+    const {loadedFilter: filter} = this.state;
 
     this.changeFilter(filter.next());
   }
 
   handlePrevious() {
-    const {loadedFilter: filter} = this.props;
+    const {loadedFilter: filter} = this.state;
 
     this.changeFilter(filter.previous());
   }
@@ -449,8 +487,8 @@ class EntitiesContainer extends React.Component {
   }
 
   handleAddMultiTag({comment, id, name, value = ''}) {
-    const {gmp, loadedFilter} = this.props;
-    const {selectionType, selected, entities = []} = this.state;
+    const {gmp} = this.props;
+    const {loadedFilter, selectionType, selected, entities = []} = this.state;
 
     const entitiesType = getEntityType(entities[0]);
 
@@ -560,11 +598,11 @@ class EntitiesContainer extends React.Component {
 
     let title;
     if (selectionType === SelectionType.SELECTION_USER) {
-      title = 'Add Tag to Selection';
+      title = _('Add Tag to Selection');
     } else if (selectionType === SelectionType.SELECTION_PAGE_CONTENTS) {
-      title = 'Add Tag to Page Contents';
+      title = _('Add Tag to Page Contents');
     } else {
-      title = 'Add Tag to All Filtered';
+      title = _('Add Tag to All Filtered');
     }
 
     const other = excludeObjectProps(props, exclude_props);
@@ -582,14 +620,13 @@ class EntitiesContainer extends React.Component {
       <React.Fragment>
         {children({
           ...other,
-          createFilterType: entitiesType,
+          createFilterType: apiType(this.props.gmpname),
           entities,
           entitiesCounts,
           entitiesSelected: selected,
           filter: loadedFilter,
           isLoading,
           isUpdating,
-          loading: isLoading, // TODO convert list pages to use isLoading and remove me
           selectionType: selectionType,
           sortBy,
           sortDir,
@@ -651,13 +688,16 @@ EntitiesContainer.propTypes = {
   defaultReloadInterval: PropTypes.number.isRequired,
   entities: PropTypes.array,
   entitiesCounts: PropTypes.counts,
+  entitiesError: PropTypes.error,
   extraLoadParams: PropTypes.object,
   filter: PropTypes.filter,
   gmp: PropTypes.gmp.isRequired,
   gmpname: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  listExportFileName: PropTypes.string,
   loadEntities: PropTypes.func.isRequired,
+  loadSettings: PropTypes.func.isRequired,
   loadedFilter: PropTypes.filter,
   notify: PropTypes.func.isRequired,
   reloadInterval: PropTypes.func,
@@ -665,10 +705,33 @@ EntitiesContainer.propTypes = {
   showErrorMessage: PropTypes.func.isRequired,
   showSuccessMessage: PropTypes.func.isRequired,
   updateFilter: PropTypes.func.isRequired,
+  username: PropTypes.string,
   onDownload: PropTypes.func.isRequired,
   onInteraction: PropTypes.func.isRequired,
 };
 
-export default EntitiesContainer;
+const mapStateToProps = rootState => {
+  const userDefaultsSelector = getUserSettingsDefaults(rootState);
+  const username = getUsername(rootState);
+  const listExportFileName = userDefaultsSelector.getValueByName(
+    'listexportfilename',
+  );
+  return {
+    listExportFileName,
+    username,
+  };
+};
+
+const mapDispatchToProps = (dispatch, {gmp}) => ({
+  loadSettings: () => dispatch(loadUserSettingDefaults(gmp)()),
+  onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
+});
+
+export default compose(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  ),
+)(EntitiesContainer);
 
 // vim: set ts=2 sw=2 tw=80:

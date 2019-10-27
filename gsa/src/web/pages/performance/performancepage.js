@@ -29,7 +29,10 @@ import {isDefined} from 'gmp/utils/identity';
 
 import date from 'gmp/models/date';
 import Filter from 'gmp/models/filter';
-import {GMP_SCANNER_TYPE} from 'gmp/models/scanner';
+import {
+  GMP_SCANNER_TYPE,
+  GREENBONE_SENSOR_SCANNER_TYPE,
+} from 'gmp/models/scanner';
 
 import FormGroup from 'web/components/form/formgroup';
 import Select from 'web/components/form/select';
@@ -42,6 +45,7 @@ import WizardIcon from 'web/components/icon/wizardicon';
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import LinkTarget from 'web/components/link/target';
 
@@ -51,6 +55,7 @@ import MenuEntry from 'web/components/menu/menuentry';
 import Section from 'web/components/section/section';
 
 import {renewSessionTimeout} from 'web/store/usersettings/actions';
+import {getTimezone} from 'web/store/usersettings/selectors';
 import {
   loadEntities as loadScanners,
   selector as scannerSelector,
@@ -82,7 +87,7 @@ const ToolBar = ({onDurationChangeClick}) => {
     <IconDivider>
       <ManualIcon
         page="performance"
-        anchor="appliance-performance"
+        anchor="optimizing-the-appliance-performance"
         size="small"
         title={_('Help: Performance')}
       />
@@ -122,18 +127,7 @@ ToolBar.propTypes = {
 };
 
 const ReportImage = withGmp(
-  ({
-    gmp,
-    name,
-    duration,
-    scannerId,
-    endDate,
-    endHour,
-    endMinute,
-    startDate,
-    startHour,
-    startMinute,
-  }) => {
+  ({gmp, name, duration, scannerId, endDate, startDate}) => {
     const params = {
       slave_id: scannerId,
       token: gmp.settings.token,
@@ -142,16 +136,8 @@ const ReportImage = withGmp(
     if (isDefined(duration)) {
       params.duration = DURATIONS[duration];
     } else {
-      params.start_year = startDate.year();
-      params.start_month = startDate.month() + 1; // month is zero indexed
-      params.start_day = startDate.date();
-      params.start_hour = startHour;
-      params.start_minute = startMinute;
-      params.end_year = endDate.year();
-      params.end_month = endDate.month() + 1;
-      params.end_day = endDate.date();
-      params.end_hour = endHour;
-      params.end_minute = endMinute;
+      params.start_time = startDate.toISOString();
+      params.end_time = endDate.toISOString();
     }
     const url = gmp.buildUrl('system_report/' + name + '/report.', params);
     return <img alt="" src={url} />;
@@ -161,13 +147,9 @@ const ReportImage = withGmp(
 ReportImage.propTypes = {
   duration: PropTypes.string,
   endDate: PropTypes.date,
-  endHour: PropTypes.number,
-  endMinute: PropTypes.number,
   name: PropTypes.string.isRequired,
   scannerId: PropTypes.idOrZero.isRequired,
   startDate: PropTypes.date,
-  startHour: PropTypes.number,
-  startMinute: PropTypes.number,
 };
 
 const Selector = withClickHandler()(styled.span`
@@ -183,8 +165,6 @@ const Selector = withClickHandler()(styled.span`
   }}
 `);
 
-const SLAVE_SCANNER_FILTER = Filter.fromString('type=' + GMP_SCANNER_TYPE);
-
 class PerformancePage extends React.Component {
   constructor(...args) {
     super(...args);
@@ -197,11 +177,7 @@ class PerformancePage extends React.Component {
       duration: 'day',
       scannerId: 0,
       startDate: start,
-      startHour: start.hour(),
-      startMinute: start.minute(),
       endDate: end,
-      endHour: end.hour(),
-      endMinute: end.minute(),
       scanners: [],
     };
 
@@ -212,7 +188,7 @@ class PerformancePage extends React.Component {
 
   componentDidMount() {
     const {start, end, scanner} = this.props.location.query;
-    const {gmp} = this.props;
+    const {gmp, timezone} = this.props;
 
     gmp.performance.get().then(response => {
       this.setState({reports: response.data});
@@ -232,14 +208,20 @@ class PerformancePage extends React.Component {
         endDate = date();
       }
 
+      endDate.tz(timezone);
+      startDate.tz(timezone);
+
       this.setState({
         duration: undefined,
-        endDate: endDate,
-        endHour: endDate.hour(),
-        endMinute: endDate.minute(),
-        startDate: startDate,
-        startHour: startDate.hour(),
-        startMinute: startDate.minute(),
+        endDate,
+        startDate,
+      });
+    } else {
+      const endDate = date().tz(timezone);
+      const startDate = endDate.clone().subtract(1, 'day');
+      this.setState({
+        endDate,
+        startDate,
       });
     }
 
@@ -252,17 +234,14 @@ class PerformancePage extends React.Component {
 
   handleDurationChange(duration) {
     if (isDefined(duration)) {
-      const end = date();
+      const {timezone} = this.props;
+      const end = date().tz(timezone);
       const start = end.clone().subtract(DURATIONS[duration], 'seconds');
 
       this.setState({
         duration,
         startDate: start,
-        startHour: start.hour(),
-        startMinute: start.minute(),
         endDate: end,
-        endHour: end.hour(),
-        endMinute: end.minute(),
       });
 
       this.handleInteraction();
@@ -273,9 +252,10 @@ class PerformancePage extends React.Component {
     this.setState({[name]: value});
   }
 
-  handleStartEndChange(data) {
+  handleStartEndChange({startDate, endDate}) {
     this.setState({
-      ...data,
+      endDate,
+      startDate,
       duration: undefined,
     });
 
@@ -290,104 +270,96 @@ class PerformancePage extends React.Component {
   }
 
   render() {
-    const {scanners = []} = this.props;
-    const {
-      duration,
-      reports,
-      scannerId,
-      startDate,
-      startHour,
-      startMinute,
-      endDate,
-      endHour,
-      endMinute,
-    } = this.state;
+    const {scanners = [], gmp} = this.props;
+    const {duration, reports, scannerId, startDate, endDate} = this.state;
     const sensorId = selectSaveId(scanners, scannerId, 0);
     return (
-      <Layout flex="column">
-        <ToolBar onDurationChangeClick={this.handleDurationChange} />
-        <Section
-          img={<PerformanceIcon size="large" />}
-          title={_('Performance')}
-        >
-          <StartEndTimeSelection
-            startDate={startDate}
-            startHour={startHour}
-            startMinute={startMinute}
-            endDate={endDate}
-            endMinute={endMinute}
-            endHour={endHour}
-            onChanged={this.handleStartEndChange}
-          />
-
-          <FormGroup title={_('Report for Last')}>
-            <Divider>
-              <Selector
-                value="hour"
-                duration={duration}
-                onClick={this.handleDurationChange}
-              >
-                {_('Hour')}
-              </Selector>
-              <Selector
-                value="day"
-                duration={duration}
-                onClick={this.handleDurationChange}
-              >
-                {_('Day')}
-              </Selector>
-              <Selector
-                value="week"
-                duration={duration}
-                onClick={this.handleDurationChange}
-              >
-                {_('Week')}
-              </Selector>
-              <Selector
-                value="month"
-                duration={duration}
-                onClick={this.handleDurationChange}
-              >
-                {_('Month')}
-              </Selector>
-              <Selector
-                value="year"
-                duration={duration}
-                onClick={this.handleDurationChange}
-              >
-                {_('Year')}
-              </Selector>
-            </Divider>
-          </FormGroup>
-
-          <FormGroup title={_('Report for GMP Scanner')}>
-            <Select
-              name="scannerId"
-              value={sensorId}
-              items={renderSelectItems(scanners, 0)}
-              onChange={this.handleValueChange}
+      <React.Fragment>
+        <PageTitle title={_('Performance')} />
+        <Layout flex="column">
+          <ToolBar onDurationChangeClick={this.handleDurationChange} />
+          <Section
+            img={<PerformanceIcon size="large" />}
+            title={_('Performance')}
+          >
+            <StartEndTimeSelection
+              endDate={endDate}
+              timezone={this.props.timezone}
+              startDate={startDate}
+              onChanged={this.handleStartEndChange}
             />
-          </FormGroup>
 
-          {reports.map(report => (
-            <div key={report.name}>
-              <LinkTarget id={report.name} />
-              <h2>{report.title}</h2>
-              <ReportImage
-                name={report.name}
-                duration={duration}
-                scannerId={sensorId}
-                startDate={startDate}
-                startHour={startHour}
-                startMinute={startMinute}
-                endDate={endDate}
-                endHour={endHour}
-                endMinute={endMinute}
+            <FormGroup title={_('Report for Last')}>
+              <Divider>
+                <Selector
+                  value="hour"
+                  duration={duration}
+                  onClick={this.handleDurationChange}
+                >
+                  {_('Hour')}
+                </Selector>
+                <Selector
+                  value="day"
+                  duration={duration}
+                  onClick={this.handleDurationChange}
+                >
+                  {_('Day')}
+                </Selector>
+                <Selector
+                  value="week"
+                  duration={duration}
+                  onClick={this.handleDurationChange}
+                >
+                  {_('Week')}
+                </Selector>
+                <Selector
+                  value="month"
+                  duration={duration}
+                  onClick={this.handleDurationChange}
+                >
+                  {_('Month')}
+                </Selector>
+                <Selector
+                  value="year"
+                  duration={duration}
+                  onClick={this.handleDurationChange}
+                >
+                  {_('Year')}
+                </Selector>
+              </Divider>
+            </FormGroup>
+
+            <FormGroup
+              title={
+                gmp.settings.enableGreenboneSensor
+                  ? _('Report for GMP Scanner or Greenbone Sensor')
+                  : _('Report for GMP Scanner')
+              }
+            >
+              <Select
+                name="scannerId"
+                value={sensorId}
+                items={renderSelectItems(scanners, 0)}
+                onChange={this.handleValueChange}
               />
-            </div>
-          ))}
-        </Section>
-      </Layout>
+            </FormGroup>
+
+            {reports.map(report => (
+              <div key={report.name}>
+                <LinkTarget id={report.name} />
+                <h2>{report.title}</h2>
+                <ReportImage
+                  name={report.name}
+                  duration={duration}
+                  scannerId={sensorId}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
+              </div>
+            ))}
+          </Section>
+        </Layout>
+      </React.Fragment>
     );
   }
 }
@@ -396,18 +368,41 @@ PerformancePage.propTypes = {
   gmp: PropTypes.gmp.isRequired,
   loadScanners: PropTypes.func.isRequired,
   scanners: PropTypes.arrayOf(PropTypes.model),
+  timezone: PropTypes.string.isRequired,
   onInteraction: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = (dispatch, {gmp}) => ({
-  onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
-  loadScanners: () => dispatch(loadScanners(gmp)(SLAVE_SCANNER_FILTER)),
-});
+const mapDispatchToProps = (dispatch, {gmp}) => {
+  let SLAVE_SCANNER_FILTER;
 
-const mapStateToProps = rootState => {
+  if (gmp.settings.enableGreenboneSensor) {
+    SLAVE_SCANNER_FILTER = Filter.fromString(
+      'type=' + GMP_SCANNER_TYPE + ' type=' + GREENBONE_SENSOR_SCANNER_TYPE,
+    );
+  } else {
+    SLAVE_SCANNER_FILTER = Filter.fromString('type=' + GMP_SCANNER_TYPE);
+  }
+
+  return {
+    onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
+    loadScanners: () => dispatch(loadScanners(gmp)(SLAVE_SCANNER_FILTER)),
+  };
+};
+
+const mapStateToProps = (rootState, {gmp}) => {
+  let SLAVE_SCANNER_FILTER;
+
+  if (gmp.settings.enableGreenboneSensor) {
+    SLAVE_SCANNER_FILTER = Filter.fromString(
+      'type=' + GMP_SCANNER_TYPE + ' type=' + GREENBONE_SENSOR_SCANNER_TYPE,
+    );
+  } else {
+    SLAVE_SCANNER_FILTER = Filter.fromString('type=' + GMP_SCANNER_TYPE);
+  }
   const select = scannerSelector(rootState);
   return {
     scanners: select.getEntities(SLAVE_SCANNER_FILTER),
+    timezone: getTimezone(rootState),
   };
 };
 

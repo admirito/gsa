@@ -29,7 +29,9 @@
 
 #include "gsad_base.h" /* for set_language_code */
 #include "gsad_credentials.h"
-#include "gsad_http.h" /* for gsad_message */
+#include "gsad_gmp_arguments.h" /* for gmp_arguments_t */
+#include "gsad_gmp_request.h"   /* for gmp_request() */
+#include "gsad_http.h"          /* for gsad_message */
 #include "gsad_i18n.h"
 #include "gsad_params.h"
 #include "gsad_session.h"
@@ -139,6 +141,9 @@ gchar *manager_address = NULL;
  */
 int manager_port = 9390;
 
+#define XML_REPORT_FORMAT_ID "a994b278-1f62-11e1-96ac-406186ea4fc5"
+#define ANONXML_REPORT_FORMAT_ID "5057e5cc-b825-11e4-9d0e-28d24461215b"
+
 /* Headers. */
 
 static int
@@ -150,35 +155,15 @@ gmpf (gvm_connection_t *, credentials_t *, gchar **, entity_t *,
       cmd_response_data_t *, const char *, ...);
 
 static char *
-edit_role (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
-
-static char *
 get_alert (gvm_connection_t *, credentials_t *, params_t *, const char *,
            cmd_response_data_t *);
-
-static char *
-get_alerts (gvm_connection_t *, credentials_t *, params_t *, const char *,
-            cmd_response_data_t *);
 
 static char *
 get_agent (gvm_connection_t *, credentials_t *, params_t *, const char *,
            cmd_response_data_t *);
 
 static char *
-get_agents (gvm_connection_t *, credentials_t *, params_t *, const char *,
-            cmd_response_data_t *);
-
-static char *
 get_asset (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
-
-static char *
-get_assets (gvm_connection_t *, credentials_t *, params_t *, const char *,
-            cmd_response_data_t *);
-
-static char *
-get_tasks (gvm_connection_t *, credentials_t *, params_t *, const char *,
            cmd_response_data_t *);
 
 static char *
@@ -190,48 +175,20 @@ get_config_family (gvm_connection_t *, credentials_t *, params_t *, int,
                    cmd_response_data_t *);
 
 static char *
-get_config (gvm_connection_t *, credentials_t *, params_t *, const char *, int,
-            cmd_response_data_t *);
-
-static char *
-get_configs (gvm_connection_t *, credentials_t *, params_t *, const char *,
-             cmd_response_data_t *);
-
-static char *
 get_filter (gvm_connection_t *, credentials_t *, params_t *, const char *,
             cmd_response_data_t *);
-
-static char *
-get_filters (gvm_connection_t *, credentials_t *, params_t *, const char *,
-             cmd_response_data_t *);
 
 static char *
 get_group (gvm_connection_t *, credentials_t *, params_t *, const char *,
            cmd_response_data_t *);
 
 static char *
-get_groups (gvm_connection_t *, credentials_t *, params_t *, const char *,
-            cmd_response_data_t *);
-
-static char *
 get_credential (gvm_connection_t *, credentials_t *, params_t *, const char *,
                 cmd_response_data_t *);
 
 static char *
-get_credentials (gvm_connection_t *, credentials_t *, params_t *, const char *,
-                 cmd_response_data_t *);
-
-static char *
-get_notes (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
-
-static char *
 get_note (gvm_connection_t *, credentials_t *, params_t *, const char *,
           cmd_response_data_t *);
-
-static char *
-get_overrides (gvm_connection_t *, credentials_t *, params_t *, const char *,
-               cmd_response_data_t *);
 
 static char *
 get_override (gvm_connection_t *, credentials_t *, params_t *, const char *,
@@ -242,84 +199,36 @@ get_permission (gvm_connection_t *, credentials_t *, params_t *, const char *,
                 cmd_response_data_t *);
 
 static char *
-get_permissions (gvm_connection_t *, credentials_t *, params_t *, const char *,
-                 cmd_response_data_t *);
-
-static char *
 get_port_list (gvm_connection_t *, credentials_t *, params_t *, const char *,
                cmd_response_data_t *);
-
-static char *
-get_port_lists (gvm_connection_t *, credentials_t *, params_t *, const char *,
-                cmd_response_data_t *);
 
 static char *
 get_tag (gvm_connection_t *, credentials_t *, params_t *, const char *,
          cmd_response_data_t *);
 
 static char *
-get_tags (gvm_connection_t *, credentials_t *, params_t *, const char *,
-          cmd_response_data_t *);
-
-static char *
 get_target (gvm_connection_t *, credentials_t *, params_t *, const char *,
             cmd_response_data_t *);
-
-static char *
-get_targets (gvm_connection_t *, credentials_t *, params_t *, const char *,
-             cmd_response_data_t *);
 
 static char *
 get_report_format (gvm_connection_t *, credentials_t *, params_t *,
                    const char *, cmd_response_data_t *);
 
 static char *
-get_report_formats (gvm_connection_t *, credentials_t *, params_t *,
-                    const char *, cmd_response_data_t *);
-
-static char *
-get_reports (gvm_connection_t *, credentials_t *, params_t *, const char *,
-             cmd_response_data_t *);
-
-static char *
-get_results (gvm_connection_t *, credentials_t *, params_t *, const char *,
-             cmd_response_data_t *);
-
-static char *
 get_role (gvm_connection_t *, credentials_t *, params_t *, const char *,
           cmd_response_data_t *);
-
-static char *
-get_roles (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
 
 static char *
 get_scanner (gvm_connection_t *, credentials_t *, params_t *, const char *,
              cmd_response_data_t *);
 
 static char *
-get_scanners (gvm_connection_t *, credentials_t *, params_t *, const char *,
-              cmd_response_data_t *);
-
-static char *
 get_schedule (gvm_connection_t *, credentials_t *, params_t *, const char *,
               cmd_response_data_t *);
 
 static char *
-get_schedules (gvm_connection_t *, credentials_t *, params_t *, const char *,
-               cmd_response_data_t *);
-
-static char *
 get_user (gvm_connection_t *, credentials_t *, params_t *, const char *,
           cmd_response_data_t *);
-
-static char *
-get_users (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
-
-static char *
-get_vulns (gvm_connection_t *, credentials_t *, params_t *, const char *,
-           cmd_response_data_t *);
 
 static char *
 wizard (gvm_connection_t *, credentials_t *, params_t *, const char *,
@@ -396,39 +305,6 @@ typedef struct
 } find_by_value_t;
 
 /**
- * @brief Check whether a filter exists
- *
- * @param[in] connection  Connection to manager.
- * @param[in] entity      Response entity.
- *
- * @return 1 success, 0 fail, -1 error, -2 could not send command to server,
- *         -3 could not read entity from server.
- */
-static int
-filter_exists (gvm_connection_t *connection, const char *filt_id)
-{
-  entity_t entity;
-
-  if (filt_id == NULL || str_equal (filt_id, FILT_ID_NONE)
-      || str_equal (filt_id, FILT_ID_USER_SETTING))
-    return 1;
-
-  /* check if filter still exists */
-  if (gvm_connection_sendf (connection, "<get_filters filter_id='%s'/>",
-                            filt_id))
-    {
-      return -2;
-    }
-
-  if (read_entity_c (connection, &entity))
-    {
-      return -3;
-    }
-
-  return gmp_success (entity);
-}
-
-/**
  * @brief Wrap some XML in an envelope.
  *
  * @param[in]  connection     Connection to manager
@@ -473,15 +349,13 @@ envelope_gmp (gvm_connection_t *connection, credentials_t *credentials,
     "<role>%s</role>"
     "<severity>%s</severity>"
     "<i18n>%s</i18n>"
-    "<guest>%d</guest>"
     "<client_address>%s</client_address>"
     "<backend_operation>%.2f</backend_operation>",
     GSAD_VERSION, vendor_version_get (), user_get_token (user), ctime_now,
     timezone ? timezone : "", user_get_username (user),
     user_get_session_timeout (user), user_get_role (user),
     user_get_severity (user), credentials_get_language (credentials),
-    user_get_guest (user), user_get_client_address (user),
-    credentials_get_cmd_duration (credentials));
+    user_get_client_address (user), credentials_get_cmd_duration (credentials));
 
   g_string_append (string, res);
   g_free (res);
@@ -497,11 +371,7 @@ envelope_gmp (gvm_connection_t *connection, credentials_t *credentials,
       g_free (warning_elem);
     }
 
-  g_string_append_printf (string,
-                          "<capabilities>%s</capabilities>"
-                          "%s"
-                          "</envelope>",
-                          user_get_capabilities (user), xml);
+  g_string_append_printf (string, "%s</envelope>", xml);
   g_free (xml);
 
   cmd_response_data_set_content_type (response_data, GSAD_CONTENT_TYPE_APP_XML);
@@ -732,116 +602,6 @@ gmp (gvm_connection_t *connection, credentials_t *credentials, gchar **response,
 }
 
 /**
- * @brief Run a single GMP command, preparing a response even on error.
- *
- * @param[in]  connection         Connection to manager
- * @param[out] message_operation  Operation for error message
- * @param[in]  credentials        Username and password for authentication.
- * @param[out] response           Response.
- * @param[out] response_data      Extra data return for the HTTP response.
- * @param[in]  format             Command.
- * @param[in]  ...                Arguments for format string.
- *
- * @return 0 success, -1 internal error, 1 send error, 2 read error,
- *         3 command failed, 4 connect error.
- */
-static int
-simple_gmpf (gvm_connection_t *connection, const gchar *message_operation,
-             credentials_t *credentials, gchar **response,
-             cmd_response_data_t *response_data, const char *format, ...)
-{
-  int ret;
-  gchar *command;
-  va_list args;
-  entity_t entity;
-
-  va_start (args, format);
-  command = g_markup_vprintf_escaped (format, args);
-  va_end (args);
-
-  ret =
-    gmp (connection, credentials, response, &entity, response_data, command);
-  g_free (command);
-  switch (ret)
-    {
-    case 0:
-      break;
-    case -1:
-      /* 'gmp' set response. */
-      return 4;
-    case 1:
-      if (response_data)
-        cmd_response_data_set_status_code (response_data,
-                                           MHD_HTTP_INTERNAL_SERVER_ERROR);
-      if (response)
-        {
-          gchar *message;
-          message = g_strdup_printf (
-            "An internal error occurred while %s. "
-            " The operation was not started."
-            " Diagnostics: Failure to send command to manager"
-            " daemon.",
-            message_operation ? message_operation : "performing an operation");
-          *response = gsad_message (credentials, "Internal error", __FUNCTION__,
-                                    __LINE__, message, response_data);
-          g_free (message);
-        }
-      return 1;
-    case 2:
-      if (response_data)
-        cmd_response_data_set_status_code (response_data,
-                                           MHD_HTTP_INTERNAL_SERVER_ERROR);
-      if (response)
-        {
-          gchar *message;
-          message = g_strdup_printf (
-            "An internal error occurred while %s."
-            " It is unclear whether the operation succeeded."
-            " Diagnostics: Failure to receive response from manager"
-            " daemon.",
-            message_operation ? message_operation : "performing an operation");
-          *response = gsad_message (credentials, "Internal error", __FUNCTION__,
-                                    __LINE__, message, response_data);
-          g_free (message);
-        }
-      return 2;
-    default:
-      if (response_data)
-        cmd_response_data_set_status_code (response_data,
-                                           MHD_HTTP_INTERNAL_SERVER_ERROR);
-      if (response)
-        {
-          gchar *message;
-          message = g_strdup_printf (
-            "An internal error occurred while %s."
-            " It is unclear whether the operation succeeded."
-            " Diagnostics: Internal Error.",
-            message_operation ? message_operation : "performing an operation");
-          *response = gsad_message (credentials, "Internal error", __FUNCTION__,
-                                    __LINE__, message, response_data);
-          g_free (message);
-        }
-      return -1;
-    }
-
-  switch (gmp_success (entity))
-    {
-    case 0:
-      set_http_status_from_entity (entity, response_data);
-      ret = 3;
-      break;
-    case 1:
-      ret = 0;
-      break;
-    default:
-      ret = -1;
-      break;
-    }
-  free_entity (entity);
-  return ret;
-}
-
-/**
  * @brief Run a single formatted GMP command.
  *
  * @param[in]  connection     Connection to manager
@@ -1044,64 +804,63 @@ response_from_entity (gvm_connection_t *connection, credentials_t *credentials,
 }
 
 /**
- * @brief Get one resource, envelope the result.
+ * @brief Get a single entity, envelope the result.
  *
  * @param[in]  connection     Connection to manager
  * @param[in]  type           Type of resource.
  * @param[in]  credentials    Username and password for authentication.
  * @param[in]  params         Request parameters.
  * @param[in]  extra_xml      Extra XML to insert inside page element.
- * @param[in]  extra_attribs  Extra attributes for GMP GET command.
+ * @param[in]  arguments      Extra arguments for GMP GET command.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
  */
 char *
-get_one (gvm_connection_t *connection, const char *type,
-         credentials_t *credentials, params_t *params, const char *extra_xml,
-         const char *extra_attribs, cmd_response_data_t *response_data)
+get_entity (gvm_connection_t *connection, const char *type,
+            credentials_t *credentials, params_t *params,
+            gmp_arguments_t *arguments, cmd_response_data_t *response_data)
 {
   GString *xml;
-  gchar *id_name;
-  const char *id;
+  gchar *cmd;
   entity_t entity;
 
-  id_name = g_strdup_printf ("%s_id", type);
-  id = params_value (params, id_name);
-  g_free (id_name);
-
-  CHECK_VARIABLE_INVALID (id, "Get")
-
   xml = g_string_new ("");
+
+  if (str_equal (type, "info"))
+    {
+      cmd = g_strdup_printf ("get_%s", type);
+    }
+  else
+    {
+      cmd = g_strdup_printf ("get_%ss", type);
+    }
+
   g_string_append_printf (xml, "<get_%s>", type);
 
-  if (extra_xml)
-    g_string_append (xml, extra_xml);
-
-  /* Get the resource. */
-
-  if (gvm_connection_sendf (connection,
-                            "<get_%ss"
-                            " %s_id=\"%s\""
-                            " details=\"1\""
-                            " %s/>",
-                            type, type, id, extra_attribs ? extra_attribs : "")
-      == -1)
+  if (gmp_request (connection, cmd, arguments))
     {
-      g_string_free (xml, TRUE);
+      g_free (cmd);
+
+      gmp_arguments_free (arguments);
+
       cmd_response_data_set_status_code (response_data,
                                          MHD_HTTP_INTERNAL_SERVER_ERROR);
       return gsad_message (
         credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting resources list. "
+        "An internal error occurred while getting a resource list. "
         "The current list of resources is not available. "
         "Diagnostics: Failure to send command to manager daemon.",
         response_data);
     }
 
+  gmp_arguments_free (arguments);
+
   if (read_entity_and_string_c (connection, &entity, &xml))
     {
       g_string_free (xml, TRUE);
+      g_free (cmd);
+
       cmd_response_data_set_status_code (response_data,
                                          MHD_HTTP_INTERNAL_SERVER_ERROR);
       return gsad_message (
@@ -1123,256 +882,101 @@ get_one (gvm_connection_t *connection, const char *type,
                       entity_attribute (entity, "status_text"), response_data);
 
       g_string_free (xml, TRUE);
+      g_free (cmd);
       free_entity (entity);
       return message;
     }
 
-  /* Cleanup, and return transformed XML. */
+  g_string_append_printf (xml, "</get_%s>", type);
+
+  g_free (cmd);
   free_entity (entity);
 
-  g_string_append_printf (xml, "</get_%s>", type);
   return envelope_gmp (connection, credentials, params,
                        g_string_free (xml, FALSE), response_data);
 }
 
 /**
- * @brief Get all of a particular type of resource, envelope the result.
+ * @brief Get one resource, envelope the result.
  *
  * @param[in]  connection     Connection to manager
- * @param[in]  type           Resource type.
+ * @param[in]  type           Type of resource.
  * @param[in]  credentials    Username and password for authentication.
  * @param[in]  params         Request parameters.
  * @param[in]  extra_xml      Extra XML to insert inside page element.
- * @param[in]  extra_attribs  Extra attributes for GMP GET command.
+ * @param[in]  arguments      Extra arguments for GMP GET command.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+get_one (gvm_connection_t *connection, const char *type,
+         credentials_t *credentials, params_t *params, const char *extra_xml,
+         gmp_arguments_t *arguments, cmd_response_data_t *response_data)
+{
+  gchar *id_name;
+  const gchar *id;
+  const gchar *details;
+
+  id_name = g_strdup_printf ("%s_id", type);
+  id = params_value (params, id_name);
+
+  CHECK_VARIABLE_INVALID (id, "Get")
+
+  details = params_value (params, "details");
+  if (!details)
+    {
+      details = "1";
+    }
+
+  if (arguments == NULL)
+    {
+      arguments = gmp_arguments_new ();
+    }
+
+  gmp_arguments_add (arguments, id_name, id);
+
+  if (details && !str_equal (details, ""))
+    {
+      gmp_arguments_add (arguments, "details", details);
+    }
+
+  g_free (id_name);
+
+  return get_entity (connection, type, credentials, params, arguments,
+                     response_data);
+}
+
+/**
+ * @brief Get all entities of a particular type, envelope the result.
+ *
+ * @param[in]  connection     Connection to manager
+ * @param[in]  type           Entity type.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[in]  extra_xml      Extra XML to insert inside page element.
+ * @param[in]  arguments      Extra arguments for GMP GET command.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
  */
 static char *
-get_many (gvm_connection_t *connection, const char *type,
-          credentials_t *credentials, params_t *params, const char *extra_xml,
-          const char *extra_attribs, cmd_response_data_t *response_data)
+get_entities (gvm_connection_t *connection, const char *type,
+              credentials_t *credentials, params_t *params,
+              gmp_arguments_t *arguments, cmd_response_data_t *response_data)
 {
   GString *xml;
-  GString *type_many; /* The plural form of type */
-  gchar *request, *built_filter;
-  const char *build_filter, *filt_id, *filter, *filter_extra;
-  const char *first, *max, *sort_field, *sort_order, *owner, *permission;
-  const char *replace_task_id;
-  const char *overrides, *autofp, *autofp_value, *min_qod;
-  const char *level_high, *level_medium, *level_low, *level_log;
-  const char *level_false_positive;
-  const char *details;
+  gchar *cmd;
+  entity_t entity;
 
-  build_filter = params_value (params, "build_filter");
-  filt_id = params_value (params, "filt_id");
-  filter = params_value (params, "filter");
-  filter_extra = params_value (params, "filter_extra");
-  first = params_value (params, "first");
-  max = params_value (params, "max");
-  replace_task_id = params_value (params, "replace_task_id");
-  sort_field = params_value (params, "sort_field");
-  sort_order = params_value (params, "sort_order");
-  owner = params_value (params, "owner");
-  permission = params_value (params, "permission");
-  overrides = params_value (params, "overrides");
-  autofp = params_value (params, "autofp");
-  autofp_value = params_value (params, "autofp_value");
-  min_qod = params_value (params, "min_qod");
-  level_high = params_value (params, "level_high");
-  level_medium = params_value (params, "level_medium");
-  level_low = params_value (params, "level_low");
-  level_log = params_value (params, "level_log");
-  level_false_positive = params_value (params, "level_false_positive");
-  details = params_value (params, "details");
+  cmd = g_strdup_printf ("get_%s", type);
 
-  if (details == NULL || strcmp (details, "") == 0)
-    details = "0";
-
-  /* check if filter still exists */
-  switch (filter_exists (connection, filt_id))
+  if (gmp_request (connection, cmd, arguments))
     {
-    case 1:
-      break;
-    case 0:
-      g_debug ("%s filter doesn't exist anymore %s!\n", __FUNCTION__, filt_id);
-      filt_id = NULL;
-      break;
-    case -1:
-      g_debug ("%s filter response didn't contain a status!\n", __FUNCTION__);
-      filt_id = NULL;
-      break;
-    case -2:
-      g_debug ("%s could not send filter request!\n", __FUNCTION__);
-      filt_id = NULL;
-      break;
-    case -3:
-      g_debug ("%s could not read entity from filter response!\n",
-               __FUNCTION__);
-      filt_id = NULL;
-      break;
-    default:
-      filt_id = NULL;
-    }
+      g_free (cmd);
 
-  xml = g_string_new ("");
-  type_many = g_string_new (type);
+      gmp_arguments_free (arguments);
 
-  /* Workaround the fact that info is a non countable noun */
-  if (strcmp (type, "info") != 0)
-    g_string_append (type_many, "s");
-
-  g_string_append_printf (xml, "<get_%s>", type_many->str);
-
-  if (extra_xml)
-    g_string_append (xml, extra_xml);
-
-  built_filter = NULL;
-  if (filt_id == NULL || str_equal (filt_id, "") || str_equal (filt_id, "--"))
-    {
-      if ((build_filter && str_equal (build_filter, "1"))
-          || ((filter == NULL || str_equal (filter, ""))
-              && (filter_extra == NULL || str_equal (filter_extra, ""))))
-        {
-          if (build_filter && (strcmp (build_filter, "1") == 0))
-            {
-              gchar *task;
-              const char *search_phrase, *task_id;
-
-              if (str_equal (type, "report") || str_equal (type, "task"))
-                {
-                  task =
-                    g_strdup_printf ("apply_overrides=%i min_qod=%s ",
-                                     overrides && !str_equal (overrides, "0"),
-                                     min_qod ? min_qod : "");
-                }
-              else if (strcmp (type, "result") == 0)
-                {
-                  gchar *levels = g_strdup_printf (
-                    "%s%s%s%s%s", level_high ? "h" : "",
-                    level_medium ? "m" : "", level_low ? "l" : "",
-                    level_log ? "g" : "", level_false_positive ? "f" : "");
-                  task = g_strdup_printf (
-                    "apply_overrides=%i min_qod=%s"
-                    " autofp=%s levels=%s ",
-                    (overrides && !str_equal (overrides, "0")),
-                    min_qod ? min_qod : "",
-                    (autofp && autofp_value) ? autofp_value : "0", levels);
-                  g_free (levels);
-                }
-              else
-                task = NULL;
-
-              search_phrase = params_value (params, "search_phrase");
-              task_id = params_value (params, "task_id");
-              built_filter = g_strdup_printf (
-                "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-                task ? task : "", task_id ? "task_id=" : "",
-                task_id ? task_id : "", task_id ? " " : "",
-                first ? "first=" : "", first ? first : "", first ? " " : "",
-                max ? "rows=" : "", max ? max : "", max ? " " : "",
-                sort_field ? ((sort_order && strcmp (sort_order, "ascending"))
-                                ? "sort-reverse="
-                                : "sort=")
-                           : "",
-                sort_field ? sort_field : "", sort_field ? " " : "",
-                permission ? "permission=" : "", permission ? permission : "",
-                permission ? " " : "", owner ? "owner=" : "",
-                owner ? owner : "", owner ? " " : "",
-                (filter && search_phrase) ? " " : "", filter ? filter : "",
-                search_phrase ? " " : "", search_phrase ? search_phrase : "");
-              filt_id = FILT_ID_USER_SETTING;
-              g_free (task);
-            }
-          else if (strcmp (type, "info") == 0
-                   && params_value (params, "info_type"))
-            {
-              if (str_equal (params_value (params, "info_type"), "cve"))
-                filter = "sort-reverse=published rows=-2";
-              else if (str_equal (params_value (params, "info_type"), "cpe"))
-                filter = "sort-reverse=modified rows=-2";
-              else
-                filter = "sort-reverse=created rows=-2";
-            }
-          else if (str_equal (type, "user"))
-            filter = "sort=roles rows=-2";
-          else if (str_equal (type, "report"))
-            {
-              const char *task_id;
-              task_id = params_value (params, "task_id");
-              if (task_id)
-                built_filter = g_strdup_printf ("task_id=%s apply_overrides=1"
-                                                " rows=-2 sort-reverse=date",
-                                                task_id);
-              else
-                filter = "apply_overrides=1 rows=-2 sort-reverse=date";
-            }
-          else if (str_equal (type, "result"))
-            {
-              built_filter = g_strdup_printf (
-                "apply_overrides=%d autofp=%s rows=-2"
-                " sort-reverse=created",
-                (overrides == NULL || str_equal (overrides, "1")),
-                (autofp && str_equal (autofp, "1")) ? autofp_value : "0");
-            }
-          else if (str_equal (type, "note") || str_equal (type, "override"))
-            {
-              filter = "rows=-2 sort=nvt";
-            }
-          else if (!str_equal (type, "task"))
-            filter = "rows=-2";
-          else
-            filter = "apply_overrides=1 rows=-2";
-          if (filt_id && !str_equal (filt_id, ""))
-            /* Request to use "filter" instead. */
-            filt_id = FILT_ID_NONE;
-          else
-            filt_id = FILT_ID_USER_SETTING;
-        }
-      else if (str_equal (filter, "sort=nvt")
-               && (str_equal (type, "note") || str_equal (type, "override")))
-        filt_id = FILT_ID_USER_SETTING;
-      else if (str_equal (filter, "apply_overrides=1")
-               && str_equal (type, "task"))
-        filt_id = FILT_ID_USER_SETTING;
-    }
-  else if (replace_task_id)
-    {
-      const char *task_id;
-      task_id = params_value (params, "task_id");
-      if (task_id)
-        built_filter =
-          g_strdup_printf ("task_id=%s %s", task_id, filter ? filter : "");
-    }
-
-  /* Get the list. */
-
-  request = g_markup_printf_escaped (
-    " %sfilt_id=\"%s\""
-    " %sfilter=\"%s%s%s%s\""
-    " filter_replace=\"%s\""
-    " first=\"%s\""
-    " max=\"%s\""
-    " sort_field=\"%s\""
-    " sort_order=\"%s\"",
-    strcmp (type, "report") ? "" : "report_", filt_id ? filt_id : "0",
-    strcmp (type, "report") ? "" : "report_",
-    built_filter ? built_filter : (filter ? filter : ""),
-    filter_extra ? " " : "", filter_extra ? filter_extra : "",
-    filter_extra ? " " : "", replace_task_id ? "task_id" : "",
-    first ? first : "1", max ? max : "-2", sort_field ? sort_field : "name",
-    sort_order ? sort_order : "ascending");
-
-  g_free (built_filter);
-  if (gvm_connection_sendf (connection, "<get_%s details=\"%s\" %s %s/>",
-                            type_many->str,
-                            strcmp (type, "report") ? details : "0", request,
-                            extra_attribs ? extra_attribs : "")
-      == -1)
-    {
-      g_free (request);
-      g_string_free (xml, TRUE);
-      g_string_free (type_many, TRUE);
       cmd_response_data_set_status_code (response_data,
                                          MHD_HTTP_INTERNAL_SERVER_ERROR);
       return gsad_message (
@@ -1382,11 +986,17 @@ get_many (gvm_connection_t *connection, const char *type,
         "Diagnostics: Failure to send command to manager daemon.",
         response_data);
     }
-  g_free (request);
-  if (read_string_c (connection, &xml))
+
+  gmp_arguments_free (arguments);
+
+  xml = g_string_new ("");
+  g_string_append_printf (xml, "<%s>", cmd);
+
+  if (read_entity_and_string_c (connection, &entity, &xml))
     {
+      g_free (cmd);
       g_string_free (xml, TRUE);
-      g_string_free (type_many, TRUE);
+
       cmd_response_data_set_status_code (response_data,
                                          MHD_HTTP_INTERNAL_SERVER_ERROR);
       return gsad_message (
@@ -1397,11 +1007,82 @@ get_many (gvm_connection_t *connection, const char *type,
         response_data);
     }
 
-  /* Cleanup, and return transformed XML. */
-  g_string_append_printf (xml, "</get_%s>", type_many->str);
-  g_string_free (type_many, TRUE);
+  if (gmp_success (entity) != 1)
+    {
+      gchar *message;
+
+      set_http_status_from_entity (entity, response_data);
+
+      message =
+        gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
+                      entity_attribute (entity, "status_text"), response_data);
+
+      g_free (cmd);
+      g_string_free (xml, TRUE);
+      free_entity (entity);
+      return message;
+    }
+
+  g_string_append_printf (xml, "</%s>", cmd);
+
+  g_free (cmd);
+  free_entity (entity);
+
   return envelope_gmp (connection, credentials, params,
                        g_string_free (xml, FALSE), response_data);
+}
+
+/**
+ * @brief Get all of a particular type of resource, envelope the result.
+ *
+ * @param[in]  connection     Connection to manager
+ * @param[in]  type           Resource type in plural form.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[in]  arguments      Extra arguments for GMP GET command.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+static char *
+get_many (gvm_connection_t *connection, const char *type,
+          credentials_t *credentials, params_t *params,
+          gmp_arguments_t *arguments, cmd_response_data_t *response_data)
+{
+  const gchar *filter_id, *filter;
+  const gchar *details;
+
+  filter_id = params_value (params, "filter_id");
+  filter = params_value (params, "filter");
+  details = params_value (params, "details");
+
+  if (arguments == NULL)
+    {
+      arguments = gmp_arguments_new ();
+    }
+
+  if (details && !str_equal (details, ""))
+    {
+      gmp_arguments_add (arguments, "details", details);
+    }
+
+  if (!filter_id && !filter)
+    {
+      filter_id = FILT_ID_USER_SETTING;
+    }
+
+  if (filter_id)
+    {
+      gmp_arguments_add (arguments, "filt_id", filter_id);
+    }
+
+  if (filter)
+    {
+      gmp_arguments_add (arguments, "filter", filter);
+    }
+
+  return get_entities (connection, type, credentials, params, arguments,
+                       response_data);
 }
 
 /**
@@ -2247,81 +1928,36 @@ create_report_gmp (gvm_connection_t *connection, credentials_t *credentials,
 {
   entity_t entity;
   int ret;
+  gchar **xml_file_array, *xml_file_escaped;
   gchar *command, *html, *response;
-  const char *task_id, *name, *comment, *xml_file;
-  const char *in_assets;
+  const char *task_id = params_value (params, "task_id"),
+             *xml_file = params_value (params, "xml_file"),
+             *in_assets = params_value (params, "in_assets");
 
-  task_id = params_value (params, "task_id");
-  xml_file = params_value (params, "xml_file");
-  name = params_value (params, "name");
-  comment = params_value (params, "comment");
-  in_assets = params_value (params, "in_assets");
-
-  if (task_id == NULL)
-    {
-      CHECK_VARIABLE_INVALID (name, "Create Report");
-      CHECK_VARIABLE_INVALID (comment, "Create Report");
-    }
+  CHECK_VARIABLE_INVALID (task_id, "Create Report");
   CHECK_VARIABLE_INVALID (xml_file, "Create Report");
-
-  if (params_given (params, "in_assets"))
-    CHECK_VARIABLE_INVALID (xml_file, "Create Report");
 
   if (strlen (xml_file) == 0)
     {
-      if (task_id)
-        return message_invalid (connection, credentials, params, response_data,
-                                "Report required", "Create Report");
-
-      /* Create only the container task. */
-
-      command = g_markup_printf_escaped ("<create_task>"
-                                         "<target id=\"0\"/>"
-                                         "<name>%s</name>"
-                                         "<comment>%s</comment>"
-                                         "</create_task>",
-                                         name, comment);
+      return message_invalid (connection, credentials, params, response_data,
+                              "Report required", "Create Report");
     }
+
+  xml_file_array = g_strsplit (xml_file, "%", -1);
+  if (xml_file_array != NULL && xml_file_array[0] != NULL)
+    xml_file_escaped = g_strjoinv ("%%", xml_file_array);
   else
-    {
-      gchar **xml_file_array, *xml_file_escaped;
+    xml_file_escaped = g_strdup (xml_file);
+  g_strfreev (xml_file_array);
 
-      xml_file_array = g_strsplit (xml_file, "%", -1);
-      if (xml_file_array != NULL && xml_file_array[0] != NULL)
-        xml_file_escaped = g_strjoinv ("%%", xml_file_array);
-      else
-        xml_file_escaped = g_strdup (xml_file);
-      g_strfreev (xml_file_array);
-
-      if (task_id)
-        command =
-          g_strdup_printf ("<create_report>"
-                           "<in_assets>%s</in_assets>"
-                           "<task id=\"%s\"/>"
-                           "%s"
-                           "</create_report>",
-                           in_assets ? in_assets : "0", task_id ? task_id : "0",
-                           xml_file_escaped ? xml_file_escaped : "");
-      else
-        {
-          gchar *name_escaped, *comment_escaped;
-          name_escaped = name ? g_markup_escape_text (name, -1) : NULL;
-          comment_escaped = comment ? g_markup_escape_text (comment, -1) : NULL;
-          command = g_strdup_printf ("<create_report>"
-                                     "<in_assets>%s</in_assets>"
-                                     "<task>"
-                                     "<name>%s</name>"
-                                     "<comment>%s</comment>"
-                                     "</task>"
-                                     "%s"
-                                     "</create_report>",
-                                     in_assets ? in_assets : "", name_escaped,
-                                     comment_escaped, xml_file_escaped);
-          g_free (name_escaped);
-          g_free (comment_escaped);
-        }
-      g_free (xml_file_escaped);
-    }
+  command = g_strdup_printf ("<create_report>"
+                             "<in_assets>%s</in_assets>"
+                             "<task id=\"%s\"/>"
+                             "%s"
+                             "</create_report>",
+                             in_assets ? in_assets : "0", task_id,
+                             xml_file_escaped ? xml_file_escaped : "");
+  g_free (xml_file_escaped);
 
   ret =
     gmp (connection, credentials, &response, &entity, response_data, command);
@@ -2405,19 +2041,23 @@ create_container_task_gmp (gvm_connection_t *connection,
   entity_t entity;
   int ret;
   gchar *command, *html, *response;
-  const char *name, *comment;
+  const char *name, *comment, *usage_type;
 
   name = params_value (params, "name");
   comment = params_value (params, "comment");
+  usage_type = params_value (params, "usage_type");
+
   CHECK_VARIABLE_INVALID (name, "Create Container Task");
   CHECK_VARIABLE_INVALID (comment, "Create Container Task");
+  CHECK_VARIABLE_INVALID (usage_type, "Create Container Task");
 
   command = g_markup_printf_escaped ("<create_task>"
                                      "<target id=\"0\"/>"
                                      "<name>%s</name>"
                                      "<comment>%s</comment>"
+                                     "<usage_type>%s</usage_type>"
                                      "</create_task>",
-                                     name, comment);
+                                     name, comment, usage_type);
   ret =
     gmp (connection, credentials, &response, &entity, response_data, command);
   g_free (command);
@@ -2490,7 +2130,7 @@ create_task_gmp (gvm_connection_t *connection, credentials_t *credentials,
   const char *max_checks, *max_hosts;
   const char *in_assets, *hosts_ordering, *alterable, *source_iface;
   const char *add_tag, *tag_id, *auto_delete, *auto_delete_data;
-  const char *apply_overrides, *min_qod;
+  const char *apply_overrides, *min_qod, *usage_type;
   gchar *name_escaped, *comment_escaped;
   params_t *alerts;
   GString *alert_element;
@@ -2515,6 +2155,7 @@ create_task_gmp (gvm_connection_t *connection, credentials_t *credentials,
   source_iface = params_value (params, "source_iface");
   tag_id = params_value (params, "tag_id");
   target_id = params_value (params, "target_id");
+  usage_type = params_value (params, "usage_type");
 
   CHECK_VARIABLE_INVALID (scanner_type, "Create Task");
   if (!strcmp (scanner_type, "1"))
@@ -2535,6 +2176,7 @@ create_task_gmp (gvm_connection_t *connection, credentials_t *credentials,
 
   CHECK_VARIABLE_INVALID (name, "Create Task");
   CHECK_VARIABLE_INVALID (comment, "Create Task");
+  CHECK_VARIABLE_INVALID (usage_type, "Create Task");
   CHECK_VARIABLE_INVALID (config_id, "Create Task");
   CHECK_VARIABLE_INVALID (target_id, "Create Task");
   CHECK_VARIABLE_INVALID (hosts_ordering, "Create Task");
@@ -2659,12 +2301,14 @@ create_task_gmp (gvm_connection_t *connection, credentials_t *credentials,
     "</preference>"
     "</preferences>"
     "<alterable>%i</alterable>"
+    "<usage_type>%s</usage_type>"
     "</create_task>",
     config_id, schedule_periods, schedule_element, alert_element->str,
     target_id, scanner_id, hosts_ordering, name_escaped, comment_escaped,
     max_checks, max_hosts, strcmp (in_assets, "0") ? "yes" : "no",
     strcmp (apply_overrides, "0") ? "yes" : "no", min_qod, source_iface,
-    auto_delete, auto_delete_data, alterable ? strcmp (alterable, "0") : 0);
+    auto_delete, auto_delete_data, alterable ? strcmp (alterable, "0") : 0,
+    usage_type);
 
   g_free (name_escaped);
   g_free (comment_escaped);
@@ -3311,125 +2955,6 @@ move_task_gmp (gvm_connection_t *connection, credentials_t *credentials,
 }
 
 /**
- * @brief Requests SecInfo.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials    Credentials for the manager connection.
- * @param[in]  params         Request parameters.
- * @param[in]  extra_xml      Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return XML enveloped SecInfo response or error message.
- */
-char *
-get_info (gvm_connection_t *connection, credentials_t *credentials,
-          params_t *params, const char *extra_xml,
-          cmd_response_data_t *response_data)
-{
-  char *ret;
-  GString *extra_attribs, *extra_response;
-  const char *info_type;
-
-  info_type = params_value (params, "info_type");
-  if (info_type == NULL)
-    {
-      param_t *param;
-      param = params_add (params, "info_type", "nvt");
-      param->valid = 1;
-      param->valid_utf8 = g_utf8_validate (param->value, -1, NULL);
-      info_type = params_value (params, "info_type");
-    }
-
-  if (strcmp (info_type, "nvt") && strcmp (info_type, "cve")
-      && strcmp (info_type, "cpe") && strcmp (info_type, "ovaldef")
-      && strcmp (info_type, "cert_bund_adv")
-      && strcmp (info_type, "dfn_cert_adv") && strcmp (info_type, "allinfo")
-      && strcmp (info_type, "NVT") && strcmp (info_type, "CVE")
-      && strcmp (info_type, "CPE") && strcmp (info_type, "OVALDEF")
-      && strcmp (info_type, "CERT_BUND_ADV")
-      && strcmp (info_type, "DFN_CERT_ADV") && strcmp (info_type, "ALLINFO"))
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (credentials, "Internal error", __FUNCTION__,
-                           __LINE__,
-                           "An internal error occurred while getting SecInfo. "
-                           "Diagnostics: Invalid info_type parameter value",
-                           response_data);
-    }
-
-  if (params_value (params, "info_name") && params_value (params, "info_id"))
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (credentials, "Internal error", __FUNCTION__,
-                           __LINE__,
-                           "An internal error occurred while getting SecInfo. "
-                           "Diagnostics: Both ID and Name set.",
-                           response_data);
-    }
-  extra_response = g_string_new (extra_xml ? extra_xml : "");
-
-  if (command_enabled (credentials, "GET_NOTES")
-      && (strcasecmp (info_type, "NVT") == 0)
-      && params_value (params, "info_id"))
-    {
-      gchar *response;
-
-      if (simple_gmpf (connection, "getting SecInfo", credentials, &response,
-                       response_data,
-                       "<get_notes"
-                       " nvt_oid=\"%s\""
-                       " sort_field=\"notes.text\"/>",
-                       params_value (params, "info_id")))
-        {
-          g_string_free (extra_response, TRUE);
-          return response;
-        }
-
-      g_string_append (extra_response, response);
-    }
-
-  if (command_enabled (credentials, "GET_OVERRIDES")
-      && (strcasecmp (info_type, "NVT") == 0)
-      && params_value (params, "info_id"))
-    {
-      gchar *response;
-
-      if (simple_gmpf (connection, "getting SecInfo", credentials, &response,
-                       response_data,
-                       "<get_overrides"
-                       " nvt_oid=\"%s\""
-                       " sort_field=\"overrides.text\"/>",
-                       params_value (params, "info_id")))
-        {
-          g_string_free (extra_response, TRUE);
-          return response;
-        }
-
-      g_string_append (extra_response, response);
-    }
-
-  extra_attribs = g_string_new ("");
-  g_string_append_printf (extra_attribs, "type=\"%s\"",
-                          params_value (params, "info_type"));
-  if (params_value (params, "info_name"))
-    g_string_append_printf (extra_attribs, " name=\"%s\"",
-                            params_value (params, "info_name"));
-  else if (params_value (params, "info_id"))
-    g_string_append_printf (extra_attribs, " info_id=\"%s\"",
-                            params_value (params, "info_id"));
-  if (params_value (params, "details"))
-    g_string_append_printf (extra_attribs, " details=\"%s\"",
-                            params_value (params, "details"));
-  ret = get_many (connection, "info", credentials, params, extra_response->str,
-                  extra_attribs->str, response_data);
-
-  g_string_free (extra_response, TRUE);
-  g_string_free (extra_attribs, TRUE);
-
-  return ret;
-}
-
-/**
  * @brief Get info, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
@@ -3443,97 +2968,42 @@ char *
 get_info_gmp (gvm_connection_t *connection, credentials_t *credentials,
               params_t *params, cmd_response_data_t *response_data)
 {
-  return get_info (connection, credentials, params, NULL, response_data);
-}
+  const gchar *info_type;
+  const gchar *info_name;
+  const gchar *info_id;
+  const gchar *details;
 
-/**
- * @brief Toggle overrides.
- *
- * @param[in]  params     Request parameters.
- * @param[in]  overrides  New overrides value.
- */
-static void
-params_toggle_overrides (params_t *params, const char *overrides)
-{
-  param_t *filt_id, *build_filter;
-  const char *new_filt_id;
+  gmp_arguments_t *arguments;
 
-  build_filter = params_get (params, "build_filter");
+  info_type = params_value (params, "info_type");
+  info_name = params_value (params, "info_name");
+  info_id = params_value (params, "info_id");
+  details = params_value (params, "details");
 
-  if (build_filter)
-    new_filt_id = "";
-  else
-    new_filt_id = "0";
+  CHECK_VARIABLE_INVALID (info_type, "Get SecInfo")
 
-  filt_id = params_get (params, "filt_id");
-  if (filt_id)
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "type", info_type);
+  if (details)
     {
-      filt_id->value = g_strdup (new_filt_id);
-      filt_id->value_size = strlen (filt_id->value);
-      filt_id->valid = 1;
-      filt_id->valid_utf8 = 1;
+      gmp_arguments_add (arguments, "details", details);
     }
-  else
-    params_add (params, "filt_id", new_filt_id);
 
-  if (build_filter == NULL)
+  if (info_id)
     {
-      param_t *filter;
-      filter = params_get (params, "filter");
-      if (filter && filter->value)
-        {
-          gchar *old;
-          old = filter->value;
-          filter->value =
-            g_strdup_printf ("apply_overrides=%s %s", overrides, old);
-          g_free (old);
-        }
-      else if (strcmp (overrides, "0"))
-        params_add (params, "filter", "apply_overrides=1 rows=-2");
-      else
-        params_add (params, "filter", "apply_overrides=0 rows=-2");
+      gmp_arguments_add (arguments, "info_id", info_id);
+
+      return get_entity (connection, "info", credentials, params, arguments,
+                         response_data);
     }
-}
+  else if (info_name)
+    {
+      gmp_arguments_add (arguments, "name", info_name);
+    }
 
-/**
- * @brief Get all tasks, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials       Username and password for authentication.
- * @param[in]  params            Request parameters.
- * @param[in]  extra_xml         Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_tasks (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  const char *overrides, *schedules_only, *ignore_pagination;
-  gchar *extra_attribs, *ret;
-
-  overrides = params_value (params, "overrides");
-  schedules_only = params_value (params, "schedules_only");
-  ignore_pagination = params_value (params, "ignore_pagination");
-
-  if (overrides)
-    /* User toggled overrides.  Set the overrides value in the filter. */
-    params_toggle_overrides (params, overrides);
-
-  extra_attribs = g_strdup_printf (
-    "%s%s%s"
-    "%s%s%s",
-    schedules_only ? "schedules_only=\"" : "",
-    schedules_only ? schedules_only : "", schedules_only ? "\" " : "",
-    ignore_pagination ? "ignore_pagination=\"" : "",
-    ignore_pagination ? ignore_pagination : "", ignore_pagination ? "\" " : "");
-
-  ret = get_many (connection, "task", credentials, params, extra_xml,
-                  extra_attribs, response_data);
-  g_free (extra_attribs);
-  return ret;
+  return get_many (connection, "info", credentials, params, arguments,
+                   response_data);
 }
 
 /**
@@ -3550,7 +3020,34 @@ char *
 get_tasks_gmp (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, cmd_response_data_t *response_data)
 {
-  return get_tasks (connection, credentials, params, NULL, response_data);
+  const char *schedules_only, *ignore_pagination, *usage_type;
+  gmp_arguments_t *arguments;
+
+  schedules_only = params_value (params, "schedules_only");
+  ignore_pagination = params_value (params, "ignore_pagination");
+  usage_type = params_value (params, "usage_type");
+  if (params_given (params, "usage_type"))
+    CHECK_VARIABLE_INVALID (usage_type, "Get Tasks");
+
+  arguments = gmp_arguments_new ();
+
+  if (schedules_only)
+    {
+      gmp_arguments_add (arguments, "schedules_only", schedules_only);
+    }
+
+  if (ignore_pagination)
+    {
+      gmp_arguments_add (arguments, "ignore_pargination", ignore_pagination);
+    }
+
+  if (usage_type)
+    {
+      gmp_arguments_add (arguments, "usage_type", usage_type);
+    }
+
+  return get_many (connection, "tasks", credentials, params, arguments,
+                   response_data);
 }
 
 /**
@@ -3879,8 +3376,11 @@ get_credential (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, const char *extra_xml,
                 cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments = gmp_arguments_new ();
+  gmp_arguments_add (arguments, "targets", "1");
+  gmp_arguments_add (arguments, "scanners", "1");
   return get_one (connection, "credential", credentials, params, extra_xml,
-                  "targets=\"1\" scanners=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -4133,27 +3633,6 @@ export_credentials_gmp (gvm_connection_t *connection,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  commands     Extra commands to run before the others when
- *                          credential_id is NULL.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return 0 success, 1 failure.
- */
-static char *
-get_credentials (gvm_connection_t *connection, credentials_t *credentials,
-                 params_t *params, const char *extra_xml,
-                 cmd_response_data_t *response_data)
-{
-  return get_many (connection, "credential", credentials, params, extra_xml,
-                   NULL, response_data);
-}
-
-/**
- * @brief Get one or all credentials, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return 0 success, 1 failure.
@@ -4162,7 +3641,8 @@ char *
 get_credentials_gmp (gvm_connection_t *connection, credentials_t *credentials,
                      params_t *params, cmd_response_data_t *response_data)
 {
-  return get_credentials (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "credentials", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -4859,26 +4339,6 @@ get_agent_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @brief Get all agents, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-get_agents (gvm_connection_t *connection, credentials_t *credentials,
-            params_t *params, const char *extra_xml,
-            cmd_response_data_t *response_data)
-{
-  return get_many (connection, "agent", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all agents, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
  * @param[in]   credentials  Username and password for authentication.
  * @param[in]   params       Request parameters.
  * @param[out]  response_data  Extra data return for the HTTP response.
@@ -4889,7 +4349,8 @@ char *
 get_agents_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, cmd_response_data_t *response_data)
 {
-  return get_agents (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "agents", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -5026,7 +4487,7 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
   param_t *param;
 
   const char *data_column, *group_column, *subgroup_column, *type;
-  const char *filter, *filt_id;
+  const char *filter, *filter_id;
   const char *first_group, *max_groups;
   const char *mode;
   gchar *filter_escaped, *command_escaped, *response;
@@ -5041,19 +4502,20 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
   subgroup_column = params_value (params, "subgroup_column");
   type = params_value (params, "aggregate_type");
   filter = params_value (params, "filter");
-  filt_id = params_value (params, "filt_id");
+  filter_id = params_value (params, "filter_id");
   sort_fields = params_values (params, "sort_fields:");
   sort_stats = params_values (params, "sort_stats:");
   sort_orders = params_values (params, "sort_orders:");
   first_group = params_value (params, "first_group");
   max_groups = params_value (params, "max_groups");
   mode = params_value (params, "aggregate_mode");
-  if (filter && strcmp (filter, ""))
+
+  if (filter && !str_equal (filter, ""))
     filter_escaped = g_markup_escape_text (filter, -1);
   else
     {
-      if (filt_id == NULL || strcmp (filt_id, "") == 0
-          || strcmp (filt_id, "0") == 0)
+      if (filter_id == NULL || str_equal (filter_id, "")
+          || str_equal (filter_id, FILT_ID_NONE))
         filter_escaped = g_strdup ("rows=-2");
       else
         filter_escaped = NULL;
@@ -5065,21 +4527,28 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
   g_string_append_printf (command, " type=\"%s\"", type);
   if (data_column)
     g_string_append_printf (command, " data_column=\"%s\"", data_column);
+
   if (group_column)
     g_string_append_printf (command, " group_column=\"%s\"", group_column);
+
   if (subgroup_column)
     g_string_append_printf (command, " subgroup_column=\"%s\"",
                             subgroup_column);
   if (filter_escaped && strcmp (filter_escaped, ""))
     g_string_append_printf (command, " filter=\"%s\"", filter_escaped);
-  if (filt_id && strcmp (filt_id, ""))
-    g_string_append_printf (command, " filt_id=\"%s\"", filt_id);
+
+  if (filter_id && !str_equal (filter_id, ""))
+    g_string_append_printf (command, " filt_id=\"%s\"", filter_id);
+
   if (first_group && strcmp (first_group, ""))
     g_string_append_printf (command, " first_group=\"%s\"", first_group);
+
   if (max_groups && strcmp (max_groups, ""))
     g_string_append_printf (command, " max_groups=\"%s\"", max_groups);
+
   if (mode && strcmp (mode, ""))
     g_string_append_printf (command, " mode=\"%s\"", mode);
+
   g_string_append (command, ">");
 
   if (sort_fields && sort_stats && sort_orders)
@@ -5186,6 +4655,7 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
 
   if (gmp_success (entity) == 0)
     set_http_status_from_entity (entity, response_data);
+
   g_string_append (xml, response);
 
   g_string_append (xml, "</get_aggregate>");
@@ -5709,7 +5179,6 @@ create_alert_gmp (gvm_connection_t *connection, credentials_t *credentials,
   CHECK_VARIABLE_INVALID (condition, "Create Alert");
   CHECK_VARIABLE_INVALID (event, "Create Alert");
   CHECK_VARIABLE_INVALID (method, "Create Alert");
-  CHECK_VARIABLE_INVALID (filter_id, "Create Alert");
 
   /* Create the alert. */
 
@@ -5743,7 +5212,8 @@ create_alert_gmp (gvm_connection_t *connection, credentials_t *credentials,
                      "<active>%s</active>"
                      "<comment>%s</comment>"
                      "<event>%s",
-                     name, filter_id, active, comment ? comment : "", event);
+                     name, filter_id ? filter_id : FILT_ID_NONE, active,
+                     comment ? comment : "", event);
 
   append_alert_event_data (xml, event_data, event);
 
@@ -5844,167 +5314,13 @@ get_alert (gvm_connection_t *connection, credentials_t *credentials,
            params_t *params, const char *extra_xml,
            cmd_response_data_t *response_data)
 {
-  gchar *html;
-  GString *extra;
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
 
-  extra = g_string_new ("");
-  if (extra_xml)
-    g_string_append (extra, extra_xml);
-  if (command_enabled (credentials, "GET_REPORT_FORMATS"))
-    {
-      gchar *response;
-      entity_t entity;
+  gmp_arguments_add (arguments, "tasks", "1");
 
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<get_report_formats"
-                   " filter=\"rows=-1\"/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting Report "
-            "Formats for the alert. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting Report "
-            "Formats for the alert. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting Report "
-            "Formats for the alert. "
-            "It is unclear whether the task has been saved or not. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (command_enabled (credentials, "GET_TASKS"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<get_tasks"
-                   " schedules_only=\"1\""
-                   " filter=\"owner=any permission=start_task rows=-1\"/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting Tasks "
-            "for the alert. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting Tasks "
-            "for the alert. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting Tasks "
-                               "for the alert. "
-                               "Diagnostics: Internal Error.",
-                               response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (command_enabled (credentials, "GET_FILTERS"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      /* Get result filters for condition link. */
-
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<get_filters"
-                   " filter=\"type=result rows=-1\"/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alert. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alert. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alert. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  html = get_one (connection, "alert", credentials, params, extra->str,
-                  "tasks=\"1\"", response_data);
-  g_string_free (extra, TRUE);
-  return html;
+  return get_one (connection, "alert", credentials, params, NULL, arguments,
+                  response_data);
 }
 
 /**
@@ -6030,132 +5346,6 @@ get_alert_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-get_alerts (gvm_connection_t *connection, credentials_t *credentials,
-            params_t *params, const char *extra_xml,
-            cmd_response_data_t *response_data)
-{
-  gchar *html;
-  GString *extra;
-
-  extra = g_string_new ("");
-  if (command_enabled (credentials, "GET_TASKS"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<get_tasks"
-                   " schedules_only=\"1\""
-                   " filter=\"owner=any permission=start_task rows=-1\"/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the tasks. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the tasks. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the reports. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (command_enabled (credentials, "GET_FILTERS"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      /* Get result filters for condition link. */
-
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<get_filters"
-                   " filter=\"type=result rows=-1\"/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alerts. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alerts. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting filters "
-            "for the alerts. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (extra_xml)
-    g_string_append (extra, extra_xml);
-  html = get_many (connection, "alert", credentials, params, extra->str, NULL,
-                   response_data);
-  g_string_free (extra, TRUE);
-  return html;
-}
-
-/**
- * @brief Get all alerts, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -6164,7 +5354,8 @@ char *
 get_alerts_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, cmd_response_data_t *response_data)
 {
-  return get_alerts (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "alerts", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -6445,13 +5636,17 @@ save_alert_gmp (gvm_connection_t *connection, credentials_t *credentials,
   filter_id = params_value (params, "filter_id");
   active = params_value (params, "active");
 
+  if (filter_id == NULL || str_equal (filter_id, ""))
+    {
+      filter_id = FILT_ID_NONE;
+    }
+
   CHECK_VARIABLE_INVALID (name, "Save Alert");
   CHECK_VARIABLE_INVALID (comment, "Save Alert");
   CHECK_VARIABLE_INVALID (alert_id, "Save Alert");
   CHECK_VARIABLE_INVALID (condition, "Save Alert");
   CHECK_VARIABLE_INVALID (event, "Save Alert");
   CHECK_VARIABLE_INVALID (method, "Save Alert");
-  CHECK_VARIABLE_INVALID (filter_id, "Save Alert");
   CHECK_VARIABLE_INVALID (active, "Save Alert");
 
   xml = g_string_new ("");
@@ -7421,26 +6616,6 @@ get_tag_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_tags (gvm_connection_t *connection, credentials_t *credentials,
-          params_t *params, const char *extra_xml,
-          cmd_response_data_t *response_data)
-{
-  return get_many (connection, "tag", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all tags, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -7449,7 +6624,8 @@ char *
 get_tags_gmp (gvm_connection_t *connection, credentials_t *credentials,
               params_t *params, cmd_response_data_t *response_data)
 {
-  return get_tags (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "tags", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -7536,8 +6712,13 @@ get_target (gvm_connection_t *connection, credentials_t *credentials,
             params_t *params, const char *extra_xml,
             cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "tasks", "1");
+
   return get_one (connection, "target", credentials, params, extra_xml,
-                  "tasks=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -7563,26 +6744,6 @@ get_target_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_targets (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  return get_many (connection, "target", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all targets, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -7591,7 +6752,8 @@ char *
 get_targets_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_targets (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "targets", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -7885,16 +7047,18 @@ create_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, cmd_response_data_t *response_data)
 {
   gchar *html, *response;
-  const char *name, *comment, *base, *scanner = NULL;
+  const char *name, *comment, *base, *usage_type, *scanner = NULL;
   entity_t entity;
 
   name = params_value (params, "name");
   comment = params_value (params, "comment");
   base = params_value (params, "base");
+  usage_type = params_value (params, "usage_type");
 
   CHECK_VARIABLE_INVALID (name, "New Config");
   CHECK_VARIABLE_INVALID (comment, "New Config");
   CHECK_VARIABLE_INVALID (base, "New Config");
+  CHECK_VARIABLE_INVALID (usage_type, "New Config");
   if (str_equal (base, "0"))
     {
       scanner = params_value (params, "scanner_id");
@@ -7908,8 +7072,9 @@ create_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 "<copy>%s</copy>"
                 "<comment>%s</comment>"
                 "<scanner>%s</scanner>"
+                "<usage_type>%s</usage_type>"
                 "</create_config>",
-                name, base, comment, scanner ?: ""))
+                name, base, comment, scanner ?: "", usage_type))
     {
     case 0:
     case -1:
@@ -8031,26 +7196,6 @@ import_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_configs (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  return get_many (connection, "config", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all scan configs, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -8059,204 +7204,21 @@ char *
 get_configs_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_configs (connection, credentials, params, NULL, response_data);
-}
+  const char *usage_type;
+  gmp_arguments_t *arguments = NULL;
 
-/**
- * @brief Get a config, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[in]  edit         0 for config view page, else config edit page.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_config (gvm_connection_t *connection, credentials_t *credentials,
-            params_t *params, const char *extra_xml, int edit,
-            cmd_response_data_t *response_data)
-{
-  GString *xml;
-  const char *config_id;
+  usage_type = params_value (params, "usage_type");
+  if (params_given (params, "usage_type"))
+    CHECK_VARIABLE_INVALID (usage_type, "Get Configs")
 
-  config_id = params_value (params, "config_id");
-
-  if (config_id == NULL)
-    return get_configs (connection, credentials, params, extra_xml,
-                        response_data);
-
-  xml = g_string_new ("<get_config_response>");
-  if (edit)
-    g_string_append (xml, "<edit/>");
-
-  if (extra_xml)
-    g_string_append (xml, extra_xml);
-  /* Get the config families. */
-
-  if (gvm_connection_sendf (connection,
-                            "<get_configs"
-                            " config_id=\"%s\""
-                            " families=\"1\""
-                            " tasks=\"1\""
-                            " preferences=\"1\"/>",
-                            config_id)
-      == -1)
+  if (usage_type)
     {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
+      arguments = gmp_arguments_new ();
+      gmp_arguments_add (arguments, "usage_type", usage_type);
     }
 
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  /* Get all the families. */
-
-  if (gvm_connection_sendf (connection, "<get_nvt_families/>") == -1)
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  if (edit)
-    {
-      /* Get OSP scanners */
-      if (gvm_connection_sendf (connection, "<get_scanners filter=\"type=1\"/>")
-          == -1)
-        {
-          g_string_free (xml, TRUE);
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting the config. "
-            "The config is not available. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        }
-
-      if (read_string_c (connection, &xml))
-        {
-          g_string_free (xml, TRUE);
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while getting the config. "
-            "The config is not available. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        }
-    }
-
-  /* Get Credentials */
-  if (gvm_connection_sendf (connection, "<get_credentials/>") == -1)
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting the config. "
-        "The config is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  /* Get the permissions */
-
-  g_string_append (xml, "<permissions>");
-
-  if (gvm_connection_sendf (connection,
-                            "<get_permissions"
-                            " filter=\"name:^.*(config)s?$"
-                            "          and resource_uuid=%s"
-                            "          first=1 rows=-1\"/>",
-                            config_id)
-      == -1)
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting permissions list. "
-        "The current list of resources is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting permissions list. "
-        "The current list of resources is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  g_string_append (xml, "</permissions>");
-
-  /* Cleanup, and return transformed XML. */
-
-  g_string_append (xml, "</get_config_response>");
-  return envelope_gmp (connection, credentials, params,
-                       g_string_free (xml, FALSE), response_data);
+  return get_many (connection, "configs", credentials, params, arguments,
+                   response_data);
 }
 
 /**
@@ -8273,100 +7235,16 @@ char *
 get_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, cmd_response_data_t *response_data)
 {
-  return get_config (connection, credentials, params, NULL, 0, response_data);
-}
+  gmp_arguments_t *arguments;
 
-/**
- * @brief Get a config, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-edit_config (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  return get_config (connection, credentials, params, extra_xml, 1,
-                     response_data);
-}
+  arguments = gmp_arguments_new ();
 
-/**
- * @brief Get a config, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-edit_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
-                 params_t *params, cmd_response_data_t *response_data)
-{
-  return edit_config (connection, credentials, params, NULL, response_data);
-}
+  gmp_arguments_add (arguments, "families", "1");
+  gmp_arguments_add (arguments, "tasks", "1");
+  gmp_arguments_add (arguments, "preferences", "1");
 
-/**
- * @brief Sync config, get configs, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-sync_config_gmp (gvm_connection_t *connection, credentials_t *credentials,
-                 params_t *params, cmd_response_data_t *response_data)
-{
-  GString *xml;
-  const char *config_id;
-  char *ret;
-
-  config_id = params_value (params, "config_id");
-  CHECK_VARIABLE_INVALID (config_id, "Synchronize Config");
-
-  if (gvm_connection_sendf (connection, "<sync_config config_id=\"%s\"/>",
-                            config_id)
-      == -1)
-    {
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while synchronizing a config. "
-        "The config is not synchronized. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  xml = g_string_new ("");
-
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while synchronizing a config. "
-        "It is unclear whether the config has been synchronized or not. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  // TODO return action result
-  ret = get_configs (connection, credentials, params, xml->str, response_data);
-
-  g_string_free (xml, TRUE);
-  return ret;
+  return get_one (connection, "config", credentials, params, NULL, arguments,
+                  response_data);
 }
 
 /**
@@ -8714,31 +7592,15 @@ get_config_family (gvm_connection_t *connection, credentials_t *credentials,
                    cmd_response_data_t *response_data)
 {
   GString *xml;
-  const char *config_id, *name, *family, *sort_field, *sort_order;
+  const char *config_id, *family, *sort_field, *sort_order;
 
   config_id = params_value (params, "config_id");
-  name = params_value (params, "name");
   family = params_value (params, "family");
 
-  if ((config_id == NULL) || (name == NULL) || (family == NULL))
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting config family. "
-        "Diagnostics: Required parameter was NULL.",
-        response_data);
-    }
+  CHECK_VARIABLE_INVALID (config_id, "Get Scan Config Family")
+  CHECK_VARIABLE_INVALID (family, "Get Scan Config Family")
 
   xml = g_string_new ("<get_config_family_response>");
-  if (edit)
-    g_string_append (xml, "<edit/>");
-  /* @todo Would it be better include this in the get_nvts response? */
-  g_string_append_printf (xml,
-                          "<config id=\"%s\">"
-                          "<name>%s</name><family>%s</family>"
-                          "</config>",
-                          config_id, name, family);
 
   /* Get the details for all NVT's in the config in the family. */
 
@@ -8957,37 +7819,25 @@ save_config_family_gmp (gvm_connection_t *connection,
  * @brief Get details of an NVT for a config, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  edit         0 for config view page, else config edit page.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
  */
-static char *
-get_config_nvt (gvm_connection_t *connection, credentials_t *credentials,
-                params_t *params, int edit, cmd_response_data_t *response_data)
+char *
+get_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
+                    params_t *params, cmd_response_data_t *response_data)
 {
   GString *xml;
-  const char *config_id, *name, *family, *sort_field, *sort_order, *nvt;
+  const char *config_id, *sort_field, *sort_order, *nvt;
 
   config_id = params_value (params, "config_id");
-  name = params_value (params, "name");
-  family = params_value (params, "family");
   nvt = params_value (params, "oid");
 
-  CHECK_VARIABLE_INVALID (name, "Get Config")
   CHECK_VARIABLE_INVALID (config_id, "Get Config")
 
   xml = g_string_new ("<get_config_nvt_response>");
-  if (edit)
-    g_string_append (xml, "<edit/>");
-  /* @todo Would it be better include this in the get_nvts response? */
-  g_string_append_printf (xml,
-                          "<config id=\"%s\">"
-                          "<name>%s</name><family>%s</family>"
-                          "</config>",
-                          config_id, name, family ? family : "");
 
   sort_field = params_value (params, "sort_field");
   sort_order = params_value (params, "sort_order");
@@ -9028,74 +7878,12 @@ get_config_nvt (gvm_connection_t *connection, credentials_t *credentials,
 
   g_string_append (xml, "</get_config_nvt_response>");
 
-  if (gvm_connection_sendf (connection,
-                            "<get_notes"
-                            " nvt_oid=\"%s\""
-                            " sort_field=\"notes.text\"/>",
-                            nvt)
-      == -1)
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting list of notes. "
-        "The current list of notes is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting list of notes. "
-        "The current list of notes is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
-  if (gvm_connection_sendf (connection,
-                            "<get_overrides"
-                            " nvt_oid=\"%s\""
-                            " sort_field=\"overrides.text\"/>",
-                            nvt)
-      == -1)
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting list of overrides. "
-        "The current list of overrides is not available. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  if (read_string_c (connection, &xml))
-    {
-      g_string_free (xml, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting list of overrides. "
-        "The current list of overrides is not available. "
-        "Diagnostics: Failure to receive response from manager daemon.",
-        response_data);
-    }
-
   return envelope_gmp (connection, credentials, params,
                        g_string_free (xml, FALSE), response_data);
 }
 
 /**
- * @brief Get details of an NVT for a config, envelope the result.
+ * @brief Get all nvt_families, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
@@ -9105,27 +7893,11 @@ get_config_nvt (gvm_connection_t *connection, credentials_t *credentials,
  * @return Enveloped XML object.
  */
 char *
-get_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
-                    params_t *params, cmd_response_data_t *response_data)
+get_nvt_families_gmp (gvm_connection_t *connection, credentials_t *credentials,
+                      params_t *params, cmd_response_data_t *response_data)
 {
-  return get_config_nvt (connection, credentials, params, 0, response_data);
-}
-
-/**
- * @brief Edit details of an NVT for a config, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-edit_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
-                     params_t *params, cmd_response_data_t *response_data)
-{
-  return get_config_nvt (connection, credentials, params, 1, response_data);
+  return get_entities (connection, "nvt_families", credentials, params, NULL,
+                       response_data);
 }
 
 /**
@@ -9162,8 +7934,8 @@ save_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
       params_iterator_init (&iter, preferences);
       while (params_iterator_next (&iter, &preference_name, &preference))
         {
-          int type_start, type_end, count, ret, is_timeout = 0;
-          gchar *value;
+          int ret, is_timeout = 0;
+          gchar *value, **splits;
 
           g_free (modify_config_ret);
           modify_config_ret = NULL;
@@ -9172,14 +7944,11 @@ save_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
            * must be reset.  This works around the need for the Manager to
            * send the actual password or show the actual file. */
 
-          /* LDAPsearch[entry]:Timeout value */
-          count = sscanf (preference_name, "%*[^[][%n%*[^]]%n]:", &type_start,
-                          &type_end);
-          if (count == 0 && type_start > 0 && type_end > 0)
+          /* OID:PrefID:PrefType:PrefName value */
+          splits = g_strsplit (preference_name, ":", 4);
+          if (splits && splits[0] && splits[1] && splits[2] && splits[3])
             {
-              if (strncmp (preference_name + type_start, "password",
-                           type_end - type_start)
-                  == 0)
+              if (!strcmp (splits[2], "password"))
                 {
                   int found = 0;
                   params_t *passwords;
@@ -9201,12 +7970,13 @@ save_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
                           }
                     }
                   if (found == 0)
-                    /* Skip modifying the password preference. */
-                    continue;
+                    {
+                      /* Skip modifying the password preference. */
+                      g_strfreev (splits);
+                      continue;
+                    }
                 }
-              else if (strncmp (preference_name + type_start, "file",
-                                type_end - type_start)
-                       == 0)
+              else if (!strcmp (splits[2], "file"))
                 {
                   int found = 0;
                   params_t *files;
@@ -9228,17 +7998,19 @@ save_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
                           }
                     }
                   if (found == 0)
-                    /* Skip modifying the file preference. */
-                    continue;
+                    {
+                      /* Skip modifying the file preference. */
+                      g_strfreev (splits);
+                      continue;
+                    }
                 }
-              else if (strncmp (preference_name + type_start, "scanner",
-                                type_end - type_start)
-                       == 0)
+              else if (!strcmp (splits[2], "scanner"))
                 {
                   /* Presume it's the timeout. */
                   is_timeout = 1;
                 }
             }
+          g_strfreev (splits);
 
           value = preference->value_size
                     ? g_base64_encode ((guchar *) preference->value,
@@ -9328,7 +8100,7 @@ save_config_nvt_gmp (gvm_connection_t *connection, credentials_t *credentials,
 
           modify_config_ret = check_modify_config (
             connection, credentials, params, "get_config_nvt",
-            "edit_config_nvt", &success, response_data);
+            "save_config_nvt", &success, response_data);
           if (success == 0)
             {
               return modify_config_ret;
@@ -9686,342 +8458,50 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
   GString *xml;
   entity_t entity;
   entity_t report_entity;
-  unsigned int first, max;
-  GString *levels, *delta_states;
-  const char *search_phrase, *min_qod, *zone;
-  const char *autofp, *autofp_value, *notes, *overrides, *result_hosts_only;
-  const char *apply_overrides;
-  const char *report_id, *sort_field, *sort_order, *result_id, *delta_report_id;
-  const char *format_id, *first_result, *max_results, *host, *pos;
-  const char *filt_id, *filter, *apply_filter, *report_section;
-  const char *build_filter, *filter_extra;
+  const char *report_id, *delta_report_id;
+  const char *format_id;
+  const char *filter;
+  const char *filter_id;
+  gboolean lean, ignore_pagination, details;
   int ret;
-  int ignore_filter, ignore_pagination;
-  gchar *built_filter;
   gchar *fname_format;
   const gchar *extension, *requested_content_type;
 
-  build_filter = params_value (params, "build_filter");
+  ignore_pagination = params_value_bool (params, "ignore_pagination");
+  lean = params_value_bool (params, "lean");
 
-  if (params_given (params, "apply_filter")
-      && params_valid (params, "apply_filter"))
-    apply_filter = params_value (params, "apply_filter");
-  else
-    apply_filter = "no_pagination";
-
-  if (params_given (params, "report_section")
-      && params_valid (params, "report_section"))
-    report_section = params_value (params, "report_section");
-  else
-    report_section = "";
-
-  ignore_filter =
-    (strcmp (apply_filter, "full") && strcmp (apply_filter, "no_pagination")
-     && strcmp (report_section, "") && strcmp (report_section, "results")
-     && strcmp (report_section, "summary"));
-
-  if (params_given (params, "ignore_pagination"))
-    {
-      const char *ignore_pagination_str =
-        params_value (params, "ignore_pagination");
-      ignore_pagination =
-        (ignore_pagination_str && strcmp (ignore_pagination_str, "")
-         && strcmp (ignore_pagination_str, "0"));
-    }
-  else
-    {
-      ignore_pagination =
-        (strcmp (apply_filter, "full") && strcmp (report_section, "")
-         && strcmp (report_section, "results")
-         && strcmp (report_section, "summary"));
-    }
-
-  search_phrase = params_value (params, "search_phrase");
-  if (search_phrase == NULL)
-    params_given (params, "search_phrase") || (search_phrase = "");
-
-  zone = params_value (params, "timezone");
-  if (zone == NULL)
-    params_given (params, "zone") || (zone = "");
-
-  min_qod = params_value (params, "min_qod");
-
-  host = params_value (params, "host");
-  pos = params_value (params, "pos");
-
-  autofp = params_value (params, "autofp");
-  if (autofp == NULL)
-    params_given (params, "autofp") || (autofp = "0");
-
-  autofp_value = params_value (params, "autofp_value");
-  if (autofp_value == NULL)
-    params_given (params, "autofp_value") || (autofp_value = "1");
-
-  notes = params_value (params, "notes");
-  if (notes == NULL)
-    {
-      if (params_given (params, "max_results"))
-        /* Use the max_results param to determine if the request is from
-         * the Result Filtering form, because the notes param is only sent
-         * when the checkbox is ticked. */
-        notes = "0";
-      else
-        params_given (params, "notes") || (notes = "1");
-    }
-
-  overrides = params_value (params, "overrides");
-  if (overrides == NULL)
-    {
-      if (params_given (params, "max_results"))
-        /* Use the max_results param to check for filtering form as above */
-        overrides = "0";
-      else
-        params_given (params, "overrides") || (overrides = "1");
-    }
-
-  apply_overrides = params_value (params, "apply_overrides");
-  if (apply_overrides == NULL)
-    {
-      if (params_given (params, "max_results"))
-        /* Use the max_results param to check for filtering form as above */
-        apply_overrides = "0";
-      else
-        params_given (params, "apply_overrides") || (apply_overrides = "1");
-    }
-
-  result_hosts_only = params_value (params, "result_hosts_only");
-  if (result_hosts_only == NULL)
-    {
-      if (params_given (params, "max_results"))
-        /* Use the max_results params to determine if the request is from
-         * the Result Filtering form, because the result_hosts_only param is
-         * only sent when the checkbox is ticked. */
-        result_hosts_only = "0";
-      else
-        params_given (params, "result_hosts_only") || (result_hosts_only = "1");
-    }
-
-  if (autofp == NULL || strlen (autofp) == 0)
-    autofp = "0";
-
-  if (autofp_value == NULL || strlen (autofp_value) == 0)
-    autofp_value = "1";
-
-  if (strcmp (autofp, "2") == 0)
-    autofp_value = "2";
-
-  if (notes == NULL || strlen (notes) == 0)
-    notes = "1";
-
-  if (overrides == NULL || strlen (overrides) == 0)
-    overrides = "1";
-
-  if (result_hosts_only == NULL || strlen (result_hosts_only) == 0)
-    result_hosts_only = "1";
-
-  /* Get the report. */
-
-  if (params_value (params, "delta_states"))
-    delta_states = g_string_new (params_value (params, "delta_states"));
-  else
-    {
-      delta_states = g_string_new ("");
-      if (params_value (params, "delta_state_changed")
-          && atoi (params_value (params, "delta_state_changed")))
-        g_string_append (delta_states, "c");
-      if (params_value (params, "delta_state_gone")
-          && atoi (params_value (params, "delta_state_gone")))
-        g_string_append (delta_states, "g");
-      if (params_value (params, "delta_state_new")
-          && atoi (params_value (params, "delta_state_new")))
-        g_string_append (delta_states, "n");
-      if (params_value (params, "delta_state_same")
-          && atoi (params_value (params, "delta_state_same")))
-        g_string_append (delta_states, "s");
-    }
-
-  if (strlen (delta_states->str) == 0)
-    g_string_append (delta_states, "gn");
-
-  if (params_value (params, "levels"))
-    levels = g_string_new (params_value (params, "levels"));
-  else
-    {
-      levels = g_string_new ("");
-      if (params_value (params, "level_high")
-          && atoi (params_value (params, "level_high")))
-        g_string_append (levels, "h");
-      if (params_value (params, "level_medium")
-          && atoi (params_value (params, "level_medium")))
-        g_string_append (levels, "m");
-      if (params_value (params, "level_low")
-          && atoi (params_value (params, "level_low")))
-        g_string_append (levels, "l");
-      if (params_value (params, "level_log")
-          && atoi (params_value (params, "level_log")))
-        g_string_append (levels, "g");
-      if (params_value (params, "level_false_positive")
-          && atoi (params_value (params, "level_false_positive")))
-        g_string_append (levels, "f");
-    }
-
-  if (strlen (levels->str) == 0)
-    g_string_append (levels, "hml");
-
-  sort_field = params_value (params, "sort_field");
-  sort_order = params_value (params, "sort_order");
   report_id = params_value (params, "report_id");
 
   CHECK_VARIABLE_INVALID (report_id, "Get Report");
 
-  result_id = params_value (params, "result_id");
   delta_report_id = params_value (params, "delta_report_id");
   format_id = params_value (params, "report_format_id");
 
-  first_result = params_value (params, "first_result");
-  if (first_result == NULL || sscanf (first_result, "%u", &first) != 1)
-    first_result = "1";
-
-  max_results = params_value (params, "max_results");
-  if (max_results == NULL || sscanf (max_results, "%u", &max) != 1)
-    max_results = G_STRINGIFY (RESULTS_PER_PAGE);
-
-  if (gvm_connection_sendf (
-        connection,
-        "<get_reports"
-        " result_tags=\"0\""
-        " details=\"%i\""
-        "%s%s%s",
-        delta_report_id || strcmp (report_section, "summary"),
-        host ? " host=\"" : "", host ? host : "", host ? "\"" : "")
-      == -1)
-    {
-      g_string_free (delta_states, TRUE);
-      g_string_free (levels, TRUE);
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while getting a report. "
-        "The report could not be delivered. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  filt_id = params_value (params, "filt_id");
   filter = params_value (params, "filter");
-  filter_extra = params_value (params, "filter_extra");
+  filter_id = params_value (params, "filter_id");
 
-  if (filter == NULL)
+  details = params_value_bool (params, "details");
+
+  if (filter == NULL || filter_id)
     filter = "";
 
-  if ((build_filter && (strcmp (build_filter, "1") == 0))
-      || ((filter == NULL || strcmp (filter, "") == 0)
-          && (filter_extra == NULL || strcmp (filter_extra, "") == 0)))
-    {
-      GString *filter_buffer;
-      filter_buffer = g_string_new ("");
+  ret = gvm_connection_sendf_xml (
+    connection,
+    "<get_reports"
+    " ignore_pagination=\"%d\""
+    " lean=\"%d\""
+    " filter=\"%s\""
+    " filt_id=\"%s\""
+    " report_id=\"%s\""
+    " delta_report_id=\"%s\""
+    " details=\"%d\""
+    " format_id=\"%s\"/>",
+    ignore_pagination, lean, filter, filter_id ? filter_id : FILT_ID_NONE,
+    report_id, delta_report_id ? delta_report_id : "0", details,
+    format_id ? format_id : "");
 
-      g_string_append_printf (
-        filter_buffer,
-        "autofp=%s"
-        " apply_overrides=%i"
-        " notes=%i"
-        " overrides=%i"
-        " result_hosts_only=%i"
-        " first=%s"
-        " rows=%s"
-        " sort%s=%s"
-        " levels=%s",
-        strcmp (autofp, "0") ? autofp_value : "0",
-        apply_overrides ? (strcmp (apply_overrides, "0") ? 1 : 0) : 1,
-        strcmp (notes, "0") ? 1 : 0, strcmp (overrides, "0") ? 1 : 0,
-        strcmp (result_hosts_only, "0") ? 1 : 0, first_result, max_results,
-        sort_order ? strcmp (sort_order, "ascending") ? "-reverse" : ""
-                   : ((sort_field == NULL || strcmp (sort_field, "type") == 0
-                       || strcmp (sort_field, "severity") == 0)
-                        ? "-reverse"
-                        : ""),
-        sort_field ? sort_field : "severity", levels->str);
-
-      if (search_phrase && strcmp (search_phrase, ""))
-        {
-          gchar *search_phrase_escaped;
-          search_phrase_escaped = g_markup_escape_text (search_phrase, -1);
-          g_string_append_printf (filter_buffer, " \"%s\"",
-                                  search_phrase_escaped);
-          g_free (search_phrase_escaped);
-        }
-
-      if (delta_states->str && strcmp (delta_states->str, "") && delta_report_id
-          && strcmp (delta_report_id, ""))
-        g_string_append_printf (filter_buffer, " delta_states=%s",
-                                delta_states->str);
-
-      if (min_qod && strcmp (min_qod, ""))
-        g_string_append_printf (filter_buffer, " min_qod=%s", min_qod);
-
-      if (zone && strcmp (zone, ""))
-        g_string_append_printf (filter_buffer, " timezone=%s", zone);
-
-      if (filter && strcmp (filter, ""))
-        g_string_append_printf (filter_buffer, " %s", filter);
-
-      built_filter = g_string_free (filter_buffer, FALSE);
-    }
-  else if (filter || filter_extra)
-    built_filter = g_strdup_printf ("%s%s%s", filter ? filter : "",
-                                    filter && filter_extra ? " " : "",
-                                    filter_extra ? filter_extra : "");
-  else
-    built_filter = NULL;
-
-  /* Don't apply default filter when applying result filter checkboxes/textboxes
-   */
-  if (sort_field == NULL && sort_order == NULL)
-    if ((filt_id == NULL || strcmp (filt_id, "") == 0)
-        && (filter == NULL || strcmp (filter, "") == 0))
-      filt_id = FILT_ID_USER_SETTING;
-
-  if (ignore_filter)
-    ret = gvm_connection_sendf_xml (connection,
-                                    " filt_id=\"0\""
-                                    " filter=\"first=1 rows=-1"
-                                    "  result_hosts_only=0 apply_overrides=1"
-                                    "  notes=1 overrides=1"
-                                    "  sort-reverse=severity\""
-                                    " report_id=\"%s\""
-                                    " delta_report_id=\"%s\""
-                                    " format_id=\"%s\"/>",
-                                    report_id,
-                                    delta_report_id ? delta_report_id : "0",
-                                    format_id ? format_id : "");
-  else
-    ret = gvm_connection_sendf_xml (
-      connection,
-      " ignore_pagination=\"%d\""
-      " filt_id=\"%s\""
-      " filter=\"%s\""
-      " pos=\"%s\""
-      " notes_details=\"1\""
-      " overrides_details=\"1\""
-      " report_id=\"%s\""
-      " delta_report_id=\"%s\""
-      " format_id=\"%s\"/>",
-      ignore_pagination, filt_id ? filt_id : "0",
-      built_filter ? built_filter : "", pos ? pos : "1", report_id,
-      delta_report_id ? delta_report_id : "0", format_id ? format_id : "",
-      first_result, max_results, sort_field ? sort_field : "severity",
-      sort_order ? sort_order
-                 : ((sort_field == NULL || strcmp (sort_field, "type") == 0
-                     || strcmp (sort_field, "severity") == 0)
-                      ? "descending"
-                      : "ascending"),
-      levels->str, delta_states->str, search_phrase, min_qod, zone);
   if (ret == -1)
     {
-      g_string_free (delta_states, TRUE);
-      g_string_free (levels, TRUE);
       cmd_response_data_set_status_code (response_data,
                                          MHD_HTTP_INTERNAL_SERVER_ERROR);
       return gsad_message (
@@ -10031,14 +8511,11 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
         "Diagnostics: Failure to send command to manager daemon.",
         response_data);
     }
-
-  g_string_free (delta_states, TRUE);
 
   if (format_id)
     {
-      g_string_free (levels, TRUE);
-      if ((strcmp (format_id, "a994b278-1f62-11e1-96ac-406186ea4fc5") == 0)
-          || strcmp (format_id, "5057e5cc-b825-11e4-9d0e-28d24461215b") == 0)
+      if ((str_equal (format_id, XML_REPORT_FORMAT_ID))
+          || str_equal (format_id, ANONXML_REPORT_FORMAT_ID))
         {
           /* Manager sends XML report as plain XML. */
 
@@ -10272,31 +8749,13 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
     {
       /* Format is NULL, send enveloped XML. */
 
-      if (delta_report_id && result_id && strcmp (result_id, "0"))
-        xml = g_string_new ("<get_delta_result>");
-      else if (host)
-        {
-          xml = g_string_new ("<get_asset>");
-          xml_string_append (xml,
-                             "<search_phrase>%s</search_phrase>"
-                             "<levels>%s</levels>"
-                             "<hosts start=\"%s\" max=\"%s\"/>",
-                             search_phrase, levels->str, first_result,
-                             max_results);
-        }
-      else
-        xml = g_string_new ("<get_report>");
+      xml = g_string_new ("<get_report>");
 
       if (extra_xml)
         g_string_append (xml, extra_xml);
 
-      g_string_free (levels, TRUE);
-
       if (delta_report_id)
-        g_string_append_printf (xml,
-                                "<delta>%s</delta>"
-                                "<result id=\"%s\"/>",
-                                delta_report_id, result_id ? result_id : "0");
+        g_string_append_printf (xml, "<delta>%s</delta>", delta_report_id);
 
       entity = NULL;
       if (read_entity_and_string_c (connection, &entity, &xml))
@@ -10311,38 +8770,19 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
             response_data);
         }
 
-    if (gmp_success (entity) != 1)
-      {
-        gchar *message;
-
-        set_http_status_from_entity (entity, response_data);
-
-        message =
-          gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
-                        entity_attribute (entity, "status_text"), response_data);
-
-        g_string_free (xml, TRUE);
-        free_entity (entity);
-        return message;
-      }
-
-      if ((filt_id == NULL) && (params_value (params, "filter") == NULL))
+      if (gmp_success (entity) != 1)
         {
-          entity_t term;
+          gchar *message;
 
-          /* Add the filter from the report as a param, because it's easier to
-           * get from the envelope for things like the New Note icon. */
+          set_http_status_from_entity (entity, response_data);
 
-          term = entity_child (entity, "report");
-          if (term && ((term = entity_child (term, "report")))
-              && ((term = entity_child (term, "filters")))
-              && ((term = entity_child (term, "term"))))
-            {
-              param_t *param;
-              param = params_add (params, "filter", entity_text (term));
-              param->valid = 1;
-              param->valid_utf8 = g_utf8_validate (param->value, -1, NULL);
-            }
+          message = gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
+                                  entity_attribute (entity, "status_text"),
+                                  response_data);
+
+          g_string_free (xml, TRUE);
+          free_entity (entity);
+          return message;
         }
 
       report_entity = entity_child (entity, "report");
@@ -10363,7 +8803,7 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
           else
             name = NULL;
 
-          if (delta_report_id && result_id && id && name)
+          if (delta_report_id && id && name)
             g_string_append_printf (xml,
                                     "<task id=\"%s\"><name>%s</name></task>",
                                     id, entity_text (name));
@@ -10371,13 +8811,8 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
           free_entity (entity);
         }
 
-      if (delta_report_id && result_id && strcmp (result_id, "0"))
-        {
-          g_string_append (xml, "</get_delta_result>");
-          return g_string_free (xml, FALSE);
-        }
-
       g_string_append (xml, "</get_report>");
+
       return envelope_gmp (connection, credentials, params,
                            g_string_free (xml, FALSE), response_data);
     }
@@ -10512,33 +8947,6 @@ report_alert_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_reports (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  const char *overrides;
-
-  overrides = params_value (params, "overrides");
-  if (overrides)
-    /* User toggled overrides.  Set the overrides value in the filter. */
-    params_toggle_overrides (params, overrides);
-
-  return get_many (connection, "report", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all reports, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -10547,7 +8955,45 @@ char *
 get_reports_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_reports (connection, credentials, params, NULL, response_data);
+  const gchar *filter, *filter_id, *details;
+  gmp_arguments_t *arguments;
+
+  filter = params_value (params, "filter");
+  filter_id = params_value (params, "filter_id");
+  details = params_value (params, "details");
+
+  arguments = gmp_arguments_new ();
+
+  if (!filter && !filter_id)
+    {
+      filter_id = FILT_ID_USER_SETTING;
+    }
+
+  if (filter)
+    {
+      gmp_arguments_add (arguments, "report_filter", filter);
+    }
+
+  if (!filter_id && !filter)
+    {
+      filter_id = FILT_ID_USER_SETTING;
+    }
+
+  if (filter_id)
+    {
+      gmp_arguments_add (arguments, "report_filt_id", filter_id);
+    }
+
+  if (details && !str_equal (details, ""))
+    {
+      gmp_arguments_add (arguments, "details", details);
+    }
+
+  params_remove (params, "filter");
+  params_remove (params, "filter_id");
+
+  return get_entities (connection, "reports", credentials, params, arguments,
+                       response_data);
 }
 
 /**
@@ -10701,33 +9147,6 @@ export_results_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-get_results (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  const char *overrides;
-  overrides = params_value (params, "overrides");
-
-  if (overrides)
-    /* User toggled overrides.  Set the overrides value in the filter. */
-    params_toggle_overrides (params, overrides);
-
-  return get_many (connection, "result", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all results, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -10736,7 +9155,8 @@ char *
 get_results_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_results (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "results", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -10763,26 +9183,6 @@ get_result_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_notes (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  return get_many (connection, "note", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all notes, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -10791,7 +9191,8 @@ char *
 get_notes_gmp (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, cmd_response_data_t *response_data)
 {
-  return get_notes (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "notes", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -10810,8 +9211,13 @@ get_note (gvm_connection_t *connection, credentials_t *credentials,
           params_t *params, const char *extra_xml,
           cmd_response_data_t *response_data)
 {
-  return get_one (connection, "note", credentials, params, extra_xml,
-                  "result=\"1\"", response_data);
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "result", "1");
+
+  return get_one (connection, "note", credentials, params, extra_xml, arguments,
+                  response_data);
 }
 
 /**
@@ -11180,26 +9586,6 @@ save_note_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_overrides (gvm_connection_t *connection, credentials_t *credentials,
-               params_t *params, const char *extra_xml,
-               cmd_response_data_t *response_data)
-{
-  return get_many (connection, "override", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all overrides, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -11208,7 +9594,8 @@ char *
 get_overrides_gmp (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, cmd_response_data_t *response_data)
 {
-  return get_overrides (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "overrides", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -11227,8 +9614,13 @@ get_override (gvm_connection_t *connection, credentials_t *credentials,
               params_t *params, const char *extra_xml,
               cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "result", "1");
+
   return get_one (connection, "override", credentials, params, extra_xml,
-                  "result=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -11508,26 +9900,6 @@ save_override_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_scanners (gvm_connection_t *connection, credentials_t *credentials,
-              params_t *params, const char *extra_xml,
-              cmd_response_data_t *response_data)
-{
-  return get_many (connection, "scanner", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all scanners, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -11536,7 +9908,8 @@ char *
 get_scanners_gmp (gvm_connection_t *connection, credentials_t *credentials,
                   params_t *params, cmd_response_data_t *response_data)
 {
-  return get_scanners (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "scanners", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -11712,7 +10085,6 @@ create_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
   CHECK_VARIABLE_INVALID (type, "Create Scanner");
   if (params_given (params, "ca_pub"))
     CHECK_VARIABLE_INVALID (ca_pub, "Create Scanner");
-  CHECK_VARIABLE_INVALID (credential_id, "Create Scanner");
 
   if (ca_pub)
     ret = gmpf (connection, credentials, &response, &entity, response_data,
@@ -11722,7 +10094,8 @@ create_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 "<ca_pub>%s</ca_pub>"
                 "<credential id=\"%s\"/>"
                 "</create_scanner>",
-                name, comment, host, port, type, ca_pub, credential_id);
+                name, comment, host, port, type, ca_pub,
+                credential_id ? credential_id : "");
   else
     ret = gmpf (connection, credentials, &response, &entity, response_data,
                 "<create_scanner>"
@@ -11730,7 +10103,8 @@ create_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 "<host>%s</host><port>%s</port><type>%s</type>"
                 "<credential id=\"%s\"/>"
                 "</create_scanner>",
-                name, comment, host, port, type, credential_id);
+                name, comment, host, port, type,
+                credential_id ? credential_id : "");
   switch (ret)
     {
     case 0:
@@ -11837,7 +10211,6 @@ save_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
   if (is_unix_socket == 0)
     {
       CHECK_VARIABLE_INVALID (ca_pub, "Edit Scanner");
-      CHECK_VARIABLE_INVALID (credential_id, "Edit Scanner");
       CHECK_VARIABLE_INVALID (which_cert, "Edit Scanner");
     }
 
@@ -11867,19 +10240,19 @@ save_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 scanner_id, name, comment ?: "",
                 strcmp (which_cert, "new") == 0 ? ca_pub : "", credential_id);
       else
-        ret =
-          gmpf (connection, credentials, &response, &entity, response_data,
-                "<modify_scanner scanner_id=\"%s\">"
-                "<name>%s</name>"
-                "<comment>%s</comment>"
-                "<host>%s</host>"
-                "<port>%s</port>"
-                "<type>%s</type>"
-                "<ca_pub>%s</ca_pub>"
-                "<credential id=\"%s\"/>"
-                "</modify_scanner>",
-                scanner_id, name, comment ?: "", host, port, type,
-                strcmp (which_cert, "new") == 0 ? ca_pub : "", credential_id);
+        ret = gmpf (connection, credentials, &response, &entity, response_data,
+                    "<modify_scanner scanner_id=\"%s\">"
+                    "<name>%s</name>"
+                    "<comment>%s</comment>"
+                    "<host>%s</host>"
+                    "<port>%s</port>"
+                    "<type>%s</type>"
+                    "<ca_pub>%s</ca_pub>"
+                    "<credential id=\"%s\"/>"
+                    "</modify_scanner>",
+                    scanner_id, name, comment ?: "", host, port, type,
+                    strcmp (which_cert, "new") == 0 ? ca_pub : "",
+                    credential_id ? credential_id : "");
     }
   else
     {
@@ -11966,8 +10339,13 @@ get_schedule (gvm_connection_t *connection, credentials_t *credentials,
               params_t *params, const char *extra_xml,
               cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "tasks", "1");
+
   return get_one (connection, "schedule", credentials, params, extra_xml,
-                  "tasks=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -11993,26 +10371,6 @@ get_schedule_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_schedules (gvm_connection_t *connection, credentials_t *credentials,
-               params_t *params, const char *extra_xml,
-               cmd_response_data_t *response_data)
-{
-  return get_many (connection, "schedule", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all schedules, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -12021,7 +10379,8 @@ char *
 get_schedules_gmp (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, cmd_response_data_t *response_data)
 {
-  return get_schedules (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "schedules", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -12333,13 +10692,10 @@ get_system_report_gmp (gvm_connection_t *connection, credentials_t *credentials,
   entity_t report_entity;
   char name[501];
   gchar *gmp_command;
-  time_t now;
-  struct tm *now_broken;
   const char *slave_id, *duration;
-  const char *start_year, *start_month, *start_day, *start_hour, *start_minute;
-  const char *end_year, *end_month, *end_day, *end_hour, *end_minute;
-  struct tm start_time, end_time;
-  gchar *start_time_str, *end_time_str;
+
+  const char *start_time;
+  const char *end_time;
 
   if (url == NULL)
     return NULL;
@@ -12362,61 +10718,19 @@ get_system_report_gmp (gvm_connection_t *connection, credentials_t *credentials,
         }
       else
         {
-          now = time (NULL);
-          now_broken = localtime (&now);
+          start_time = params_value (params, "start_time");
+          end_time = params_value (params, "end_time");
 
-          start_year = params_value (params, "start_year");
-          start_month = params_value (params, "start_month");
-          start_day = params_value (params, "start_day");
-          start_hour = params_value (params, "start_hour");
-          start_minute = params_value (params, "start_minute");
+          CHECK_VARIABLE_INVALID (start_time, "Get System Report")
+          CHECK_VARIABLE_INVALID (end_time, "Get System Report")
 
-          end_year = params_value (params, "end_year");
-          end_month = params_value (params, "end_month");
-          end_day = params_value (params, "end_day");
-          end_hour = params_value (params, "end_hour");
-          end_minute = params_value (params, "end_minute");
-
-          start_time.tm_year =
-            start_year ? atoi (start_year) - 1900 : now_broken->tm_year;
-          start_time.tm_mon =
-            start_month ? atoi (start_month) - 1 : now_broken->tm_mon;
-          start_time.tm_mday =
-            start_day ? atoi (start_day) : now_broken->tm_mday;
-          start_time.tm_hour =
-            start_hour ? atoi (start_hour) : now_broken->tm_hour;
-          start_time.tm_min =
-            start_minute ? atoi (start_minute) : now_broken->tm_min;
-          start_time.tm_zone = now_broken->tm_zone;
-
-          end_time.tm_year =
-            end_year ? atoi (end_year) - 1900 : now_broken->tm_year;
-          end_time.tm_mon =
-            end_month ? atoi (end_month) - 1 : now_broken->tm_mon;
-          end_time.tm_mday = end_day ? atoi (end_day) : now_broken->tm_mday;
-          end_time.tm_hour = end_hour ? atoi (end_hour) : now_broken->tm_hour;
-          end_time.tm_min = end_minute ? atoi (end_minute) : now_broken->tm_min;
-          end_time.tm_zone = now_broken->tm_zone;
-
-          start_time_str = g_strdup_printf (
-            "%04d-%02d-%02dT%02d:%02d:00", start_time.tm_year + 1900,
-            start_time.tm_mon + 1, start_time.tm_mday, start_time.tm_hour,
-            start_time.tm_min);
-
-          end_time_str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:00",
-                                          end_time.tm_year + 1900,
-                                          end_time.tm_mon + 1, end_time.tm_mday,
-                                          end_time.tm_hour, end_time.tm_min);
-
-          gmp_command = g_markup_printf_escaped (
-            "<get_system_reports"
-            " name=\"%s\""
-            " start_time=\"%s\""
-            " end_time=\"%s\""
-            " slave_id=\"%s\"/>",
-            name, start_time_str, end_time_str, slave_id ? slave_id : "0");
-          g_free (start_time_str);
-          g_free (end_time_str);
+          gmp_command = g_markup_printf_escaped ("<get_system_reports"
+                                                 " name=\"%s\""
+                                                 " start_time=\"%s\""
+                                                 " end_time=\"%s\""
+                                                 " slave_id=\"%s\"/>",
+                                                 name, start_time, end_time,
+                                                 slave_id ? slave_id : "0");
         }
 
       if (gvm_connection_sendf (connection, "%s", gmp_command) == -1)
@@ -12491,8 +10805,14 @@ get_report_format (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, const char *extra_xml,
                    cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "alerts", "1");
+  gmp_arguments_add (arguments, "params", "1");
+
   return get_one (connection, "report_format", credentials, params, extra_xml,
-                  "alerts =\"1\" params=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -12519,26 +10839,6 @@ get_report_format_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_report_formats (gvm_connection_t *connection, credentials_t *credentials,
-                    params_t *params, const char *extra_xml,
-                    cmd_response_data_t *response_data)
-{
-  return get_many (connection, "report_format", credentials, params, extra_xml,
-                   NULL, response_data);
-}
-
-/**
- * @brief Get all Report Formats, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -12548,8 +10848,8 @@ get_report_formats_gmp (gvm_connection_t *connection,
                         credentials_t *credentials, params_t *params,
                         cmd_response_data_t *response_data)
 {
-  return get_report_formats (connection, credentials, params, NULL,
-                             response_data);
+  return get_many (connection, "report_formats", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -12804,11 +11104,10 @@ save_report_format_gmp (gvm_connection_t *connection,
       params_iterator_init (&iter, preferences);
       while (params_iterator_next (&iter, &param_name, &param))
         {
-          int type_start, type_end, count;
-          /* LDAPsearch[entry]:Timeout value */
-          count =
-            sscanf (param_name, "%*[^[][%n%*[^]]%n]:", &type_start, &type_end);
-          if (count == 0 && type_start > 0 && type_end > 0)
+          char **splits;
+          /* OID:PrefID:PrefType:PrefName value */
+          splits = g_strsplit (param_name, ":", 4);
+          if (splits && splits[0] && splits[1] && splits[2] && splits[3])
             {
               gchar *value;
 
@@ -12828,7 +11127,7 @@ save_report_format_gmp (gvm_connection_t *connection,
                           "<value>%s</value>"
                           "</param>"
                           "</modify_report_format>",
-                          report_format_id, param_name + type_end + 2, value);
+                          report_format_id, splits[3], value);
               g_free (value);
               switch (ret)
                 {
@@ -12837,6 +11136,7 @@ save_report_format_gmp (gvm_connection_t *connection,
                 case 1:
                   cmd_response_data_set_status_code (
                     response_data, MHD_HTTP_INTERNAL_SERVER_ERROR);
+                  g_strfreev (splits);
                   return gsad_message (
                     credentials, "Internal error", __FUNCTION__, __LINE__,
                     "An internal error occurred while saving a Report Format. "
@@ -12846,6 +11146,7 @@ save_report_format_gmp (gvm_connection_t *connection,
                 case 2:
                   cmd_response_data_set_status_code (
                     response_data, MHD_HTTP_INTERNAL_SERVER_ERROR);
+                  g_strfreev (splits);
                   return gsad_message (
                     credentials, "Internal error", __FUNCTION__, __LINE__,
                     "An internal error occurred while saving a Report Format. "
@@ -12858,6 +11159,7 @@ save_report_format_gmp (gvm_connection_t *connection,
                 default:
                   cmd_response_data_set_status_code (
                     response_data, MHD_HTTP_INTERNAL_SERVER_ERROR);
+                  g_strfreev (splits);
                   return gsad_message (
                     credentials, "Internal error", __FUNCTION__, __LINE__,
                     "An internal error occurred while saving a Report Format. "
@@ -12869,6 +11171,7 @@ save_report_format_gmp (gvm_connection_t *connection,
 
               /* TODO Check if succeeded.  response_from_entity_if_failed? */
             }
+          g_strfreev (splits);
         }
     }
 
@@ -12920,86 +11223,6 @@ save_report_format_gmp (gvm_connection_t *connection,
 
   html = response_from_entity (connection, credentials, params, entity,
                                "Save Report Format", response_data);
-  free_entity (entity);
-  g_free (response);
-  return html;
-}
-
-/**
- * @brief Verify report format, get report formats, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-verify_report_format_gmp (gvm_connection_t *connection,
-                          credentials_t *credentials, params_t *params,
-                          cmd_response_data_t *response_data)
-{
-  int ret;
-  gchar *html, *response;
-  const char *report_format_id;
-  entity_t entity;
-
-  report_format_id = params_value (params, "report_format_id");
-  if (report_format_id == NULL)
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while verifying a report format. "
-        "Diagnostics: Required parameter was NULL.",
-        response_data);
-    }
-
-  /* Verify the report format. */
-
-  response = NULL;
-  entity = NULL;
-  ret =
-    gmpf (connection, credentials, &response, &entity, response_data,
-          "<verify_report_format report_format_id=\"%s\"/>", report_format_id);
-
-  switch (ret)
-    {
-    case 0:
-    case -1:
-      break;
-    case 1:
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while verifying a report format. "
-        "The report format was not verified. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    case 2:
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while verifying a report format. "
-        "It is unclear whether the report format was verified or not. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    default:
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
-      return gsad_message (
-        credentials, "Internal error", __FUNCTION__, __LINE__,
-        "An internal error occurred while verifying a report format. "
-        "It is unclear whether the report format was verified or not. "
-        "Diagnostics: Failure to send command to manager daemon.",
-        response_data);
-    }
-
-  html = response_from_entity (connection, credentials, params, entity,
-                               "Verify Report Format", response_data);
   free_entity (entity);
   g_free (response);
   return html;
@@ -14090,26 +12313,6 @@ get_group_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_groups (gvm_connection_t *connection, credentials_t *credentials,
-            params_t *params, const char *extra_xml,
-            cmd_response_data_t *response_data)
-{
-  return get_many (connection, "group", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all groups, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -14118,7 +12321,8 @@ char *
 get_groups_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, cmd_response_data_t *response_data)
 {
-  return get_groups (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "groups", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -14376,8 +12580,13 @@ get_permission (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, const char *extra_xml,
                 cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "alerts", "1");
+
   return get_one (connection, "permission", credentials, params, extra_xml,
-                  "alerts=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -14403,26 +12612,6 @@ get_permission_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_permissions (gvm_connection_t *connection, credentials_t *credentials,
-                 params_t *params, const char *extra_xml,
-                 cmd_response_data_t *response_data)
-{
-  return get_many (connection, "permission", credentials, params, extra_xml,
-                   NULL, response_data);
-}
-
-/**
- * @brief Get all permissions, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -14431,7 +12620,8 @@ char *
 get_permissions_gmp (gvm_connection_t *connection, credentials_t *credentials,
                      params_t *params, cmd_response_data_t *response_data)
 {
-  return get_permissions (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "permissions", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -14469,19 +12659,14 @@ create_permission_gmp (gvm_connection_t *connection, credentials_t *credentials,
   int ret;
   gchar *html, *response;
   const char *name, *comment, *resource_id, *resource_type;
-  const char *subject_id, *subject_type, *subject_name;
+  const char *subject_id, *subject_type;
   entity_t entity;
-
-  gchar *subject_response;
-  entity_t get_subject_entity = NULL;
-  entity_t subject_entity;
 
   name = params_value (params, "permission");
   comment = params_value (params, "comment");
   resource_id = params_value (params, "id_or_empty");
   resource_type = params_value (params, "optional_resource_type");
   subject_type = params_value (params, "subject_type");
-  subject_name = params_value (params, "subject_name");
 
   CHECK_VARIABLE_INVALID (name, "Create Permission");
   CHECK_VARIABLE_INVALID (comment, "Create Permission");
@@ -14491,78 +12676,11 @@ create_permission_gmp (gvm_connection_t *connection, credentials_t *credentials,
   if (params_given (params, "optional_resource_type"))
     CHECK_VARIABLE_INVALID (resource_type, "Create Permission");
 
-  if (params_given (params, "subject_name"))
-    {
-      CHECK_VARIABLE_INVALID (subject_name, "Create Permission");
-      subject_id = NULL;
-      ret = gmpf (connection, credentials, &subject_response,
-                  &get_subject_entity, response_data,
-                  "<get_%ss filter=\"rows=1 name=%s\">"
-                  "</get_%ss>",
-                  subject_type, subject_name, subject_type);
-
-      switch (ret)
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Failure to send command"
-                               " to manager daemon.",
-                               response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Failure to receive response"
-                               " from manager daemon.",
-                               response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Internal Error.",
-                               response_data);
-        }
-
-      subject_entity = entity_child (get_subject_entity, subject_type);
-
-      if (subject_entity)
-        subject_id = entity_attribute (subject_entity, "id");
-
-      if (subject_id == NULL)
-        {
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while creating a "
-                               "permission. Could not find Subject."
-                               "The permission was not created. "
-                               "Diagnostics: Internal Error.",
-                               response_data);
-        }
-    }
-  else if (strcmp (subject_type, "user") == 0)
+  if (str_equal (subject_type, "user"))
     subject_id = params_value (params, "permission_user_id");
-  else if (strcmp (subject_type, "group") == 0)
+  else if (str_equal (subject_type, "group"))
     subject_id = params_value (params, "permission_group_id");
-  else if (strcmp (subject_type, "role") == 0)
+  else if (str_equal (subject_type, "role"))
     subject_id = params_value (params, "permission_role_id");
   else
     subject_id = NULL;
@@ -14571,152 +12689,60 @@ create_permission_gmp (gvm_connection_t *connection, credentials_t *credentials,
 
   /* Create the permission(s). */
 
-  if (strcmp (name, "task_proxy") == 0)
+  response = NULL;
+  entity = NULL;
+  ret = gmpf (connection, credentials, &response, &entity, response_data,
+              "<create_permission>"
+              "<name>%s</name>"
+              "<comment>%s</comment>"
+              "<resource id=\"%s\">"
+              "<type>%s</type>"
+              "</resource>"
+              "<subject id=\"%s\"><type>%s</type></subject>"
+              "</create_permission>",
+              name, comment ? comment : "", resource_id ? resource_id : "",
+              resource_type ? resource_type : "", subject_id, subject_type);
+
+  switch (ret)
     {
-      response = NULL;
-      entity = NULL;
-      ret = gmpf (connection, credentials, &response, &entity, response_data,
-                  "<commands>"
-                  "<create_permission>"
-                  "<name>get_tasks</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\"/>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>"
-                  "<create_permission>"
-                  "<name>modify_task</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\"/>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>"
-                  "<create_permission>"
-                  "<name>start_task</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\"/>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>"
-                  "<create_permission>"
-                  "<name>stop_task</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\"/>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>"
-                  "<create_permission>"
-                  "<name>resume_task</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\"/>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>"
-                  "</commands>",
-                  comment ? comment : "", resource_id ? resource_id : "",
-                  subject_id, subject_type, comment ? comment : "",
-                  resource_id ? resource_id : "", subject_id, subject_type,
-                  comment ? comment : "", resource_id ? resource_id : "",
-                  subject_id, subject_type, comment ? comment : "",
-                  resource_id ? resource_id : "", subject_id, subject_type,
-                  comment ? comment : "", resource_id ? resource_id : "",
-                  subject_id, subject_type);
-
-      if (get_subject_entity)
-        free_entity (get_subject_entity);
-
-      switch (ret)
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "The permission was not created. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "It is unclear whether the permission has been created or not. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "It is unclear whether the permission has been created or not. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      if (entity_attribute (entity, "id"))
-        params_add (params, "permission_id", entity_attribute (entity, "id"));
-      html = response_from_entity (connection, credentials, params, entity,
-                                   "Create Permission", response_data);
+    case 0:
+    case -1:
+      break;
+    case 1:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a permission. "
+        "The permission was not created. "
+        "Diagnostics: Failure to send command to manager daemon.",
+        response_data);
+    case 2:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a permission. "
+        "It is unclear whether the permission has been created or not. "
+        "Diagnostics: Failure to receive response from manager daemon.",
+        response_data);
+    default:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a permission. "
+        "It is unclear whether the permission has been created or not. "
+        "Diagnostics: Internal Error.",
+        response_data);
     }
-  else
-    {
-      response = NULL;
-      entity = NULL;
-      ret = gmpf (connection, credentials, &response, &entity, response_data,
-                  "<create_permission>"
-                  "<name>%s</name>"
-                  "<comment>%s</comment>"
-                  "<resource id=\"%s\">"
-                  "<type>%s</type>"
-                  "</resource>"
-                  "<subject id=\"%s\"><type>%s</type></subject>"
-                  "</create_permission>",
-                  name, comment ? comment : "", resource_id ? resource_id : "",
-                  resource_type ? resource_type : "", subject_id, subject_type);
 
-      if (get_subject_entity)
-        free_entity (get_subject_entity);
+  if (entity_attribute (entity, "id"))
+    params_add (params, "permission_id", entity_attribute (entity, "id"));
 
-      switch (ret)
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "The permission was not created. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "It is unclear whether the permission has been created or not. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred while creating a permission. "
-            "It is unclear whether the permission has been created or not. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
+  html = response_from_entity (connection, credentials, params, entity,
+                               "Create Permission", response_data);
 
-      if (entity_attribute (entity, "id"))
-        params_add (params, "permission_id", entity_attribute (entity, "id"));
-      html = response_from_entity (connection, credentials, params, entity,
-                                   "Create Permission", response_data);
-    }
   free_entity (entity);
   g_free (response);
   return html;
@@ -14771,6 +12797,10 @@ create_permission_gmp (gvm_connection_t *connection, credentials_t *credentials,
       return html;                                                          \
     }
 
+#define INCLUDE_RELATED_CURRENT_RESOURCE_ONLY 0
+#define INCLUDE_RELATED_ALL_RESOURCES 1
+#define INCLUDE_RELATED_RESOURCES_ONLY 2
+
 /**
  * @brief Create multiple permission, get next page, envelope the result.
  *
@@ -14790,22 +12820,17 @@ create_permissions_gmp (gvm_connection_t *connection,
   gchar *html, *response, *summary_response;
   int successes;
   const char *permission, *comment, *resource_id, *resource_type;
-  const char *subject_id, *subject_type, *subject_name;
+  const char *subject_id, *subject_type;
   const char *permission_resource_type;
   int include_related;
 
   entity_t entity;
 
-  gchar *subject_response;
-  entity_t get_subject_entity = NULL;
-  entity_t subject_entity;
-
-  permission = params_value (params, "permission");
+  permission = params_value (params, "permission_type");
   comment = params_value (params, "comment");
   resource_id = params_value (params, "resource_id");
   resource_type = params_value (params, "resource_type");
   subject_type = params_value (params, "subject_type");
-  subject_name = params_value (params, "subject_name");
 
   CHECK_VARIABLE_INVALID (params_value (params, "include_related"),
                           "Create Permission");
@@ -14824,74 +12849,7 @@ create_permissions_gmp (gvm_connection_t *connection,
 
   include_related = atoi (params_value (params, "include_related"));
 
-  if (params_given (params, "subject_name"))
-    {
-      CHECK_VARIABLE_INVALID (subject_name, "Create Permission");
-      subject_id = NULL;
-      ret = gmpf (connection, credentials, &subject_response,
-                  &get_subject_entity, response_data,
-                  "<get_%ss filter=\"rows=1 name=%s\">"
-                  "</get_%ss>",
-                  subject_type, subject_name, subject_type);
-
-      switch (ret)
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Failure to send command"
-                               " to manager daemon.",
-                               response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Failure to receive response"
-                               " from manager daemon.",
-                               response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while getting"
-                               " the subject for a permission. "
-                               "The permission was not created. "
-                               "Diagnostics: Internal Error.",
-                               response_data);
-        }
-
-      subject_entity = entity_child (get_subject_entity, subject_type);
-
-      if (subject_entity)
-        subject_id = entity_attribute (subject_entity, "id");
-
-      if (subject_id == NULL)
-        {
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (credentials, "Internal error", __FUNCTION__,
-                               __LINE__,
-                               "An internal error occurred while creating a "
-                               "permission. Could not find Subject."
-                               "The permission was not created. "
-                               "Diagnostics: Internal Error.",
-                               response_data);
-        }
-    }
-  else if (str_equal (subject_type, "user"))
+  if (str_equal (subject_type, "user"))
     subject_id = params_value (params, "permission_user_id");
   else if (str_equal (subject_type, "group"))
     subject_id = params_value (params, "permission_group_id");
@@ -14907,9 +12865,9 @@ create_permissions_gmp (gvm_connection_t *connection,
   /* Create the permission(s). */
 
   // Main resource permissions
-  if (include_related != 2)
+  if (include_related != INCLUDE_RELATED_RESOURCES_ONLY)
     {
-      if (strcmp (permission, "read") == 0 || strcmp (permission, "proxy") == 0)
+      if (str_equal (permission, "read") || str_equal (permission, "write"))
         {
           response = NULL;
           entity = NULL;
@@ -14928,10 +12886,11 @@ create_permissions_gmp (gvm_connection_t *connection,
           CHECK_GMPF_RET
         }
 
-      if ((strcmp (permission, "proxy") == 0)
-          && strcmp (permission_resource_type, "result")
-          && strcmp (permission_resource_type, "report"))
+      if ((str_equal (permission, "write"))
+          && !str_equal (permission_resource_type, "result")
+          && !str_equal (permission_resource_type, "report"))
         {
+          // create modify permission for resource
           response = NULL;
           entity = NULL;
           ret =
@@ -14948,8 +12907,9 @@ create_permissions_gmp (gvm_connection_t *connection,
 
           CHECK_GMPF_RET
 
-          if (strcmp (permission_resource_type, "task") == 0)
+          if (str_equal (permission_resource_type, "task"))
             {
+              // create start_task, stop_task and resume_task permission
               response = NULL;
               entity = NULL;
               ret = gmpf (connection, credentials, &response, &entity,
@@ -14999,8 +12959,9 @@ create_permissions_gmp (gvm_connection_t *connection,
               CHECK_GMPF_RET
             }
 
-          if (strcmp (permission_resource_type, "alert") == 0)
+          if (str_equal (permission_resource_type, "alert"))
             {
+              // create test permission
               response = NULL;
               entity = NULL;
               ret = gmpf (connection, credentials, &response, &entity,
@@ -15018,10 +12979,11 @@ create_permissions_gmp (gvm_connection_t *connection,
               CHECK_GMPF_RET
             }
 
-          if (strcmp (permission_resource_type, "agent") == 0
-              || strcmp (permission_resource_type, "report_format") == 0
-              || strcmp (permission_resource_type, "scanner") == 0)
+          if (str_equal (permission_resource_type, "agent")
+              || str_equal (permission_resource_type, "report_format")
+              || str_equal (permission_resource_type, "scanner"))
             {
+              // create verify permission
               response = NULL;
               entity = NULL;
               ret = gmpf (connection, credentials, &response, &entity,
@@ -15042,7 +13004,7 @@ create_permissions_gmp (gvm_connection_t *connection,
     }
 
   // Related permissions
-  if (include_related)
+  if (include_related != INCLUDE_RELATED_CURRENT_RESOURCE_ONLY)
     {
       params_t *related;
       related = params_values (params, "related:");
@@ -15066,8 +13028,8 @@ create_permissions_gmp (gvm_connection_t *connection,
               else
                 related_type = param->value;
 
-              if (strcmp (permission, "read") == 0
-                  || strcmp (permission, "proxy") == 0)
+              if (str_equal (permission, "read") == 0
+                  || str_equal (permission, "write") == 0)
                 {
                   response = NULL;
                   entity = NULL;
@@ -15086,9 +13048,9 @@ create_permissions_gmp (gvm_connection_t *connection,
                   CHECK_GMPF_RET
                 }
 
-              if ((strcmp (permission, "proxy") == 0)
-                  && strcmp (related_type, "result")
-                  && strcmp (related_type, "report"))
+              if ((str_equal (permission, "write"))
+                  && !str_equal (related_type, "result")
+                  && !str_equal (related_type, "report"))
                 {
                   response = NULL;
                   entity = NULL;
@@ -15106,7 +13068,7 @@ create_permissions_gmp (gvm_connection_t *connection,
 
                   CHECK_GMPF_RET
 
-                  if (strcmp (related_type, "task") == 0)
+                  if (str_equal (related_type, "task"))
                     {
                       response = NULL;
                       entity = NULL;
@@ -15157,7 +13119,7 @@ create_permissions_gmp (gvm_connection_t *connection,
                       CHECK_GMPF_RET
                     }
 
-                  if (strcmp (related_type, "alert") == 0)
+                  if (str_equal (related_type, "alert"))
                     {
                       response = NULL;
                       entity = NULL;
@@ -15176,9 +13138,9 @@ create_permissions_gmp (gvm_connection_t *connection,
                       CHECK_GMPF_RET
                     }
 
-                  if (strcmp (related_type, "agent") == 0
-                      || strcmp (related_type, "report_format") == 0
-                      || strcmp (related_type, "scanner") == 0)
+                  if (str_equal (related_type, "agent")
+                      || str_equal (related_type, "report_format")
+                      || str_equal (related_type, "scanner"))
                     {
                       response = NULL;
                       entity = NULL;
@@ -15200,9 +13162,6 @@ create_permissions_gmp (gvm_connection_t *connection,
             }
         }
     }
-
-  if (get_subject_entity)
-    free_entity (get_subject_entity);
 
   summary_response =
     g_strdup_printf ("Successfully created %i permissions", successes);
@@ -15538,8 +13497,14 @@ get_port_list (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, const char *extra_xml,
                cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "targets", "1");
+  gmp_arguments_add (arguments, "details", "1");
+
   return get_one (connection, "port_list", credentials, params, extra_xml,
-                  "targets=\"1\" details=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -15560,26 +13525,6 @@ get_port_list_gmp (gvm_connection_t *connection, credentials_t *credentials,
 }
 
 /**
- * @brief Get all Port Lists, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_port_lists (gvm_connection_t *connection, credentials_t *credentials,
-                params_t *params, const char *extra_xml,
-                cmd_response_data_t *response_data)
-{
-  return get_many (connection, "port_list", credentials, params, extra_xml,
-                   NULL, response_data);
-}
-
-/**
  * @brief Get all port_lists, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
@@ -15593,7 +13538,8 @@ char *
 get_port_lists_gmp (gvm_connection_t *connection, credentials_t *credentials,
                     params_t *params, cmd_response_data_t *response_data)
 {
-  return get_port_lists (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "port_lists", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -15882,148 +13828,6 @@ create_role_gmp (gvm_connection_t *connection, credentials_t *credentials,
 }
 
 /**
- * @brief Setup edit_role XML, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-edit_role (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  gchar *html;
-  GString *extra;
-
-  extra = g_string_new ("");
-
-  if (command_enabled (credentials, "GET_PERMISSIONS"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      response = NULL;
-      entity = NULL;
-      switch (
-        gmpf (connection, credentials, &response, &entity, response_data,
-              "<get_permissions"
-              " filter=\"rows=-1 subject_type=role and subject_uuid=%s\"/>",
-              params_value (params, "role_id")))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the permission list. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the permission list. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the permission list. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (command_enabled (credentials, "GET_GROUPS"))
-    {
-      gchar *response;
-      entity_t entity;
-      user_t *user = credentials_get_user (credentials);
-
-      response = NULL;
-      entity = NULL;
-      switch (gmpf (connection, credentials, &response, &entity, response_data,
-                    "<get_groups"
-                    " filter=\"rows=-1 owner=%s\"/>",
-                    user_get_username (user)))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the group list. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the group list. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the group list. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-
-  if (extra_xml)
-    g_string_append (extra, extra_xml);
-  html = edit_resource (connection, "role", credentials, params, NULL,
-                        extra->str, response_data);
-  g_string_free (extra, TRUE);
-  return html;
-}
-
-/**
- * @brief Setup edit_role XML, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-edit_role_gmp (gvm_connection_t *connection, credentials_t *credentials,
-               params_t *params, cmd_response_data_t *response_data)
-{
-  return edit_role (connection, credentials, params, NULL, response_data);
-}
-
-/**
  * @brief Get one role, envelope the result.
  *
  * @param[in]  connection     Connection to manager.
@@ -16066,26 +13870,6 @@ get_role_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_roles (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  return get_many (connection, "role", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all roles, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -16094,7 +13878,8 @@ char *
 get_roles_gmp (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, cmd_response_data_t *response_data)
 {
-  return get_roles (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "roles", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -16414,8 +14199,13 @@ get_filter (gvm_connection_t *connection, credentials_t *credentials,
             params_t *params, const char *extra_xml,
             cmd_response_data_t *response_data)
 {
+  gmp_arguments_t *arguments;
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "alerts", "1");
+
   return get_one (connection, "filter", credentials, params, extra_xml,
-                  "alerts=\"1\"", response_data);
+                  arguments, response_data);
 }
 
 /**
@@ -16441,26 +14231,6 @@ get_filter_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
-get_filters (gvm_connection_t *connection, credentials_t *credentials,
-             params_t *params, const char *extra_xml,
-             cmd_response_data_t *response_data)
-{
-  return get_many (connection, "filter", credentials, params, extra_xml, NULL,
-                   response_data);
-}
-
-/**
- * @brief Get all filters, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -16469,7 +14239,8 @@ char *
 get_filters_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_filters (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "filters", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -16493,7 +14264,7 @@ create_filter_gmp (gvm_connection_t *connection, credentials_t *credentials,
   name = params_value (params, "name");
   comment = params_value (params, "comment");
   term = params_value (params, "term");
-  type = params_value (params, "optional_resource_type");
+  type = params_value (params, "resource_type");
 
   CHECK_VARIABLE_INVALID (name, "Create Filter");
   CHECK_VARIABLE_INVALID (comment, "Create Filter");
@@ -16541,22 +14312,6 @@ create_filter_gmp (gvm_connection_t *connection, credentials_t *credentials,
         response_data);
     }
 
-  if (gmp_success (entity))
-    {
-      const char *filter_id;
-
-      filter_id = entity_attribute (entity, "id");
-      if (filter_id && strlen (filter_id))
-        {
-          param_t *param;
-          param = params_add (params, "filt_id", filter_id);
-          param->valid = 1;
-          param->valid_utf8 = g_utf8_validate (param->value, -1, NULL);
-        }
-    }
-
-  if (entity_attribute (entity, "id"))
-    params_add (params, "filter_id", entity_attribute (entity, "id"));
   html = response_from_entity (connection, credentials, params, entity,
                                "Create Filter", response_data);
   free_entity (entity);
@@ -16578,15 +14333,6 @@ char *
 delete_filter_gmp (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, cmd_response_data_t *response_data)
 {
-  param_t *filt_id, *id;
-
-  filt_id = params_get (params, "filt_id");
-  id = params_get (params, "filter_id");
-  if (id && id->value && filt_id && filt_id->value
-      && (strcmp (id->value, filt_id->value) == 0))
-    // TODO: Add params_remove.
-    filt_id->value = NULL;
-
   return move_resource_to_trash (connection, "filter", credentials, params,
                                  response_data);
 }
@@ -16649,7 +14395,7 @@ save_filter_gmp (gvm_connection_t *connection, credentials_t *credentials,
   name = params_value (params, "name");
   comment = params_value (params, "comment");
   term = params_value (params, "term");
-  type = params_value (params, "optional_resource_type");
+  type = params_value (params, "resource_type");
 
   CHECK_VARIABLE_INVALID (filter_id, "Save Filter");
   CHECK_VARIABLE_INVALID (name, "Save Filter");
@@ -16942,78 +14688,6 @@ get_user_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @param[in]  connection     Connection to manager.
  * @param[in]  credentials  Username and password for authentication.
  * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_users (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  gchar *html;
-  GString *extra;
-
-  extra = g_string_new ("");
-  if (command_enabled (credentials, "DESCRIBE_AUTH"))
-    {
-      gchar *response;
-      entity_t entity;
-
-      response = NULL;
-      entity = NULL;
-      switch (gmp (connection, credentials, &response, &entity, response_data,
-                   "<describe_auth/>"))
-        {
-        case 0:
-        case -1:
-          break;
-        case 1:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the auth list. "
-            "Diagnostics: Failure to send command to manager daemon.",
-            response_data);
-        case 2:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the auth list. "
-            "Diagnostics: Failure to receive response from manager daemon.",
-            response_data);
-        default:
-          cmd_response_data_set_status_code (response_data,
-                                             MHD_HTTP_INTERNAL_SERVER_ERROR);
-          return gsad_message (
-            credentials, "Internal error", __FUNCTION__, __LINE__,
-            "An internal error occurred getting the auth list. "
-            "Diagnostics: Internal Error.",
-            response_data);
-        }
-
-      g_string_append (extra, response);
-
-      free_entity (entity);
-      g_free (response);
-    }
-  if (extra_xml)
-    g_string_append (extra, extra_xml);
-  html = get_many (connection, "user", credentials, params, extra->str, NULL,
-                   response_data);
-  g_string_free (extra, TRUE);
-  return html;
-}
-
-/**
- * @brief Get all users, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
  * @param[out] response_data  Extra data return for the HTTP response.
  *
  * @return Enveloped XML object.
@@ -17022,7 +14696,8 @@ char *
 get_users_gmp (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, cmd_response_data_t *response_data)
 {
-  return get_users (connection, credentials, params, NULL, response_data);
+  return get_many (connection, "users", credentials, params, NULL,
+                   response_data);
 }
 
 /**
@@ -17211,26 +14886,7 @@ char *
 get_vulns_gmp (gvm_connection_t *connection, credentials_t *credentials,
                params_t *params, cmd_response_data_t *response_data)
 {
-  return get_vulns (connection, credentials, params, NULL, response_data);
-}
-
-/**
- * @brief Get multiple vulns, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[in]  extra_xml    Extra XML to insert inside page element.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-static char *
-get_vulns (gvm_connection_t *connection, credentials_t *credentials,
-           params_t *params, const char *extra_xml,
-           cmd_response_data_t *response_data)
-{
-  return get_many (connection, "vuln", credentials, params, extra_xml, NULL,
+  return get_many (connection, "vulns", credentials, params, NULL,
                    response_data);
 }
 
@@ -17738,10 +15394,10 @@ save_auth_gmp (gvm_connection_t *connection, credentials_t *credentials,
                   method, truefalse, radiushost, radiuskey);
     }
   else
-    return get_users (
-      connection, credentials, params,
-      GSAD_MESSAGE_INVALID_PARAM ("Save Authentication Configuration"),
-      response_data);
+    {
+      return message_invalid (connection, credentials, params, response_data,
+                              "Given method was invalid", "Save auth");
+    }
 
   switch (ret)
     {
@@ -18508,29 +16164,12 @@ get_asset (gvm_connection_t *connection, credentials_t *credentials,
            params_t *params, const char *extra_xml,
            cmd_response_data_t *response_data)
 {
-  char *ret;
-  GString *extra_attribs, *extra_response;
-  const char *asset_type;
+  const gchar *asset_type;
+  gmp_arguments_t *arguments;
 
   asset_type = params_value (params, "asset_type");
-  if (asset_type == NULL)
-    {
-      param_t *param;
-      param = params_add (params, "asset_type", "host");
-      param->valid = 1;
-      param->valid_utf8 = g_utf8_validate (param->value, -1, NULL);
-      asset_type = params_value (params, "asset_type");
-    }
 
-  if (strcmp (asset_type, "host") && strcmp (asset_type, "os"))
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (credentials, "Internal error", __FUNCTION__,
-                           __LINE__,
-                           "An internal error occurred while getting an asset. "
-                           "Diagnostics: Invalid asset_type parameter value",
-                           response_data);
-    }
+  CHECK_VARIABLE_INVALID (asset_type, "Get Asset")
 
   if (params_value (params, "asset_name") && params_value (params, "asset_id"))
     {
@@ -18542,28 +16181,18 @@ get_asset (gvm_connection_t *connection, credentials_t *credentials,
                            response_data);
     }
 
-  extra_response = g_string_new (extra_xml ? extra_xml : "");
+  arguments = gmp_arguments_new ();
 
-  extra_attribs = g_string_new ("");
-  g_string_append_printf (extra_attribs, "type=\"%s\"",
-                          params_value (params, "asset_type"));
+  gmp_arguments_add (arguments, "type", asset_type);
+
   if (params_value (params, "asset_name"))
-    g_string_append_printf (extra_attribs, " name=\"%s\"",
-                            params_value (params, "asset_name"));
-  else if (params_value (params, "asset_id"))
-    g_string_append_printf (extra_attribs, " asset_id=\"%s\"",
-                            params_value (params, "asset_id"));
-  if (params_value (params, "details"))
-    g_string_append_printf (extra_attribs, " details=\"%s\"",
-                            params_value (params, "details"));
+    {
+      gmp_arguments_add (arguments, "name",
+                         params_value (params, "asset_name"));
+    }
 
-  ret = get_one (connection, "asset", credentials, params, extra_response->str,
-                 extra_attribs->str, response_data);
-
-  g_string_free (extra_response, TRUE);
-  g_string_free (extra_attribs, TRUE);
-
-  return ret;
+  return get_one (connection, "asset", credentials, params, NULL, arguments,
+                  response_data);
 }
 
 /**
@@ -18595,69 +16224,28 @@ get_asset_gmp (gvm_connection_t *connection, credentials_t *credentials,
  * @return XML enveloped assets response or error message.
  */
 char *
-get_assets (gvm_connection_t *connection, credentials_t *credentials,
-            params_t *params, const char *extra_xml,
-            cmd_response_data_t *response_data)
-{
-  char *ret;
-  GString *extra_attribs, *extra_response;
-  const char *asset_type;
-
-  asset_type = params_value (params, "asset_type");
-  if (asset_type == NULL)
-    {
-      param_t *param;
-      param = params_add (params, "asset_type", "host");
-      param->valid = 1;
-      param->valid_utf8 = g_utf8_validate (param->value, -1, NULL);
-      asset_type = params_value (params, "asset_type");
-    }
-
-  if (strcmp (asset_type, "host") && strcmp (asset_type, "os"))
-    {
-      cmd_response_data_set_status_code (response_data, MHD_HTTP_BAD_REQUEST);
-      return gsad_message (credentials, "Internal error", __FUNCTION__,
-                           __LINE__,
-                           "An internal error occurred while getting Assets. "
-                           "Diagnostics: Invalid asset_type parameter value",
-                           response_data);
-    }
-
-  extra_response = g_string_new (extra_xml ? extra_xml : "");
-
-  extra_attribs = g_string_new ("");
-  g_string_append_printf (extra_attribs, "type=\"%s\" ignore_pagination=\"%s\"",
-                          params_value (params, "asset_type"),
-                          params_value (params, "ignore_pagination")
-                            ? params_value (params, "ignore_pagination")
-                            : "0");
-  if (params_value (params, "details"))
-    g_string_append_printf (extra_attribs, " details=\"%s\"",
-                            params_value (params, "details"));
-  ret = get_many (connection, "asset", credentials, params, extra_response->str,
-                  extra_attribs->str, response_data);
-
-  g_string_free (extra_response, TRUE);
-  g_string_free (extra_attribs, TRUE);
-
-  return ret;
-}
-
-/**
- * @brief Get assets, envelope the result.
- *
- * @param[in]  connection     Connection to manager.
- * @param[in]  credentials  Username and password for authentication.
- * @param[in]  params       Request parameters.
- * @param[out] response_data  Extra data return for the HTTP response.
- *
- * @return Enveloped XML object.
- */
-char *
 get_assets_gmp (gvm_connection_t *connection, credentials_t *credentials,
                 params_t *params, cmd_response_data_t *response_data)
 {
-  return get_assets (connection, credentials, params, NULL, response_data);
+  gmp_arguments_t *arguments;
+  const char *asset_type;
+
+  asset_type = params_value (params, "asset_type");
+
+  CHECK_VARIABLE_INVALID (asset_type, "Get Assets");
+
+  arguments = gmp_arguments_new ();
+
+  gmp_arguments_add (arguments, "type", asset_type);
+
+  if (params_value (params, "ignore_pagination"))
+    {
+      gmp_arguments_add (arguments, "ignore_pagination",
+                         params_value (params, "ignore_pagination"));
+    }
+
+  return get_many (connection, "assets", credentials, params, arguments,
+                   response_data);
 }
 
 /**
@@ -18947,7 +16535,7 @@ char *
 get_tickets_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_many (connection, "ticket", credentials, params, NULL, NULL,
+  return get_many (connection, "tickets", credentials, params, NULL,
                    response_data);
 }
 
@@ -19146,6 +16734,261 @@ delete_ticket_gmp (gvm_connection_t *connection, credentials_t *credentials,
                                  response_data);
 }
 
+/**
+ * @brief Get all TLS certificates, envelope the result.
+ *
+ * @param[in]  connection     Connection to manager.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+get_tls_certificates_gmp (gvm_connection_t *connection,
+                          credentials_t *credentials, params_t *params,
+                          cmd_response_data_t *response_data)
+{
+  gmp_arguments_t *arguments = gmp_arguments_new ();
+  const char *include_certificate_data;
+
+  if (params_given (params, "include_certificate_data"))
+    {
+      include_certificate_data =
+        params_value (params, "include_certificate_data");
+      CHECK_VARIABLE_INVALID (include_certificate_data, "Get TLS Certificate");
+      gmp_arguments_add (arguments, "include_certificate_data",
+                         include_certificate_data);
+    }
+
+  return get_many (connection, "tls_certificates", credentials, params,
+                   arguments, response_data);
+}
+
+/**
+ * @brief Get single TLS certificates, envelope the result.
+ *
+ * @param[in]  connection     Connection to manager.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+get_tls_certificate_gmp (gvm_connection_t *connection,
+                         credentials_t *credentials, params_t *params,
+                         cmd_response_data_t *response_data)
+{
+  gmp_arguments_t *arguments = gmp_arguments_new ();
+  const char *include_certificate_data;
+
+  if (params_given (params, "include_certificate_data"))
+    {
+      include_certificate_data =
+        params_value (params, "include_certificate_data");
+      CHECK_VARIABLE_INVALID (include_certificate_data, "Get TLS Certificate");
+      gmp_arguments_add (arguments, "include_certificate_data",
+                         include_certificate_data);
+    }
+
+  return get_one (connection, "tls_certificate", credentials, params, NULL,
+                  arguments, response_data);
+}
+
+/**
+ * @brief Create a TLS certificate.
+ *
+ * @param[in]  connection     Connection to manager.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+create_tls_certificate_gmp (gvm_connection_t *connection,
+                            credentials_t *credentials, params_t *params,
+                            cmd_response_data_t *response_data)
+{
+  gchar *response = NULL;
+  entity_t entity = NULL;
+  const gchar *name, *comment, *trust, *certificate_bin;
+  size_t certificate_size;
+  gchar *certificate_b64;
+  gchar *ret;
+
+  name = params_value (params, "name");
+  comment = params_value (params, "comment");
+  trust = params_value (params, "trust");
+  certificate_bin = params_value (params, "certificate_bin");
+  certificate_size = params_value_size (params, "certificate_bin");
+
+  certificate_b64 =
+    (certificate_size > 0)
+      ? g_base64_encode ((guchar *) certificate_bin, certificate_size)
+      : g_strdup ("");
+
+  CHECK_VARIABLE_INVALID (name, "Create TLS Certificate");
+  CHECK_VARIABLE_INVALID (comment, "Create TLS Certificate");
+  CHECK_VARIABLE_INVALID (trust, "Create TLS Certificate");
+
+  switch (gmpf (connection, credentials, &response, &entity, response_data,
+                "<create_tls_certificate>"
+                "<name>%s</name>"
+                "<comment>%s</comment>"
+                "<trust>%s</trust>"
+                "<certificate>%s</certificate>"
+                "</create_tls_certificate>",
+                name, comment, trust, certificate_b64))
+    {
+    case 0:
+    case -1:
+      break;
+    case 1:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a TLS certificate. "
+        "Diagnostics: Failure to send command to manager daemon.",
+        response_data);
+    case 2:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a TLS certificate. "
+        "It is unclear whether the TLS certificate has been created or not. "
+        "Diagnostics: Failure to receive response from manager daemon.",
+        response_data);
+    default:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while creating a TLS certificate. "
+        "It is unclear whether the TLS certificate has been created or not. "
+        "Diagnostics: Internal Error.",
+        response_data);
+    }
+
+  ret = response_from_entity (connection, credentials, params, entity,
+                              "Create TLS Certificate", response_data);
+
+  free_entity (entity);
+  g_free (response);
+  g_free (certificate_b64);
+  return ret;
+}
+
+/**
+ * @brief Modify a TLS certificate.
+ *
+ * @param[in]  connection     Connection to manager.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+save_tls_certificate_gmp (gvm_connection_t *connection,
+                          credentials_t *credentials, params_t *params,
+                          cmd_response_data_t *response_data)
+{
+  gchar *response = NULL;
+  entity_t entity = NULL;
+  const gchar *tls_certificate_id, *name, *comment, *trust, *certificate_bin;
+  size_t certificate_size;
+  gchar *certificate_b64;
+  gchar *ret;
+
+  tls_certificate_id = params_value (params, "tls_certificate_id");
+  name = params_value (params, "name");
+  comment = params_value (params, "comment");
+  trust = params_value (params, "trust");
+  certificate_bin = params_value (params, "certificate_bin");
+  certificate_size = params_value_size (params, "certificate_bin");
+
+  certificate_b64 =
+    (certificate_size > 0)
+      ? g_base64_encode ((guchar *) certificate_bin, certificate_size)
+      : g_strdup ("");
+
+  CHECK_VARIABLE_INVALID (tls_certificate_id, "Save TLS Certificate");
+  CHECK_VARIABLE_INVALID (name, "Save TLS Certificate");
+  CHECK_VARIABLE_INVALID (comment, "Save TLS Certificate");
+  CHECK_VARIABLE_INVALID (trust, "Save TLS Certificate");
+
+  switch (gmpf (connection, credentials, &response, &entity, response_data,
+                "<modify_tls_certificate tls_certificate_id=\"%s\">"
+                "<name>%s</name>"
+                "<comment>%s</comment>"
+                "<trust>%s</trust>"
+                "<certificate>%s</certificate>"
+                "</modify_tls_certificate>",
+                tls_certificate_id, name, comment, trust, certificate_b64))
+    {
+    case 0:
+    case -1:
+      break;
+    case 1:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while saving a TLS certificate. "
+        "Diagnostics: Failure to send command to manager daemon.",
+        response_data);
+    case 2:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while saving a TLS certificate. "
+        "It is unclear whether the TLS certificate has been saved or not. "
+        "Diagnostics: Failure to receive response from manager daemon.",
+        response_data);
+    default:
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while saving a TLS certificate. "
+        "It is unclear whether the TLS certificate has been saved or not. "
+        "Diagnostics: Internal Error.",
+        response_data);
+    }
+
+  ret = response_from_entity (connection, credentials, params, entity,
+                              "Save TLS Certificate", response_data);
+
+  free_entity (entity);
+  g_free (response);
+  g_free (certificate_b64);
+  return ret;
+}
+
+/**
+ * @brief Delete a TLS certificate.
+ *
+ * @param[in]  connection     Connection to manager.
+ * @param[in]  credentials    Username and password for authentication.
+ * @param[in]  params         Request parameters.
+ * @param[out] response_data  Extra data return for the HTTP response.
+ *
+ * @return Enveloped XML object.
+ */
+char *
+delete_tls_certificate_gmp (gvm_connection_t *connection,
+                            credentials_t *credentials, params_t *params,
+                            cmd_response_data_t *response_data)
+{
+  return move_resource_to_trash (connection, "tls_certificate", credentials,
+                                 params, response_data);
+}
+
 char *
 renew_session_gmp (gvm_connection_t *connection, credentials_t *credentials,
                    params_t *params, cmd_response_data_t *response_data)
@@ -19181,6 +17024,64 @@ ping_gmp (gvm_connection_t *connection, credentials_t *credentials,
 {
   return action_result (connection, credentials, params, response_data, "ping",
                         "pong", NULL, NULL);
+}
+
+char *
+get_capabilities_gmp (gvm_connection_t *connection, credentials_t *credentials,
+                      params_t *params, cmd_response_data_t *response_data)
+{
+  entity_t entity = NULL;
+  GString *xml;
+
+  if (gvm_connection_sendf (connection,
+                            "<help format=\"XML\" type=\"brief\"/>"))
+    {
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while getting the user credentials. "
+        "Diagnostics: Failure to send command to manager daemon.",
+        response_data);
+    }
+
+  xml = g_string_new ("");
+  g_string_append (xml, "<get_capabilities>");
+
+  /* Read the response. */
+  if (read_entity_and_string_c (connection, &entity, &xml))
+    {
+      g_string_free (xml, TRUE);
+      cmd_response_data_set_status_code (response_data,
+                                         MHD_HTTP_INTERNAL_SERVER_ERROR);
+      return gsad_message (
+        credentials, "Internal error", __FUNCTION__, __LINE__,
+        "An internal error occurred while getting the user credentials. "
+        "Diagnostics: Failure to receive response from manager daemon.",
+        response_data);
+    }
+
+  if (gmp_success (entity) != 1)
+    {
+      gchar *message;
+
+      set_http_status_from_entity (entity, response_data);
+
+      message =
+        gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
+                      entity_attribute (entity, "status_text"), response_data);
+
+      g_string_free (xml, TRUE);
+      free_entity (entity);
+      return message;
+    }
+
+  /* Cleanup, and return transformed XML. */
+  free_entity (entity);
+
+  g_string_append (xml, "</get_capabilities>");
+  return envelope_gmp (connection, credentials, params,
+                       g_string_free (xml, FALSE), response_data);
 }
 
 /* Manager communication. */

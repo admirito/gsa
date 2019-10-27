@@ -39,6 +39,7 @@ import ManualIcon from 'web/components/icon/manualicon';
 import WizardIcon from 'web/components/icon/wizardicon';
 
 import IconDivider from 'web/components/layout/icondivider';
+import PageTitle from 'web/components/layout/pagetitle';
 
 import IconMenu from 'web/components/menu/iconmenu';
 import MenuEntry from 'web/components/menu/menuentry';
@@ -53,7 +54,7 @@ import TaskFilterDialog from './filterdialog';
 import Table from './table';
 import TaskIcon from 'web/components/icon/taskicon';
 
-const ToolBarIcons = withCapabilities(
+export const ToolBarIcons = withCapabilities(
   ({
     capabilities,
     onAdvancedTaskWizardClick,
@@ -64,8 +65,8 @@ const ToolBarIcons = withCapabilities(
   }) => (
     <IconDivider>
       <ManualIcon
-        page="vulnerabilitymanagement"
-        anchor="creating-a-task"
+        page="scanning"
+        anchor="managing-tasks"
         title={_('Help: Tasks')}
       />
       {capabilities.mayOp('run_wizard') && (
@@ -151,45 +152,48 @@ const Page = ({
       modifytaskwizard,
       taskwizard,
     }) => (
-      <EntitiesPage
-        {...props}
-        dashboard={() => (
-          <TaskDashboard
-            filter={filter}
-            onFilterChanged={onFilterChanged}
-            onInteraction={onInteraction}
-          />
-        )}
-        dashboardControls={() => (
-          <DashboardControls
-            dashboardId={TASK_DASHBOARD_ID}
-            onInteraction={onInteraction}
-          />
-        )}
-        filter={filter}
-        filterEditDialog={TaskFilterDialog}
-        filtersFilter={TASKS_FILTER_FILTER}
-        sectionIcon={<TaskIcon size="large" />}
-        table={Table}
-        title={_('Tasks')}
-        toolBarIcons={ToolBarIcons}
-        onAdvancedTaskWizardClick={advancedtaskwizard}
-        onContainerTaskCreateClick={createcontainer}
-        onError={onError}
-        onFilterChanged={onFilterChanged}
-        onInteraction={onInteraction}
-        onModifyTaskWizardClick={modifytaskwizard}
-        onReportImportClick={reportimport}
-        onTaskCloneClick={clone}
-        onTaskCreateClick={create}
-        onTaskDeleteClick={delete_func}
-        onTaskDownloadClick={download}
-        onTaskEditClick={edit}
-        onTaskResumeClick={resume}
-        onTaskStartClick={start}
-        onTaskStopClick={stop}
-        onTaskWizardClick={taskwizard}
-      />
+      <React.Fragment>
+        <PageTitle title={_('Tasks')} />
+        <EntitiesPage
+          {...props}
+          dashboard={() => (
+            <TaskDashboard
+              filter={filter}
+              onFilterChanged={onFilterChanged}
+              onInteraction={onInteraction}
+            />
+          )}
+          dashboardControls={() => (
+            <DashboardControls
+              dashboardId={TASK_DASHBOARD_ID}
+              onInteraction={onInteraction}
+            />
+          )}
+          filter={filter}
+          filterEditDialog={TaskFilterDialog}
+          filtersFilter={TASKS_FILTER_FILTER}
+          sectionIcon={<TaskIcon size="large" />}
+          table={Table}
+          title={_('Tasks')}
+          toolBarIcons={ToolBarIcons}
+          onAdvancedTaskWizardClick={advancedtaskwizard}
+          onContainerTaskCreateClick={createcontainer}
+          onError={onError}
+          onFilterChanged={onFilterChanged}
+          onInteraction={onInteraction}
+          onModifyTaskWizardClick={modifytaskwizard}
+          onReportImportClick={reportimport}
+          onTaskCloneClick={clone}
+          onTaskCreateClick={create}
+          onTaskDeleteClick={delete_func}
+          onTaskDownloadClick={download}
+          onTaskEditClick={edit}
+          onTaskResumeClick={resume}
+          onTaskStartClick={start}
+          onTaskStopClick={stop}
+          onTaskWizardClick={taskwizard}
+        />
+      </React.Fragment>
     )}
   </TaskComponent>
 );

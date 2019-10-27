@@ -16,11 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import 'core-js/fn/object/entries';
+import 'core-js/features/object/entries';
 
-import {map} from '../utils/array';
-import {isDefined} from '../utils/identity';
-import {isEmpty} from '../utils/string';
+import {map} from 'gmp/utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
 
 import {parseSeverity, parseYesNo, YES_VALUE, parseDate} from '../parser';
 
@@ -38,23 +38,23 @@ class Criteria {
     } = elem;
 
     this.criterions = map(criterions, criterion => ({
-      applicability_check: criterion._applicability_check,
+      applicabilityCheck: criterion._applicability_check,
       comment: isEmpty(criterion._comment) ? undefined : criterion._comment,
       negate: isDefined(criterion._negate)
         ? criterion._negate.toLowerCase() === 'true'
         : false,
-      test_ref: criterion._test_ref,
+      testRef: criterion._test_ref,
     }));
 
-    this.extend_definitions = map(extend_definitions, extend_definition => ({
-      applicability_check: extend_definition._applicability_check,
+    this.extendDefinitions = map(extend_definitions, extend_definition => ({
+      applicabilityCheck: extend_definition._applicability_check,
       comment: isEmpty(extend_definition._comment)
         ? undefined
         : extend_definition._comment,
       negate: isDefined(extend_definition._negate)
         ? extend_definition._negate.toLowerCase() === 'true'
         : false,
-      definition_ref: extend_definition._definition_ref,
+      definitionRef: extend_definition._definition_ref,
     }));
 
     this.criterias = map(criterias, criteria => new Criteria(criteria));
@@ -73,19 +73,19 @@ class Criteria {
 class Ovaldef extends Info {
   static entityType = 'ovaldef';
 
-  parseProperties(elem) {
-    const ret = super.parseProperties(elem, 'ovaldef');
+  static parseElement(element) {
+    const ret = super.parseElement(element, 'ovaldef');
 
-    ret.severity = parseSeverity(ret.max_cvss);
+    ret.severity = parseSeverity(element.max_cvss);
     delete ret.max_cvss;
 
-    const {raw_data} = ret;
+    const {raw_data} = element;
 
     if (isDefined(raw_data) && isDefined(raw_data.definition)) {
       const {definition} = raw_data;
 
       if (isDefined(definition._id)) {
-        ret.short_id = definition._id;
+        ret.shortId = definition._id;
       }
       if (isDefined(definition._version)) {
         ret.version = definition._version;
