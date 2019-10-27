@@ -16,8 +16,19 @@ override_dh_auto_configure:
 	extract-yarn-offline-cache || true
 	dh_auto_configure -- -DLOCALSTATEDIR=/var -DSYSCONFDIR=/etc -DYARN_OFFLINE=1 -DCMAKE_BUILD_TYPE=Release
 
+override_dh_auto_install:
+	dh_auto_install
+
+	rm -r debian/gsad/usr/lib/systemd
+	rm -r debian/gsad/usr/etc/default
+
+	mv debian/gsad/usr/etc/logrotate.d debian/gsad/etc/logrotate.d
+
+	rmdir debian/gsad/usr/lib
+	rmdir debian/gsad/usr/etc
+
 override_dh_installchangelogs:
-	dh_installchangelogs -k CHANGES.md
+	dh_installchangelogs -k CHANGELOG.md
 
 override_dh_installinit:
 	dh_installinit --name=gsad

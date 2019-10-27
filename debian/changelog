@@ -1,3 +1,9 @@
+gsa (9.0.0-1) bionic; urgency=medium
+
+  * Imported upstream version 9.0.0
+
+ -- Mohammad Razavi <mrazavi64@gmail.com>  Sun, 27 Oct 2019 17:05:42 +0330
+
 gsa (8.0.0-3) bionic; urgency=medium
 
   * Initial release (imported upstream version 8.0.0)
