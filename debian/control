@@ -2,8 +2,8 @@ Source: gsa
 Section: admin
 Priority: optional
 Maintainer: Mohammad Razavi <mrazavi64@gmail.com>
-Build-Depends: debhelper (>= 9.0.0), cppcheck, doxygen, xmltoman, gettext, python-polib, libgvm-dev (>= 11.0.0), libgnutls28-dev, libgcrypt11-dev, cmake, libglib2.0-dev, libxml2-dev, libxslt1-dev, pkg-config, libmicrohttpd-dev (>= 0.9.0), nodejs (>= 8.0), yarn (>= 1.0), gsa-nodejs-build-dependencies (>= 2.0.0)
-Standards-Version: 4.1.4
+Build-Depends: debhelper-compat (= 12), cppcheck, doxygen, xmltoman, gettext, python-polib, libgvm-dev (>= 11.0.1), libgnutls28-dev, libgcrypt20-dev, cmake, libglib2.0-dev, libxml2-dev, libxslt1-dev, pkg-config, libmicrohttpd-dev (>= 0.9.0), nodejs (>= 8.0), yarnpkg (>= 1.0), gsa-nodejs-build-dependencies (>= 2.0.1)
+Standards-Version: 4.4.1
 Homepage: https://community.greenbone.net/
 Vcs-Browser: https://github.com/greenbone/gsa
 Vcs-git: https://github.com/greenbone/gsa.git
