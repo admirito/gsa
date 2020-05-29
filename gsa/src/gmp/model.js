@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -108,6 +108,12 @@ class Model {
 
     if (isDefined(element.owner) && isEmpty(element.owner.name)) {
       delete copy.owner;
+    }
+
+    copy.summary = parseText(element.summary);
+
+    if (isEmpty(element.summary)) {
+      delete copy.summary;
     }
 
     copy.comment = parseText(element.comment);

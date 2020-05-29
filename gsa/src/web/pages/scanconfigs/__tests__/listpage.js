@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 import React from 'react';
+import {act} from 'react-dom/test-utils';
 
 import Capabilities from 'gmp/capabilities/capabilities';
 import CollectionCounts from 'gmp/collection/collectioncounts';
@@ -37,6 +38,8 @@ import {defaultFilterLoadingActions} from 'web/store/usersettings/defaultfilters
 import {rendererWith, waitForElement, fireEvent} from 'web/utils/testing';
 
 import ScanConfigsPage, {ToolBarIcons} from '../listpage';
+
+window.URL.createObjectURL = jest.fn();
 
 const config = ScanConfig.fromElement({
   _id: '12345',
@@ -72,13 +75,15 @@ const manualUrl = 'test/';
 
 const currentSettings = jest.fn().mockResolvedValue({foo: 'bar'});
 
-const getFilters = jest.fn().mockResolvedValue({
-  data: [],
-  meta: {
-    filter: Filter.fromString(),
-    counts: new CollectionCounts(),
-  },
-});
+const getFilters = jest.fn().mockReturnValue(
+  Promise.resolve({
+    data: [],
+    meta: {
+      filter: Filter.fromString(),
+      counts: new CollectionCounts(),
+    },
+  }),
+);
 
 const getConfigs = jest.fn().mockResolvedValue({
   data: [config],
@@ -137,6 +142,79 @@ describe('ScanConfigsPage tests', () => {
     await waitForElement(() => baseElement.querySelectorAll('table'));
 
     expect(baseElement).toMatchSnapshot();
+  });
+
+  test('should call commands for bulk actions', async () => {
+    const deleteByFilter = jest.fn().mockResolvedValue({
+      foo: 'bar',
+    });
+
+    const exportByFilter = jest.fn().mockResolvedValue({
+      foo: 'bar',
+    });
+
+    const renewSession = jest.fn().mockResolvedValue({data: {}});
+
+    const gmp = {
+      scanconfigs: {
+        get: getConfigs,
+        deleteByFilter,
+        exportByFilter,
+      },
+      filters: {
+        get: getFilters,
+      },
+      reloadInterval,
+      settings: {manualUrl},
+      user: {currentSettings, getSetting, renewSession},
+    };
+
+    const {render, store} = rendererWith({
+      gmp,
+      capabilities: true,
+      store: true,
+      router: true,
+    });
+
+    store.dispatch(setUsername('admin'));
+
+    const defaultSettingfilter = Filter.fromString('foo=bar');
+    store.dispatch(loadingActions.success({rowsperpage: {value: '2'}}));
+    store.dispatch(
+      defaultFilterLoadingActions.success('scanconfig', defaultSettingfilter),
+    );
+
+    const counts = new CollectionCounts({
+      first: 1,
+      all: 1,
+      filtered: 1,
+      length: 1,
+      rows: 10,
+    });
+    const filter = Filter.fromString('first=1 rows=10');
+    const loadedFilter = Filter.fromString('first=1 rows=10');
+    store.dispatch(
+      entitiesActions.success([config], filter, loadedFilter, counts),
+    );
+
+    const {baseElement, getAllByTestId} = render(<ScanConfigsPage />);
+
+    await waitForElement(() => baseElement.querySelectorAll('table'));
+
+    const icons = getAllByTestId('svg-icon');
+
+    await act(async () => {
+      expect(icons[21]).toHaveAttribute(
+        'title',
+        'Move page contents to trashcan',
+      );
+      fireEvent.click(icons[21]);
+      expect(deleteByFilter).toHaveBeenCalled();
+
+      expect(icons[22]).toHaveAttribute('title', 'Export page contents');
+      fireEvent.click(icons[22]);
+      expect(exportByFilter).toHaveBeenCalled();
+    });
   });
 });
 

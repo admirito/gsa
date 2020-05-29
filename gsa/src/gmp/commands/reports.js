@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -28,6 +28,7 @@ import {ALL_FILTER} from '../models/filter';
 
 import DefaultTransform from '../http/transform/default';
 
+import {convertBoolean} from './convert';
 import EntitiesCommand from './entities';
 import EntityCommand from './entity';
 
@@ -91,10 +92,10 @@ export class ReportCommand extends EntityCommand {
       {
         cmd: 'get_report',
         delta_report_id: deltaReportId,
+        details: 1,
         report_id: id,
         report_format_id: reportFormatId,
         filter: isDefined(filter) ? filter.all() : ALL_FILTER,
-        details: 1,
       },
       {transform: DefaultTransform, responseType: 'arraybuffer'},
     );
@@ -125,13 +126,18 @@ export class ReportCommand extends EntityCommand {
     });
   }
 
-  getDelta({id}, {id: delta_report_id}, {filter, ...options} = {}) {
+  getDelta(
+    {id},
+    {id: delta_report_id},
+    {filter, details = true, ...options} = {},
+  ) {
     return this.httpGet(
       {
         id,
         delta_report_id,
         filter,
         ignore_pagination: 1,
+        details: convertBoolean(details),
       },
       options,
     ).then(this.transformResponse);
@@ -139,15 +145,21 @@ export class ReportCommand extends EntityCommand {
 
   get(
     {id},
-    {filter, details = 1, ignorePagination = 1, lean = 1, ...options} = {},
+    {
+      filter,
+      details = true,
+      ignorePagination = true,
+      lean = true,
+      ...options
+    } = {},
   ) {
     return this.httpGet(
       {
         id,
         filter,
-        lean,
-        ignore_pagination: ignorePagination,
-        details,
+        lean: convertBoolean(lean),
+        ignore_pagination: convertBoolean(ignorePagination),
+        details: convertBoolean(details),
       },
       options,
     ).then(this.transformResponse);

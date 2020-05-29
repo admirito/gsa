@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 import React from 'react';
+import {act} from 'react-dom/test-utils';
+
+import {setLocale} from 'gmp/locale/lang';
 
 import Capabilities from 'gmp/capabilities/capabilities';
 import CollectionCounts from 'gmp/collection/collectioncounts';
@@ -32,6 +35,10 @@ import {defaultFilterLoadingActions} from 'web/store/usersettings/defaultfilters
 import {rendererWith, waitForElement, fireEvent} from 'web/utils/testing';
 
 import TaskPage, {ToolBarIcons} from '../listpage';
+
+setLocale('en');
+
+window.URL.createObjectURL = jest.fn();
 
 const lastReport = {
   report: {
@@ -64,13 +71,15 @@ const currentSettings = jest.fn().mockResolvedValue({
   foo: 'bar',
 });
 
-const getFilters = jest.fn().mockResolvedValue({
-  data: [],
-  meta: {
-    filter: Filter.fromString(),
-    counts: new CollectionCounts(),
-  },
-});
+const getFilters = jest.fn().mockReturnValue(
+  Promise.resolve({
+    data: [],
+    meta: {
+      filter: Filter.fromString(),
+      counts: new CollectionCounts(),
+    },
+  }),
+);
 
 const getDashboardSetting = jest.fn().mockResolvedValue({
   data: [],
@@ -108,14 +117,28 @@ const getReportFormats = jest.fn().mockResolvedValue({
   },
 });
 
+const renewSession = jest.fn().mockResolvedValue({
+  foo: 'bar',
+});
+
 describe('TaskPage tests', () => {
-  test('should render full TaskPage', async () => {
+  test('should call commands for bulk actions', async () => {
+    const deleteByFilter = jest.fn().mockResolvedValue({
+      foo: 'bar',
+    });
+
+    const exportByFilter = jest.fn().mockResolvedValue({
+      foo: 'bar',
+    });
+
     const gmp = {
       tasks: {
         get: getTasks,
         getSeverityAggregates: getAggregates,
         getHighResultsAggregates: getAggregates,
         getStatusAggregates: getAggregates,
+        deleteByFilter,
+        exportByFilter,
       },
       filters: {
         get: getFilters,
@@ -128,7 +151,7 @@ describe('TaskPage tests', () => {
       },
       reloadInterval,
       settings: {manualUrl},
-      user: {currentSettings, getSetting: getUserSetting},
+      user: {renewSession, currentSettings, getSetting: getUserSetting},
     };
 
     const {render, store} = rendererWith({
@@ -160,11 +183,24 @@ describe('TaskPage tests', () => {
       entitiesActions.success([task], filter, loadedFilter, counts),
     );
 
-    const {baseElement} = render(<TaskPage />);
+    const {baseElement, getAllByTestId} = render(<TaskPage />);
 
     await waitForElement(() => baseElement.querySelectorAll('table'));
 
-    expect(baseElement).toMatchSnapshot();
+    const icons = getAllByTestId('svg-icon');
+
+    await act(async () => {
+      expect(icons[31]).toHaveAttribute(
+        'title',
+        'Move page contents to trashcan',
+      );
+      fireEvent.click(icons[31]);
+      expect(deleteByFilter).toHaveBeenCalled();
+
+      expect(icons[32]).toHaveAttribute('title', 'Export page contents');
+      fireEvent.click(icons[32]);
+      expect(exportByFilter).toHaveBeenCalled();
+    });
   });
 });
 

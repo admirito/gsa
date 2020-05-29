@@ -155,7 +155,7 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
   cursor: pointer;
 }
 
-.c10 {
+.c9 {
   font-family: inherit;
   font-size: inherit;
   padding: 0;
@@ -166,7 +166,7 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
   height: auto;
 }
 
-.c9 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -289,11 +289,13 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
                       />
                       <span
                         alt="Workaround"
-                        class="c11 "
+                        class="c11"
                         data-testid="svg-icon"
                         title="Workaround"
                       >
-                        <svg>
+                        <svg
+                          title="Workaround"
+                        >
                           st_workaround.svg
                         </svg>
                       </span>
@@ -328,11 +330,13 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
                       />
                       <span
                         alt="Mitigation"
-                        class="c11 "
+                        class="c11"
                         data-testid="svg-icon"
                         title="Mitigation"
                       >
-                        <svg>
+                        <svg
+                          title="Mitigation"
+                        >
                           st_mitigate.svg
                         </svg>
                       </span>
@@ -369,11 +373,13 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
                       />
                       <span
                         alt="Vendorfix"
-                        class="c11 "
+                        class="c11"
                         data-testid="svg-icon"
                         title="Vendorfix"
                       >
-                        <svg>
+                        <svg
+                          title="Vendorfix"
+                        >
                           st_vendorfix.svg
                         </svg>
                       </span>
@@ -408,11 +414,13 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
                       />
                       <span
                         alt="None available"
-                        class="c11 "
+                        class="c11"
                         data-testid="svg-icon"
                         title="None available"
                       >
-                        <svg>
+                        <svg
+                          title="None available"
+                        >
                           st_nonavailable.svg
                         </svg>
                       </span>
@@ -447,11 +455,13 @@ exports[`SolutionTypesFilterGroup tests should render 1`] = `
                       />
                       <span
                         alt="Will not fix"
-                        class="c11 "
+                        class="c11"
                         data-testid="svg-icon"
                         title="Will not fix"
                       >
-                        <svg>
+                        <svg
+                          title="Will not fix"
+                        >
                           st_willnotfix.svg
                         </svg>
                       </span>

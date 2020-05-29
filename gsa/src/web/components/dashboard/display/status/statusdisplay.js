@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -37,11 +37,13 @@ class StatusDisplay extends React.Component {
   }
 
   handleDataClick(data) {
-    const {onFilterChanged, filter} = this.props;
+    const {onFilterChanged, filter, filterTerm = 'status'} = this.props;
     const {filterValue} = data;
 
     if (isDefined(filterValue) && isDefined(onFilterChanged)) {
-      const statusTerm = FilterTerm.fromString(`status="${filterValue}"`);
+      const statusTerm = FilterTerm.fromString(
+        `${filterTerm}="${filterValue}"`,
+      );
 
       if (isDefined(filter) && filter.hasTerm(statusTerm)) {
         return;
@@ -90,6 +92,7 @@ class StatusDisplay extends React.Component {
 
 StatusDisplay.propTypes = {
   filter: PropTypes.filter,
+  filterTerm: PropTypes.string,
   onFilterChanged: PropTypes.func,
 };
 

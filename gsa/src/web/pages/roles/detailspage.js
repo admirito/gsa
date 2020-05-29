@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -278,7 +278,7 @@ Page.propTypes = {
 };
 
 const generalPermissionsFilter = id =>
-  Filter.fromString('subject_uuid=' + id).all();
+  Filter.fromString('subject_uuid=' + id + ' and resource_uuid=""').all();
 
 const load = gmp => {
   const loadEntityFunc = loadEntity(gmp);

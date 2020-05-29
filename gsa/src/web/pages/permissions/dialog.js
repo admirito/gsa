@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -276,6 +276,7 @@ const PermissionDialog = ({
                     <Radio
                       name="subjectType"
                       checked={state.subjectType === 'group'}
+                      disabled={groups.length === 0}
                       title={_('Group')}
                       value="group"
                       onChange={onValueChange}

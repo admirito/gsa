@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -16,7 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 import React from 'react';
 
 import {connect} from 'react-redux';
@@ -183,6 +182,8 @@ class EntitiesPage extends React.Component {
       filter,
       filterEditDialog,
       filters,
+      isLoading,
+      isLoadingFilters,
       powerfilter = PowerFilter,
       onError,
       onFilterChanged,
@@ -205,6 +206,8 @@ class EntitiesPage extends React.Component {
         <PowerFilterComponent
           filter={filter}
           filters={filters}
+          isLoading={isLoading}
+          isLoadingFilters={isLoadingFilters}
           onEditClick={handler}
           onError={onError}
           onRemoveClick={onFilterRemoved}
@@ -290,6 +293,7 @@ EntitiesPage.propTypes = {
   filters: PropTypes.array,
   filtersFilter: PropTypes.filter,
   isLoading: PropTypes.bool,
+  isLoadingFilters: PropTypes.bool,
   loadFilters: PropTypes.func.isRequired,
   powerfilter: PropTypes.componentOrFalse,
   section: PropTypes.componentOrFalse,
@@ -316,13 +320,16 @@ const mapStateToProps = (state, {filtersFilter}) => {
   if (!isDefined(filtersFilter)) {
     return {
       filters: [],
+      isLoadingFilters: false,
     };
   }
 
   const filterSelector = selector(state);
   const filters = filterSelector.getAllEntities(filtersFilter);
+
   return {
     filters: hasValue(filters) ? filters : [],
+    isLoadingFilters: filterSelector.isLoadingAllEntities(filtersFilter),
   };
 };
 
@@ -332,10 +339,7 @@ const mapDispatchToProps = (dispatch, {gmp, filtersFilter}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProps, mapDispatchToProps),
 )(EntitiesPage);
 
 // vim: set ts=2 sw=2 tw=80:

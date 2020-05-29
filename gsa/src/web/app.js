@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -57,7 +57,7 @@ const gmp = new Gmp(settings);
 const store = configureStore(
   isDefined(settings.enableStoreDebugLog)
     ? settings.enableStoreDebugLog
-    : settings.loglevel === LOG_LEVEL_DEBUG,
+    : settings.logLevel === LOG_LEVEL_DEBUG,
 );
 
 window.gmp = gmp;

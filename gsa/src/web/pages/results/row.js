@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -122,7 +122,7 @@ const Row = ({
       </TableData>
       <TableData>{entity.port}</TableData>
       <TableData>
-        <DateTime date={entity.modificationTime} />
+        <DateTime date={entity.creationTime} />
       </TableData>
       <ActionsComponent {...props} entity={entity} />
     </TableRow>

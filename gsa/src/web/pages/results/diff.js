@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -16,6 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+import 'core-js/features/string/starts-with';
+
 import React from 'react';
 
 import styled from 'styled-components';
@@ -28,11 +30,11 @@ const Pre = styled.div`
   font-family: monospace;
 `;
 
-const Removed = styled(Pre)`
+export const Removed = styled(Pre)`
   background-color: #ffeef0;
 `;
 
-const Added = styled(Pre)`
+export const Added = styled(Pre)`
   background-color: #e6ffed;
 `;
 

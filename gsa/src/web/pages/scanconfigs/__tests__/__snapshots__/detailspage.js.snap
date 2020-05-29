@@ -315,11 +315,11 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
   position: relative;
 }
 
-.c10 {
+.c9 {
   margin: 0 0 1px 0;
 }
 
-.c9 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -464,7 +464,7 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
   margin-bottom: 15px;
 }
 
-.c26 {
+.c25 {
   border: 0;
   border-spacing: 0px;
   font-size: 12px;
@@ -472,11 +472,11 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
   table-layout: auto;
 }
 
-.c25 td {
+.c26 td {
   padding: 4px 4px 4px 0;
 }
 
-.c25 tr td:first-child {
+.c26 tr td:first-child {
   padding-right: 5px;
 }
 
@@ -528,7 +528,7 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
 }
 
 @media print {
-  .c26 {
+  .c25 {
     border-collapse: collapse;
   }
 }
@@ -537,7 +537,7 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
   class="c0"
 >
   <div
-    class="toolbar c1"
+    class="c1 toolbar"
   >
     <div
       class="c2"
@@ -559,11 +559,13 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
               target="_blank"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Help: ScanConfigs"
               >
-                <svg>
+                <svg
+                  title="Help: ScanConfigs"
+                >
                   help.svg
                 </svg>
               </span>
@@ -573,11 +575,13 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
               href="/scanconfigs"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="ScanConfig List"
               >
-                <svg>
+                <svg
+                  title="ScanConfig List"
+                >
                   list.svg
                 </svg>
               </span>
@@ -592,56 +596,68 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
             margin="5px"
           >
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Create new Scan Config"
             >
-              <svg>
+              <svg
+                title="Create new Scan Config"
+              >
                 new.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Clone Scan Config"
             >
-              <svg>
+              <svg
+                title="Clone Scan Config"
+              >
                 clone.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Edit Scan Config"
             >
-              <svg>
+              <svg
+                title="Edit Scan Config"
+              >
                 edit.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Move Scan Config to trashcan"
             >
-              <svg>
+              <svg
+                title="Move Scan Config to trashcan"
+              >
                 trashcan.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Export Scan Config as XML"
             >
-              <svg>
+              <svg
+                title="Export Scan Config as XML"
+              >
                 export.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Import Scan Config"
             >
-              <svg>
+              <svg
+                title="Import Scan Config"
+              >
                 upload.svg
               </svg>
             </span>
@@ -654,7 +670,7 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
     class="entity-section"
   >
     <div
-      class="section-header c8"
+      class="c8 section-header"
     >
       <h2
         class="c9 c10"
@@ -663,7 +679,7 @@ exports[`Scan Config Detailspage tests should render full Detailspage 1`] = `
           class="c11"
         >
           <span
-            class="c12 "
+            class="c12"
             data-testid="svg-icon"
           >
             <svg>
@@ -1047,11 +1063,13 @@ exports[`Scan Config ToolBarIcons tests should render 1`] = `
           target="_blank"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Help: ScanConfigs"
           >
-            <svg>
+            <svg
+              title="Help: ScanConfigs"
+            >
               help.svg
             </svg>
           </span>
@@ -1061,11 +1079,13 @@ exports[`Scan Config ToolBarIcons tests should render 1`] = `
           href="/scanconfigs"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="ScanConfig List"
           >
-            <svg>
+            <svg
+              title="ScanConfig List"
+            >
               list.svg
             </svg>
           </span>
@@ -1080,56 +1100,68 @@ exports[`Scan Config ToolBarIcons tests should render 1`] = `
         margin="5px"
       >
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Create new Scan Config"
         >
-          <svg>
+          <svg
+            title="Create new Scan Config"
+          >
             new.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Clone Scan Config"
         >
-          <svg>
+          <svg
+            title="Clone Scan Config"
+          >
             clone.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Edit Scan Config"
         >
-          <svg>
+          <svg
+            title="Edit Scan Config"
+          >
             edit.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Move Scan Config to trashcan"
         >
-          <svg>
+          <svg
+            title="Move Scan Config to trashcan"
+          >
             trashcan.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Export Scan Config as XML"
         >
-          <svg>
+          <svg
+            title="Export Scan Config as XML"
+          >
             export.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Import Scan Config"
         >
-          <svg>
+          <svg
+            title="Import Scan Config"
+          >
             upload.svg
           </svg>
         </span>

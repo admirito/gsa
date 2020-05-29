@@ -253,7 +253,7 @@ exports[`Policies table tests should render 1`] = `
   display: inline-flex;
 }
 
-.c4 {
+.c2 {
   cursor: pointer;
 }
 
@@ -272,7 +272,7 @@ exports[`Policies table tests should render 1`] = `
   width: inherit;
 }
 
-.c28 {
+.c27 {
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -297,13 +297,13 @@ exports[`Policies table tests should render 1`] = `
   cursor: pointer;
 }
 
-.c27 {
+.c28 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c27 * {
+.c28 * {
   height: inherit;
   width: inherit;
 }
@@ -460,7 +460,7 @@ exports[`Policies table tests should render 1`] = `
   border-bottom: 1px solid #c8d3d9;
 }
 
-.c2 {
+.c4 {
   margin-top: 2px;
   margin-left: 2px;
 }
@@ -502,7 +502,7 @@ exports[`Policies table tests should render 1`] = `
 }
 
 @media print {
-  .c4 {
+  .c2 {
     display: none;
   }
 }
@@ -574,7 +574,7 @@ exports[`Policies table tests should render 1`] = `
   />
   <div>
     <div
-      class="entities-table c0"
+      class="c0 entities-table"
     >
       <div
         class="c1"
@@ -584,7 +584,9 @@ exports[`Policies table tests should render 1`] = `
           data-testid="svg-icon"
           title="Unfold all details"
         >
-          <svg>
+          <svg
+            title="Unfold all details"
+          >
             fold.svg
           </svg>
         </span>
@@ -599,20 +601,24 @@ exports[`Policies table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -631,20 +637,24 @@ exports[`Policies table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>
@@ -724,47 +734,57 @@ exports[`Policies table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Policy to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Policy to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Policy"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Policy"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Create Audit from Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Create Audit from Policy"
+                      >
                         new.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Export Policy"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -815,47 +835,57 @@ exports[`Policies table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Policy to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Policy to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Policy"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Policy"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Create Audit from Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Create Audit from Policy"
+                      >
                         new.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Export Policy"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -906,47 +936,57 @@ exports[`Policies table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Policy to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Policy to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Policy"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Policy"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Create Audit from Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Create Audit from Policy"
+                      >
                         new.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Policy"
                     >
-                      <svg>
+                      <svg
+                        title="Export Policy"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1011,7 +1051,7 @@ exports[`Policies table tests should render 1`] = `
                         margin="5px"
                       >
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1019,7 +1059,7 @@ exports[`Policies table tests should render 1`] = `
                           </svg>
                         </span>
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1054,20 +1094,24 @@ exports[`Policies table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -1086,20 +1130,24 @@ exports[`Policies table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>

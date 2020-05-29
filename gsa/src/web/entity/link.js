@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -27,11 +27,11 @@ import withCapabilities from '../utils/withCapabilities.js';
 
 import DetailsLink from '../components/link/detailslink.js';
 import Link from '../components/link/link.js';
-import {getEntityType} from 'gmp/utils/entitytype.js';
+import {getEntityType, normalizeType} from 'gmp/utils/entitytype.js';
 
 const EntityLink = ({capabilities, entity, textOnly, ...props}) => {
   const {id, name, userCapabilities, deleted} = entity;
-  const type = getEntityType(entity);
+  const type = normalizeType(getEntityType(entity));
 
   if (entity.isInTrash()) {
     return (
@@ -45,7 +45,7 @@ const EntityLink = ({capabilities, entity, textOnly, ...props}) => {
     );
   }
 
-  if (isDefined(deleted) && deleted !== '0') {
+  if (isDefined(deleted) && deleted !== 0) {
     // FIXME is this still used?
     return <b>{_('Orphan')}</b>;
   }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -65,7 +65,7 @@ export const severityFormat = format('0.1f');
 
 export const renderNvtName = (oid, name, length = 70) => {
   if (!isDefined(name)) {
-    return '';
+    return oid;
   }
 
   if (name.length < length) {

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -16,11 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import React from 'react';
+import React, {useState} from 'react';
 
 import styled from 'styled-components';
 
-import {isDefined} from 'gmp/utils/identity';
+import _ from 'gmp/locale';
+
+import {isDefined, isFunction} from 'gmp/utils/identity';
 
 import PropTypes from 'web/utils/proptypes';
 
@@ -41,8 +43,17 @@ const Styled = styled.span`
     }
   }
 
+  & svg {
+    background: ${props =>
+      props.isLoading
+        ? 'url(/img/loading.gif) center center no-repeat'
+        : undefined};
+  }
+
   & svg path {
-    fill: ${({active = true}) => (active ? undefined : Theme.inputBorderGray)};
+    display: ${props => (props.isLoading ? 'none' : undefined)};
+    fill: ${props =>
+      props.active || props.isLoading ? undefined : Theme.inputBorderGray};
   }
 `;
 
@@ -50,32 +61,61 @@ const SvgIcon = ({
   disabled = false,
   active = !disabled,
   children,
+  loadingTitle = _('Loading...'),
+  title,
   to,
   value,
   onClick,
   ...other
-}) => (
-  <Styled
-    {...other}
-    data-testid="svg-icon"
-    active={active}
-    onClick={
-      isDefined(onClick) && !disabled
-        ? event => {
-            event.preventDefault();
-            event.stopPropagation();
-            onClick(value);
-          }
-        : undefined
+}) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    const promise = onClick(value);
+
+    if (isDefined(promise) && isDefined(promise.then)) {
+      setLoading(true);
+      // eslint-disable-next-line no-shadow
+      promise
+        .then(() => {
+          setLoading(false);
+        })
+        .catch(error => {
+          setLoading(false);
+          throw error;
+        });
     }
-  >
-    {isDefined(to) ? <Anchor href={to}>{children}</Anchor> : children}
-  </Styled>
-);
+  };
+
+  title = loading ? loadingTitle : title;
+
+  if (isFunction(children)) {
+    children = children({title});
+  }
+
+  return (
+    <Styled
+      {...other}
+      data-testid="svg-icon"
+      active={active && !loading}
+      isLoading={loading}
+      title={title}
+      onClick={
+        isDefined(onClick) && !disabled && !loading ? handleClick : undefined
+      }
+    >
+      {isDefined(to) ? <Anchor href={to}>{children}</Anchor> : children}
+    </Styled>
+  );
+};
 
 SvgIcon.propTypes = {
   active: PropTypes.bool,
   disabled: PropTypes.bool,
+  loadingTitle: PropTypes.string,
+  title: PropTypes.string,
   to: PropTypes.string,
   value: PropTypes.any,
   onClick: PropTypes.func,

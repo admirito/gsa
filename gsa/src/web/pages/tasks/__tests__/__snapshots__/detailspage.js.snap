@@ -338,11 +338,11 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   position: relative;
 }
 
-.c20 {
+.c19 {
   margin: 0 0 1px 0;
 }
 
-.c19 {
+.c20 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -487,7 +487,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   margin-bottom: 15px;
 }
 
-.c36 {
+.c35 {
   border: 0;
   border-spacing: 0px;
   font-size: 12px;
@@ -504,11 +504,11 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   width: 100%;
 }
 
-.c35 td {
+.c36 td {
   padding: 4px 4px 4px 0;
 }
 
-.c35 tr td:first-child {
+.c36 tr td:first-child {
   padding-right: 5px;
 }
 
@@ -594,51 +594,6 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   text-decoration: none;
 }
 
-.c16 {
-  position: relative;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  margin-right: 0px;
-}
-
-.c17 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-content: center;
-  -ms-flex-line-pack: center;
-  align-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: absolute;
-  font-size: 10px;
-  background-color: red;
-  font-weight: bold;
-  border-radius: 10px;
-  min-width: 10px;
-  padding: 3px 5px;
-  z-index: 1;
-  background-color: #66c430;
-  color: #fff;
-  bottom: -8px;
-  right: 0px;
-}
-
 .c9 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
@@ -718,6 +673,51 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   cursor: pointer;
 }
 
+.c16 {
+  position: relative;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  margin-right: 0px;
+}
+
+.c17 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: absolute;
+  font-size: 10px;
+  background-color: red;
+  font-weight: bold;
+  border-radius: 10px;
+  min-width: 10px;
+  padding: 3px 5px;
+  z-index: 1;
+  background-color: #66c430;
+  color: #fff;
+  bottom: -8px;
+  right: 0px;
+}
+
 @media print {
   .c14 {
     display: none;
@@ -725,7 +725,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
 }
 
 @media print {
-  .c36 {
+  .c35 {
     border-collapse: collapse;
   }
 }
@@ -759,7 +759,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
   class="c0"
 >
   <div
-    class="toolbar c1"
+    class="c1 toolbar"
   >
     <div
       class="c2"
@@ -781,11 +781,13 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
               target="_blank"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Help: Tasks"
               >
-                <svg>
+                <svg
+                  title="Help: Tasks"
+                >
                   help.svg
                 </svg>
               </span>
@@ -795,21 +797,25 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
               href="/tasks"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Task List"
               >
-                <svg>
+                <svg
+                  title="Task List"
+                >
                   list.svg
                 </svg>
               </span>
             </a>
             <span
-              class="c5 "
+              class="c5"
               data-testid="svg-icon"
               title="This is an Alterable Task. Reports may not relate to current Scan Config or Target!"
             >
-              <svg>
+              <svg
+                title="This is an Alterable Task. Reports may not relate to current Scan Config or Target!"
+              >
                 alterable.svg
               </svg>
             </span>
@@ -826,7 +832,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
               class="c8 c9"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
               >
                 <svg>
@@ -861,38 +867,46 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
               </div>
             </span>
             <span
-              class="c5 c14"
+              class="c14 c5"
               data-testid="svg-icon"
               title="Clone Task"
             >
-              <svg>
+              <svg
+                title="Clone Task"
+              >
                 clone.svg
               </svg>
             </span>
             <span
-              class="c5 c14"
+              class="c14 c5"
               data-testid="svg-icon"
               title="Edit Task"
             >
-              <svg>
+              <svg
+                title="Edit Task"
+              >
                 edit.svg
               </svg>
             </span>
             <span
-              class="c5 c14"
+              class="c14 c5"
               data-testid="svg-icon"
               title="Move Task to trashcan"
             >
-              <svg>
+              <svg
+                title="Move Task to trashcan"
+              >
                 trashcan.svg
               </svg>
             </span>
             <span
-              class="c5 c14"
+              class="c14 c5"
               data-testid="svg-icon"
               title="Export Task as XML"
             >
-              <svg>
+              <svg
+                title="Export Task as XML"
+              >
                 export.svg
               </svg>
             </span>
@@ -906,21 +920,25 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
             margin="5px"
           >
             <span
-              class="c5 c14"
+              class="c14 c5"
               data-testid="svg-icon"
               title="Start"
             >
-              <svg>
+              <svg
+                title="Start"
+              >
                 start.svg
               </svg>
             </span>
             <span
               alt="Resume"
-              class="c5 c15"
+              class="c15 c5"
               data-testid="svg-icon"
               title="Task is not stopped"
             >
-              <svg>
+              <svg
+                title="Task is not stopped"
+              >
                 resume.svg
               </svg>
             </span>
@@ -947,7 +965,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                   title="Last Report for Task foo from 07/30/2019"
                 >
                   <span
-                    class="c5 "
+                    class="c5"
                     data-testid="svg-icon"
                   >
                     <svg>
@@ -964,7 +982,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                     class="c16"
                   >
                     <span
-                      class="c5 "
+                      class="c5"
                       data-testid="svg-icon"
                     >
                       <svg>
@@ -990,7 +1008,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                 class="c16"
               >
                 <span
-                  class="c5 "
+                  class="c5"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -1021,7 +1039,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                     class="c16"
                   >
                     <span
-                      class="c5 "
+                      class="c5"
                       data-testid="svg-icon"
                     >
                       <svg>
@@ -1045,7 +1063,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                     class="c16"
                   >
                     <span
-                      class="c5 "
+                      class="c5"
                       data-testid="svg-icon"
                     >
                       <svg>
@@ -1071,7 +1089,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
     class="entity-section"
   >
     <div
-      class="section-header c18"
+      class="c18 section-header"
     >
       <h2
         class="c19 c20"
@@ -1080,7 +1098,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
           class="c21"
         >
           <span
-            class="c22 "
+            class="c22"
             data-testid="svg-icon"
           >
             <svg>
@@ -1267,7 +1285,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                   class="c34"
                 >
                   <a
-                    class="c39 c6"
+                    class="c6 c39"
                     data-testid="details-link"
                     href="/report/1234"
                   >
@@ -1326,7 +1344,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
                 class="c2"
               >
                 <div
-                  class="c44 c7"
+                  class="c7 c44"
                   margin="5px"
                 >
                   <span>
@@ -1350,7 +1368,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c35 c45"
+                class="c45 c36"
               >
                 <colgroup>
                   <col
@@ -1417,7 +1435,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c35 c45"
+                class="c45 c36"
               >
                 <colgroup>
                   <col
@@ -1492,7 +1510,7 @@ exports[`Task Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c35 c45"
+                class="c45 c36"
               >
                 <colgroup>
                   <col
@@ -1711,51 +1729,6 @@ exports[`Task ToolBarIcons tests should render 1`] = `
   width: inherit;
 }
 
-.c14 {
-  position: relative;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  margin-right: 0px;
-}
-
-.c15 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-content: center;
-  -ms-flex-line-pack: center;
-  align-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: absolute;
-  font-size: 10px;
-  background-color: red;
-  font-weight: bold;
-  border-radius: 10px;
-  min-width: 10px;
-  padding: 3px 5px;
-  z-index: 1;
-  background-color: #66c430;
-  color: #fff;
-  bottom: -8px;
-  right: 0px;
-}
-
 .c7 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
@@ -1835,6 +1808,51 @@ exports[`Task ToolBarIcons tests should render 1`] = `
   cursor: pointer;
 }
 
+.c14 {
+  position: relative;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  margin-right: 0px;
+}
+
+.c15 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: absolute;
+  font-size: 10px;
+  background-color: red;
+  font-weight: bold;
+  border-radius: 10px;
+  min-width: 10px;
+  padding: 3px 5px;
+  z-index: 1;
+  background-color: #66c430;
+  color: #fff;
+  bottom: -8px;
+  right: 0px;
+}
+
 @media print {
   .c12 {
     display: none;
@@ -1861,11 +1879,13 @@ exports[`Task ToolBarIcons tests should render 1`] = `
           target="_blank"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Help: Tasks"
           >
-            <svg>
+            <svg
+              title="Help: Tasks"
+            >
               help.svg
             </svg>
           </span>
@@ -1875,21 +1895,25 @@ exports[`Task ToolBarIcons tests should render 1`] = `
           href="/tasks"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Task List"
           >
-            <svg>
+            <svg
+              title="Task List"
+            >
               list.svg
             </svg>
           </span>
         </a>
         <span
-          class="c3 "
+          class="c3"
           data-testid="svg-icon"
           title="This is an Alterable Task. Reports may not relate to current Scan Config or Target!"
         >
-          <svg>
+          <svg
+            title="This is an Alterable Task. Reports may not relate to current Scan Config or Target!"
+          >
             alterable.svg
           </svg>
         </span>
@@ -1906,7 +1930,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
           class="c6 c7"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
           >
             <svg>
@@ -1941,38 +1965,46 @@ exports[`Task ToolBarIcons tests should render 1`] = `
           </div>
         </span>
         <span
-          class="c3 c12"
+          class="c12 c3"
           data-testid="svg-icon"
           title="Clone Task"
         >
-          <svg>
+          <svg
+            title="Clone Task"
+          >
             clone.svg
           </svg>
         </span>
         <span
-          class="c3 c12"
+          class="c12 c3"
           data-testid="svg-icon"
           title="Edit Task"
         >
-          <svg>
+          <svg
+            title="Edit Task"
+          >
             edit.svg
           </svg>
         </span>
         <span
-          class="c3 c12"
+          class="c12 c3"
           data-testid="svg-icon"
           title="Move Task to trashcan"
         >
-          <svg>
+          <svg
+            title="Move Task to trashcan"
+          >
             trashcan.svg
           </svg>
         </span>
         <span
-          class="c3 c12"
+          class="c12 c3"
           data-testid="svg-icon"
           title="Export Task as XML"
         >
-          <svg>
+          <svg
+            title="Export Task as XML"
+          >
             export.svg
           </svg>
         </span>
@@ -1986,21 +2018,25 @@ exports[`Task ToolBarIcons tests should render 1`] = `
         margin="5px"
       >
         <span
-          class="c3 c12"
+          class="c12 c3"
           data-testid="svg-icon"
           title="Start"
         >
-          <svg>
+          <svg
+            title="Start"
+          >
             start.svg
           </svg>
         </span>
         <span
           alt="Resume"
-          class="c3 c13"
+          class="c13 c3"
           data-testid="svg-icon"
           title="Task is not stopped"
         >
-          <svg>
+          <svg
+            title="Task is not stopped"
+          >
             resume.svg
           </svg>
         </span>
@@ -2027,7 +2063,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
               title="Last Report for Task foo from 07/30/2019"
             >
               <span
-                class="c3 "
+                class="c3"
                 data-testid="svg-icon"
               >
                 <svg>
@@ -2044,7 +2080,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
                 class="c14"
               >
                 <span
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -2070,7 +2106,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
             class="c14"
           >
             <span
-              class="c3 "
+              class="c3"
               data-testid="svg-icon"
             >
               <svg>
@@ -2101,7 +2137,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
                 class="c14"
               >
                 <span
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -2125,7 +2161,7 @@ exports[`Task ToolBarIcons tests should render 1`] = `
                 class="c14"
               >
                 <span
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                 >
                   <svg>

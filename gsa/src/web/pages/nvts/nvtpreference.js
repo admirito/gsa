@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -163,6 +163,7 @@ NvtPreference.propTypes = {
     name: PropTypes.string.isRequired,
     value: PropTypes.any,
     alt: PropTypes.array,
+    type: PropTypes.string,
   }).isRequired,
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,

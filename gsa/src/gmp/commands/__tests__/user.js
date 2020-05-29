@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -30,7 +30,7 @@ describe('UserCommand tests', () => {
               auth_conf_setting: [
                 {
                   key: 'enable',
-                  value: 'true',
+                  value: true,
                 },
               ],
             },

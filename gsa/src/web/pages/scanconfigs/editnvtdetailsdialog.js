@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -72,6 +72,9 @@ const createPrefValues = (preferences = []) => {
   return preferenceValues;
 };
 
+const convertTimeout = value =>
+  !isDefined(value) || value.trim().length === 0 ? undefined : value;
+
 const EditNvtDetailsDialog = ({
   configId,
   configName,
@@ -92,13 +95,13 @@ const EditNvtDetailsDialog = ({
   onClose,
   onSave,
 }) => {
+  timeout = convertTimeout(timeout);
+
   const [preferenceValues, setPreferenceValues] = useState(
     createPrefValues(preferences),
   );
 
-  const [controlledTimeout, setControlledTimeout] = useState(
-    isDefined(timeout) ? timeout : '',
-  );
+  const [controlledTimeout, setControlledTimeout] = useState(timeout);
   const [useDefaultTimeout, setDefaultTimeout] = useState(
     isDefined(timeout) ? '0' : '1',
   );
@@ -111,6 +114,10 @@ const EditNvtDetailsDialog = ({
     setControlledTimeout(timeout);
     setDefaultTimeout(isDefined(timeout) ? '0' : '1');
   }, [timeout]);
+
+  const handleChangeTimeout = value => {
+    setControlledTimeout(convertTimeout(value));
+  };
 
   const controlledData = {
     configId,
@@ -243,8 +250,8 @@ const EditNvtDetailsDialog = ({
                         <TextField
                           disabled={state.useDefaultTimeout === '1'}
                           name="timeout"
-                          value={state.timeout}
-                          onChange={value => setControlledTimeout(value)}
+                          value={isDefined(state.timeout) ? state.timeout : ''}
+                          onChange={handleChangeTimeout}
                         />
                       </Divider>
                     </Divider>

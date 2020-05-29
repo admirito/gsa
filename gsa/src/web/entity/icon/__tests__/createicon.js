@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -40,7 +40,6 @@ describe('Entity CreateIcon component tests', () => {
       <CreateIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(caps.mayCreate('task')).toEqual(true);
 
     fireEvent.click(element);

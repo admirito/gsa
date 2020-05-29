@@ -4,9 +4,81 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [9.0.1] - 2020-05-13
+
+### Added
+- Added scanner selection to audit dialog
+  [#2031](https://github.com/greenbone/gsa/pull/2031)
+  [#2105](https://github.com/greenbone/gsa/pull/2105)
+- Added base config to create scanconfig dialog, make it new default base for scanconfigs and new base for policies [#1789](https://github.com/greenbone/gsa/pull/1789)
+- Display timezone for session timeout in user menu [#1764](https://github.com/greenbone/gsa/pull/1764)
+
+### Changed
+- Adjusted parsing of filter strings to deal with strings with double quotes [#2051](https://github.com/greenbone/gsa/pull/2051)
+- Changed report TlsCertificate table headers to match TlsCertificate assets
+table headers [#2044](https://github.com/greenbone/gsa/pull/2044)
+- Unify source reports and hosts in TlsCertficateModel [#2040](https://github.com/greenbone/gsa/pull/2040)
+- Set filter rows in hostsTopologyLoader to not use rows=-1 [#2026](https://github.com/greenbone/gsa/pull/2026)
+- Updated copyright header dates to 2020 [#2019](https://github.com/greenbone/gsa/pull/2020)
+- Updated German translation and fixed parts that were missing after the last merge [#1991](https://github.com/greenbone/gsa/pull/1991)
+- Improved error handling for invalid detailspage links [#1986](https://github.com/greenbone/gsa/pull/1986)
+- Adjusted DEFAULT_OID_VALUE for use with new oid scheme [#1974](https://github.com/greenbone/gsa/pull/1974)
+- Made delta report diffs more explicit [#1950](https://github.com/greenbone/gsa/pull/1950)
+- Changed default port to 22 for scanner dialog [#1768](https://github.com/greenbone/gsa/pull/1768)
+- Improved Delta Report Details [#1748](https://github.com/greenbone/gsa/pull/1748)
+- Updated node dependencies to latest releases [#1735](https://github.com/greenbone/gsa/pull/1735)
+- If details not defined, then choose first OS from identifiers [#1719](https://github.com/greenbone/gsa/pull/1719)
+- Sorting of SecInfo items [#1717](https://github.com/greenbone/gsa/pull/1717))
+- Disabled edit PowerFilter icon if isLoading [#1714](https://github.com/greenbone/gsa/pull/1714)
+- Don't show empty menu section [#1711](https://github.com/greenbone/gsa/pull/1711)
+- Increased clickable area for Logout [#1711](https://github.com/greenbone/gsa/pull/1711)
+- Lower memory usage when getting a report [#1857](https://github.com/greenbone/gvmd/pull/1857)
+
+### Fixed
+- Fixed passing threshold prop in AlertActions for ThresholdMessage [#2114](https://github.com/greenbone/gsa/pull/2114)
+- Fixed audit listpage observer tooltip [#2048](https://github.com/greenbone/gsa/pull/2048)
+- Fixed showing errors in CredentialDialog when opened from AlertDialog [#2041](https://github.com/greenbone/gsa/pull/2041)
+- Fixed usage of report format %F in generateFilename() [#2021](https://github.com/greenbone/gsa/pull/2021)
+- Fixed report DetailsContent counts in tabs [#2004](https://github.com/greenbone/gsa/pull/2004) [#2023](https://github.com/greenbone/gsa/pull/2023) [#2067](https://github.com/greenbone/gsa/pull/2067)
+- Fixed auto_delete_value of 0 for tasks and audits [#1987](https://github.com/greenbone/gsa/pull/1987)
+- Fixed bulk tagging by user selection (send IDs as array) [#1985](https://github.com/greenbone/gsa/pull/1985)
+- Fixed pluralizing type 'vulnerability' [#1984](https://github.com/greenbone/gsa/pull/1984)
+- Do not crash if osCpe or osTxt are undefined in OsIcon [#1975](https://github.com/greenbone/gsa/pull/1975) [#1978](https://github.com/greenbone/gsa/pull/1978)
+- Fix task listpage observer tooltip [#1949](https://github.com/greenbone/gsa/pull/1949)
+- Fix broken entity links for reportformat, scanconfig and portlist [#1937](https://github.com/greenbone/gsa/pull/1937)
+- Fix showing resource as orphaned when it's not [#1921](https://github.com/greenbone/gsa/pull/1921)
+- Fix override new severity being invalid [#1909](https://github.com/greenbone/gsa/pull/1909)
+- Fixed missing usage_type in getAggregates commands for tasks [#1906](https://github.com/greenbone/gsa/pull/1906)
+- Fixed undefined policy in create audit dialog [#1847](https://github.com/greenbone/gsa/pull/1847)
+- Fixed TLS certificate filtering [#1830](https://github.com/greenbone/gsa/pull/1830)
+- Fixed resetting to default filter at list pages [#1828](https://github.com/greenbone/gsa/pull/1828)
+- Fixed error when parsing invalid hosts for overrides and notes [#1810](https://github.com/greenbone/gsa/pull/1810)
+- Fixed displaying icon titles [#1809](https://github.com/greenbone/gsa/pull/1809)
+- Fixed svg icon cursor is always a pointer [#1800](https://github.com/greenbone/gsa/pull/1800)
+- Fixed defaultfilter is not always applied [#1783](https://github.com/greenbone/gsa/pull/1783)
+- Fixed checkboxes in scanconfig editdialog reset after every rerender [#1773](https://github.com/greenbone/gsa/pull/1773)
+- Pass scanner port number to scanner dialog from component [#1772](https://github.com/greenbone/gsa/pull/1772)
+- Fixed allowed range for auto delete keep value [#1729](https://github.com/greenbone/gsa/pull/1729)
+- Fix Created column on Results listpage [#1726](https://github.com/greenbone/gsa/pull/1726)
+- Get delta report needs to send details=1 [#1724](https://github.com/greenbone/gsa/pull/1724)
+- Improve filter handling in report details [#1708](https://github.com/greenbone/gsa/pull/1708)
+- Fix TLS certificate download [#1704](https://github.com/greenbone/gsa/pull/1704)
+- Import additional polyfills for IE11 [#1702](https://github.com/greenbone/gsa/pull/1702)
+- Handle authentication errors in gsad more carefully [#1700](https://github.com/greenbone/gsa/pull/1700)
+- Add usage_type param to get_aggregate [#1872](https://github.com/greenbone/gsa/pull/1872)
+
+### Removed
+- Removed auto delete field from container task dialog [#1784](https://github.com/greenbone/gsa/pull/1784)
+- Removed obsolete DefaultFilter component and withDefaultFilter HOC [#1709](https://github.com/greenbone/gsa/pull/1709)
+
+[9.0.1]: https://github.com/greenbone/gsa/compare/v9.0.0...v9.0.1
+
 ## [9.0.0] - 2019-10-14
 
 ### Added
+- Add statereducer function to Select component: Scrolls to last selected item [#1715](https://github.com/greenbone/gsa/pull/1715)
+- Add loading indicator to select [#1716](https://github.com/greenbone/gsa/pull/1716)
+- Add loading indicator to svg icon [#1701](https://github.com/greenbone/gsa/pull/1701)
 - Update German Translation [#1689](https://github.com/greenbone/gsa/pull/1689)
 - List NVT of the found CVEs at the report details page [#1673](https://github.com/greenbone/gsa/pull/1673)
 - Added links for GOS 6 manual for audits, policies and TLS certificates [#1657](https://github.com/greenbone/gsa/pull/1657)
@@ -36,6 +108,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#1466](https://github.com/greenbone/gsa/pull/1466) [#1467](https://github.com/greenbone/gsa/pull/1467)
 
 ### Changed
+- Tweaked LDAP and RADIUS pages to be more consistent [#1718](https://github.com/greenbone/gsa/pull/1718)
 - Decide whether to default to full and fast scan config (task dialog)[#1671](https://github.com/greenbone/gsa/pull/1671)
 - Determine the to be applied filter of a list page in GSA and don't rely on the
   backend
@@ -74,6 +147,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   requests in gsad [#1355](https://github.com/greenbone/gsa/pull/1355)
 
 ### Fixed
+- Fixed displaying negative days on the override and note active dashboard [#1727](https://github.com/greenbone/gsa/pull/1727) [#1728](https://github.com/greenbone/gsa/pull/1728)
+- Fixed inability to change to/from LDAP and RADIUS settings [#1723](https://github.com/greenbone/gsa/pull/1723)
+- Fixed filter dialog duplicating filter terms [#1705] (https://github.com/greenbone/gsa/pull/1705)
 - Fixed parsing report details data [#1673](https://github.com/greenbone/gsa/pull/1673)
 - Fixed scanconfig clone icon tooltip does not show if permission is denied [#1664](https://github.com/greenbone/gsa/pull/1664)
 - Fixed feed status page does not render [#1628](https://github.com/greenbone/gsa/pull/1628)
@@ -91,6 +167,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [8.0.2] - unreleased
 
 ### Added
+- Show passphrase field in credential dialog for cc type [#2006](https://github.com/greenbone/gsa/pull/2006)
+- Display error details at report details page [#1862](https://github.com/greenbone/gsa/pull/1862)
+- Added warnings to content composer if reportResultThreshold is exceeded [#1852](https://github.com/greenbone/gsa/pull/1852)
+- Added parseText to model.js to parse single space summary [#1829](https://github.com/greenbone/gsa/pull/1829)
 - Added new setting to enable and disable debug logging for the redux store [#1684](https://github.com/greenbone/gsa/pull/1684)
 - Added text notification when old password is entered but new password isn't [#1636](https://github.com/greenbone/gsa/pull/1636)
 - Added a loading timer for empty trash button [#1604](https://github.com/greenbone/gsa/pull/1604)
@@ -105,6 +185,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#1507](https://github.com/greenbone/gsa/pull/1507)
 
 ### Changed
+- Use = instead of ~ in filter of link in OS row [#2086](https://github.com/greenbone/gsa/pull/2086)
+- Update copyright header dates to 2020 [#2019](https://github.com/greenbone/gsa/pull/2019)
+- Improve text for empty results report and threshold panel [#1900](https://github.com/greenbone/gsa/pull/1900)
+- Load report results with separate requests
+  [#1863](https://github.com/greenbone/gsa/pull/1863),
+  [#1870](https://github.com/greenbone/gsa/pull/1870),
+  [#1871](https://github.com/greenbone/gsa/pull/1871)
+- Only load full report if the report has less than 25000 results [#1851](https://github.com/greenbone/gsa/pull/1851)
+- Only render report information, results and errors if a result has more than 25000 results [#1849](https://github.com/greenbone/gsa/pull/1849)
+- Limit the length of result description with a div [#1834](https://github.com/greenbone/gsa/pull/1834)
+- New permission dialog: radio button for groups disabled if no groups available [#1836](https://github.com/greenbone/gsa/pull/1836)
+- Changed new override dialog defaults [#1833](https://github.com/greenbone/gsa/pull/1833)
+- Refactored cvsscalculatorpage to function and parse vector from url [#1824](https://github.com/greenbone/gsa/pull/1824)
+- New override and note dialog: Make host/port/task fields editable even when fixed, and display oid when no name is defined [#1814](https://github.com/greenbone/gsa/pull/1814) [#1817](https://github.com/greenbone/gsa/pull/1817)
+- Use consistent setting naming [#1774](https://github.com/greenbone/gsa/pull/1774)
+- Consider visibility status of page for calculating the reload interval [#1761](https://github.com/greenbone/gsa/pull/1761)
+- Do not simplify filterString in content composer for report download [#1733](https://github.com/greenbone/gsa/pull/1733)
+- Use single component for reloading data [#1722](https://github.com/greenbone/gsa/pull/1722)
+- Use last chars of a label string in BarChart [#1713](https://github.com/greenbone/gsa/pull/1713)
+- Next Scheduled Tasks displays timezone [#1712](https://github.com/greenbone/gsa/pull/1712)
+- Load "small" report before full report [#1697](https://github.com/greenbone/gsa/pull/1697)
 - Removed Clone and Verify functionalities for report formats [#1650](https://github.com/greenbone/gsa/pull/1650)
 - Use new [React context API](https://reactjs.org/docs/context.html#api) [#1637](https://github.com/greenbone/gsa/pull/1637)
 - Update response data parsing in Model classes
@@ -113,7 +214,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix statusbar content can be more than 100% and add progressbar colors to theme [1621](https://github.com/greenbone/gsa/pull/1621)
 - Allow to overwrite details=1 for command results.get() [#1618](https://github.com/greenbone/gsa/pull/1618)
 - Ensure not to request the report details when loading a list of reports [#1617](https://github.com/greenbone/gsa/pull/1617)
-- Adjust ProtList manual links [#1599](https://github.com/greenbone/gsa/pull/1599)
+- Adjust PortList manual links [#1599](https://github.com/greenbone/gsa/pull/1599)
 - Word-wrap in pre component [#1586](https://github.com/greenbone/gsa/pull/1586)
 - Disable EditIcon for My Settings if permission denied [#1588](https://github.com/greenbone/gsa/pull/1588)
 - Don't allow to clone hosts [#1581](https://github.com/greenbone/gsa/pull/1581)
@@ -123,35 +224,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Adjust clickable areas for Select and MultiSelect [#1545](https://github.com/greenbone/gsa/pull/1545)
 - Redirect to main page when visiting the login page and the user is already
   logged in [#1508](https://github.com/greenbone/gsa/pull/1508)
+- Lower memory usage when getting a report [#1858](https://github.com/greenbone/gvmd/pull/1858)
 
 ### Fixed
+- Fixed nvt family links not changing the filter [#1997](https://github.com/greenbone/gsa/pull/1997)
+- Use correct capabilities for task icons [#1973](https://github.com/greenbone/gsa/pull/1973)
+- Fixed ProvideViewIcon for tasks is only shown for users but not for groups and roles [#1968](https://github.com/greenbone/gsa/pull/1968)
+- Fixed missing delete button for host identifiers [#1959](https://github.com/greenbone/gsa/pull/1959)
+- Fixed sorting columns with empty string values [#1936](https://github.com/greenbone/gsa/pull/1936)
+- Fixed broken entity links for reportformat, scanconfig and portlist [#1934](https://github.com/greenbone/gsa/pull/1934)
+- Fixed removing levels filter keyword if all severity levels are unchecked [#1869](https://github.com/greenbone/gsa/pull/1869)
+- Fixed sorting of hosts in report details [#1860](https://github.com/greenbone/gsa/pull/1860)
+- Fixed displaying update indication at all report details tabs [#1849](https://github.com/greenbone/gsa/pull/1849)
+- Fixed getting list of Closed CVEs and sorting the Closed CVEs at report details [#1850](https://github.com/greenbone/gsa/pull/1850)
+- Fixed sorting of TLS Certificates by port at report details page [#1848](https://github.com/greenbone/gsa/pull/1848)
+- Use correct link for ManualIcon [#1835](https://github.com/greenbone/gsa/pull/1835)
+- Fixed getting InvalidStateError with IE 11 on XHR creation [#1769](https://github.com/greenbone/gsa/pull/1769)
+- Fixed filtering general command permissions in roles [#1734](https://github.com/greenbone/gsa/pull/1734)
+- Fixed getting details in delta report [#1732](https://github.com/greenbone/gsa/pull/1732)
+- Include results (details=1) in report download [#1731](https://github.com/greenbone/gsa/pull/1731)
+- Fixed High column in hosts table for reports [#1730](https://github.com/greenbone/gsa/pull/1730)
+- Fixed setting the user default filter in report results [#1699](https://github.com/greenbone/gsa/pull/1699)
 - Use new model construction in some commands [#1665](https://github.com/greenbone/gsa/pull/1665)
 - Fixed auth_method preselection for user dialog [#1661](https://github.com/greenbone/gsa/pull/1661)
 - Fixed userId, roleId and groupId not rendering in create entity permissions dialog [#1658](https://github.com/greenbone/gsa/pull/1658)
 - Don't crash Schedule details and list pages if invalid ical data is loaded [#1656](https://github.com/greenbone/gsa/pull/1656)
-- Fix showing loading indicator in content composers [#1613](https://github.com/greenbone/gsa/pull/1613)
+- Fixed showing loading indicator in content composers [#1613](https://github.com/greenbone/gsa/pull/1613)
 - Enable downloading csv in table dashboard [#1611](https://github.com/greenbone/gsa/pull/1611)
 - Fixed 404 URL handling in gsad which caused a XSS vulnerability [#1603](https://github.com/greenbone/gsa/pull/1603)
 - Fixed status of Tickets for task.isInTrash() and isOrphan [#1592](https://github.com/greenbone/gsa/pull/1592)
-- Fix and improve editing of roles [#1587](https://github.com/greenbone/gsa/pull/1587)
-- Fix showing ScanConfig trends [#1582](https://github.com/greenbone/gsa/pull/1582) [#1554](https://github.com/greenbone/gsa/pull/1554)
+- Fixed and improve editing of roles [#1587](https://github.com/greenbone/gsa/pull/1587)
+- Fixed showing ScanConfig trends [#1582](https://github.com/greenbone/gsa/pull/1582) [#1554](https://github.com/greenbone/gsa/pull/1554)
 - Show HostsCount at SectionTitle [#1576](https://github.com/greenbone/gsa/pull/1576)
 - Fixed creating target from hosts [#1575](https://github.com/greenbone/gsa/pull/1575)
 - Fixed CVSSBaseCalculatorv2 [#1572](https://github.com/greenbone/gsa/pull/1572)
-- Fix title in Operating Systems table of Reports [#1567](https://github.com/greenbone/gsa/pull/1567)
-- Fix displaying only usable report formats at report download [#1565](https://github.com/greenbone/gsa/pull/1565)
-- Fix handling schedule_periods ("once" option) in TaskDialog [#1563](https://github.com/greenbone/gsa/pull/1563)
-- Fix showing inactive VerifyIcon at ReportFormats detailspage [#1554](https://github.com/greenbone/gsa/pull/1554)
-- Fix showing SensorIcon for tasks [#1548](https://github.com/greenbone/gsa/pull/1548)
+- Fixed title in Operating Systems table of Reports [#1567](https://github.com/greenbone/gsa/pull/1567)
+- Fixed displaying only usable report formats at report download [#1565](https://github.com/greenbone/gsa/pull/1565)
+- Fixed handling schedule_periods ("once" option) in TaskDialog [#1563](https://github.com/greenbone/gsa/pull/1563)
+- Fixed showing inactive VerifyIcon at ReportFormats detailspage [#1554](https://github.com/greenbone/gsa/pull/1554)
+- Fixed showing SensorIcon for tasks [#1548](https://github.com/greenbone/gsa/pull/1548)
 - Always show an identifier for results [#1543](https://github.com/greenbone/gsa/pull/1543)
 - Don't crash Alerts listpage and trashcan when Alert data is missing [#1541](https://github.com/greenbone/gsa/pull/1541)
-- Fix calculating the next date of schedules [#1539](https://github.com/greenbone/gsa/pull/1539)
-- Fix linking to best OS in host details [#1528](https://github.com/greenbone/gsa/pull/1528)
+- Fixed calculating the next date of schedules [#1539](https://github.com/greenbone/gsa/pull/1539)
+- Fixed linking to best OS in host details [#1528](https://github.com/greenbone/gsa/pull/1528)
 - Redirect to root URL by default [#1517](https://github.com/greenbone/gsa/pull/1517)
-- Fix showing details for tasks [#1515](https://github.com/greenbone/gsa/pull/1515)
+- Fixed showing details for tasks [#1515](https://github.com/greenbone/gsa/pull/1515)
 - Allow to use additional options for starting gsad via systemd
   [#1514](https://github.com/greenbone/gsa/pull/1514)
-- Fix using filename templates from usersettings [#1512](https://github.com/greenbone/gsa/pull/1512)
+- Fixed using filename templates from usersettings [#1512](https://github.com/greenbone/gsa/pull/1512)
 - Update manpage [#1616](https://github.com/greenbone/gsa/pull/1616)
 
 [8.0.2]: https://github.com/greenbone/gsa/compare/v8.0.1...gsa-8.0

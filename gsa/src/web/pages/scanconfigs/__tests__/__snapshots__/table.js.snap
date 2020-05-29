@@ -253,7 +253,7 @@ exports[`Scan Config table tests should render 1`] = `
   display: inline-flex;
 }
 
-.c4 {
+.c2 {
   cursor: pointer;
 }
 
@@ -272,7 +272,7 @@ exports[`Scan Config table tests should render 1`] = `
   width: inherit;
 }
 
-.c30 {
+.c29 {
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -297,13 +297,13 @@ exports[`Scan Config table tests should render 1`] = `
   cursor: pointer;
 }
 
-.c29 {
+.c30 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c29 * {
+.c30 * {
   height: inherit;
   width: inherit;
 }
@@ -476,7 +476,7 @@ exports[`Scan Config table tests should render 1`] = `
   border-bottom: 1px solid #c8d3d9;
 }
 
-.c2 {
+.c4 {
   margin-top: 2px;
   margin-left: 2px;
 }
@@ -518,7 +518,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 @media print {
-  .c4 {
+  .c2 {
     display: none;
   }
 }
@@ -608,7 +608,7 @@ exports[`Scan Config table tests should render 1`] = `
   />
   <div>
     <div
-      class="entities-table c0"
+      class="c0 entities-table"
     >
       <div
         class="c1"
@@ -618,7 +618,9 @@ exports[`Scan Config table tests should render 1`] = `
           data-testid="svg-icon"
           title="Unfold all details"
         >
-          <svg>
+          <svg
+            title="Unfold all details"
+          >
             fold.svg
           </svg>
         </span>
@@ -633,20 +635,24 @@ exports[`Scan Config table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -665,20 +671,24 @@ exports[`Scan Config table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>
@@ -836,11 +846,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Static"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The family selection is STATIC. New families will NOT automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The family selection is STATIC. New families will NOT automatically be added and considered."
+                  >
                     trend_nochange.svg
                   </svg>
                 </span>
@@ -859,11 +871,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Dynamic"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
+                  >
                     trend_more.svg
                   </svg>
                 </span>
@@ -881,38 +895,46 @@ exports[`Scan Config table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Scan Config to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Scan Config to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Scan Config"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Scan Config"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Export Scan Config"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -971,11 +993,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Static"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The family selection is STATIC. New families will NOT automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The family selection is STATIC. New families will NOT automatically be added and considered."
+                  >
                     trend_nochange.svg
                   </svg>
                 </span>
@@ -994,11 +1018,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Dynamic"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
+                  >
                     trend_more.svg
                   </svg>
                 </span>
@@ -1016,38 +1042,46 @@ exports[`Scan Config table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Scan Config to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Scan Config to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Scan Config"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Scan Config"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Export Scan Config"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1106,11 +1140,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Static"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The family selection is STATIC. New families will NOT automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The family selection is STATIC. New families will NOT automatically be added and considered."
+                  >
                     trend_nochange.svg
                   </svg>
                 </span>
@@ -1129,11 +1165,13 @@ exports[`Scan Config table tests should render 1`] = `
               >
                 <span
                   alt="Dynamic"
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                   title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
                 >
-                  <svg>
+                  <svg
+                    title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
+                  >
                     trend_more.svg
                   </svg>
                 </span>
@@ -1151,38 +1189,46 @@ exports[`Scan Config table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Scan Config to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Scan Config to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Scan Config"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Scan Config"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Scan Config"
                     >
-                      <svg>
+                      <svg
+                        title="Export Scan Config"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1247,7 +1293,7 @@ exports[`Scan Config table tests should render 1`] = `
                         margin="5px"
                       >
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1255,7 +1301,7 @@ exports[`Scan Config table tests should render 1`] = `
                           </svg>
                         </span>
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1263,7 +1309,7 @@ exports[`Scan Config table tests should render 1`] = `
                           </svg>
                         </span>
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1298,20 +1344,24 @@ exports[`Scan Config table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -1330,20 +1380,24 @@ exports[`Scan Config table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>

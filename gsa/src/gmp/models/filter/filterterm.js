@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -112,8 +112,11 @@ class FilterTerm {
    * @return {String} a new FilterTerm created from termstring
    */
   static fromString(termstring) {
+    // use placeholder to ignore content in double quotes
+    const modifiedTermString = termstring.replace(/".+?"/g, '####');
+
     for (const rel of RELATIONS) {
-      if (termstring.includes(rel)) {
+      if (modifiedTermString.includes(rel)) {
         const index = termstring.indexOf(rel);
         const key = termstring.slice(0, index);
         const value = termstring.slice(index + 1);

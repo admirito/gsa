@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -113,7 +113,8 @@ export function parseCounts(element, name, plural_name) {
   return {};
 }
 
-const parseElements = (response, name) => response[name];
+const parseElements = (response, name) =>
+  isDefined(response) ? response[name] : undefined;
 
 const parseEntities = (response, name, modelclass = Model) =>
   map(parseElements(response, name), element =>

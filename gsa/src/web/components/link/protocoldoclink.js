@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -24,10 +24,10 @@ import withGmp from 'web/utils/withGmp';
 import BlankLink from './blanklink';
 
 const ProtocolDocLink = ({gmp, title}) => {
-  const {protocoldocurl} = gmp.settings;
+  const {protocolDocUrl} = gmp.settings;
 
   return (
-    <BlankLink to={protocoldocurl} title={title}>
+    <BlankLink to={protocolDocUrl} title={title}>
       {title}
     </BlankLink>
   );

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -18,7 +18,7 @@
  */
 import {_l} from 'gmp/locale/lang';
 
-import {isDefined, isArray} from '../utils/identity';
+import {isDefined, isArray, isString} from '../utils/identity';
 import {isEmpty} from '../utils/string';
 import {map} from '../utils/array';
 import {normalizeType} from '../utils/entitytype';
@@ -27,9 +27,11 @@ import {
   parseInt,
   parseProgressElement,
   parseYesNo,
+  parseYes,
+  parseIntoArray,
+  parseText,
   parseDuration,
   NO_VALUE,
-  YES_VALUE,
 } from '../parser';
 
 import Model, {parseModelFromElement} from '../model';
@@ -81,10 +83,6 @@ const TASK_STATUS_TRANSLATIONS = {
   Done: _l('Done'),
 };
 /* eslint-disable quote-props */
-
-export function parse_yes(value) {
-  return value === 'yes' ? YES_VALUE : NO_VALUE;
-}
 
 export const getTranslatableTaskStatus = status =>
   `${TASK_STATUS_TRANSLATIONS[status]}`;
@@ -147,6 +145,23 @@ class Task extends Model {
       copy.report_count.finished = parseInt(report_count.finished);
     }
 
+    if (isDefined(element.observers)) {
+      copy.observers = {};
+      if (isString(element.observers) && element.observers.length > 0) {
+        copy.observers.user = element.observers.split(' ');
+      } else {
+        if (isDefined(element.observers.__text)) {
+          copy.observers.user = parseText(element.observers).split(' ');
+        }
+        if (isDefined(element.observers.role)) {
+          copy.observers.role = parseIntoArray(element.observers.role);
+        }
+        if (isDefined(element.observers.group)) {
+          copy.observers.group = parseIntoArray(element.observers.group);
+        }
+      }
+    }
+
     copy.alterable = parseYesNo(element.alterable);
     copy.result_count = parseInt(element.result_count);
 
@@ -201,10 +216,10 @@ class Task extends Model {
       for (const pref of element.preferences.preference) {
         switch (pref.scanner_name) {
           case 'in_assets':
-            copy.in_assets = parse_yes(pref.value);
+            copy.in_assets = parseYes(pref.value);
             break;
           case 'assets_apply_overrides':
-            copy.apply_overrides = parse_yes(pref.value);
+            copy.apply_overrides = parseYes(pref.value);
             break;
           case 'assets_min_qod':
             copy.min_qod = parseInt(pref.value);
@@ -216,8 +231,9 @@ class Task extends Model {
                 : AUTO_DELETE_NO;
             break;
           case 'auto_delete_data':
+            const value = parseInt(pref.value);
             copy.auto_delete_data =
-              pref.value === '0'
+              value === 0
                 ? AUTO_DELETE_KEEP_DEFAULT_VALUE
                 : parseInt(pref.value);
             break;

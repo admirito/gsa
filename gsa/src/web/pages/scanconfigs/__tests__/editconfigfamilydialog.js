@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -306,9 +306,9 @@ describe('EditConfigFamilyDialog component tests', () => {
 
     inputs = baseElement.querySelectorAll('input');
 
-    expect(inputs[0]).toHaveAttribute('name', '5678');
-    expect(inputs[1]).toHaveAttribute('name', '2345');
-    expect(inputs[2]).toHaveAttribute('name', '1234');
+    expect(inputs[0]).toHaveAttribute('name', '1234');
+    expect(inputs[1]).toHaveAttribute('name', '5678');
+    expect(inputs[2]).toHaveAttribute('name', '2345');
 
     fireEvent.click(columns[4]);
 

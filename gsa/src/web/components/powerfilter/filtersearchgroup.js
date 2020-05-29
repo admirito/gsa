@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019  Greenbone Networks GmbH
+/* Copyright (C) 2017-2020  Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -19,6 +19,8 @@
 
 /* this is experimental. trying to consolidate all filter terms whose
  * method should be ~'value' into one. */
+
+import 'core-js/features/string/starts-with';
 
 import React from 'react';
 

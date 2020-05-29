@@ -3190,6 +3190,7 @@ create_credential_gmp (gvm_connection_t *connection, credentials_t *credentials,
       else if (str_equal (type, "cc"))
         {
           CHECK_VARIABLE_INVALID (certificate, "Create Credential");
+          CHECK_VARIABLE_INVALID (passphrase, "Create Credential");
           CHECK_VARIABLE_INVALID (private_key, "Create Credential");
 
           ret = gmpf (
@@ -3201,11 +3202,13 @@ create_credential_gmp (gvm_connection_t *connection, credentials_t *credentials,
             "<certificate>%s</certificate>"
             "<key>"
             "<private>%s</private>"
+            "<phrase>%s</phrase>"
             "</key>"
             "<allow_insecure>%s</allow_insecure>"
             "</create_credential>",
             name, comment ? comment : "", type, certificate ? certificate : "",
-            private_key ? private_key : "", allow_insecure);
+            private_key ? private_key : "", passphrase ? passphrase : "",
+            allow_insecure);
         }
       else if (str_equal (type, "snmp"))
         {
@@ -3677,7 +3680,7 @@ char *
 save_credential_gmp (gvm_connection_t *connection, credentials_t *credentials,
                      params_t *params, cmd_response_data_t *response_data)
 {
-  int ret, change_password, change_ssh_passphrase;
+  int ret, change_password, change_ssh_passphrase, change_passphrase;
   int change_community, change_privacy_password;
   gchar *html, *response;
   const char *credential_id, *public_key;
@@ -3797,18 +3800,25 @@ save_credential_gmp (gvm_connection_t *connection, credentials_t *credentials,
     }
   else if (str_equal (type, "cc"))
     {
+      change_passphrase = params_value_bool (params, "change_passphrase");
+
       if ((certificate && strcmp (certificate, "")))
         {
           xml_string_append (command, "<certificate>%s</certificate>",
                              certificate);
         }
 
-      if ((private_key && strcmp (private_key, "")))
+      if ((private_key && strcmp (private_key, "")) || change_passphrase)
         {
           xml_string_append (command, "<key>");
-          xml_string_append (command, "<private>%s</private>", private_key);
+          if (change_passphrase)
+            xml_string_append (command, "<phrase>%s</phrase>", passphrase);
+          if (private_key)
+            xml_string_append (command, "<private>%s</private>", private_key);
           xml_string_append (command, "</key>");
         }
+
+
     }
   else if (str_equal (type, "usk"))
     {
@@ -4490,6 +4500,7 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
   const char *filter, *filter_id;
   const char *first_group, *max_groups;
   const char *mode;
+  const char *usage_type;
   gchar *filter_escaped, *command_escaped, *response;
   entity_t entity;
   GString *xml, *command;
@@ -4509,6 +4520,7 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
   first_group = params_value (params, "first_group");
   max_groups = params_value (params, "max_groups");
   mode = params_value (params, "aggregate_mode");
+  usage_type = params_value (params, "usage_type");
 
   if (filter && !str_equal (filter, ""))
     filter_escaped = g_markup_escape_text (filter, -1);
@@ -4548,6 +4560,9 @@ get_aggregate_gmp (gvm_connection_t *connection, credentials_t *credentials,
 
   if (mode && strcmp (mode, ""))
     g_string_append_printf (command, " mode=\"%s\"", mode);
+
+  if (usage_type && strcmp (usage_type, ""))
+    g_string_append_printf (command, " usage_type=\"%s\"", usage_type);
 
   g_string_append (command, ">");
 
@@ -8467,6 +8482,7 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
   gchar *fname_format;
   const gchar *extension, *requested_content_type;
 
+  details = params_value_bool (params, "details");
   ignore_pagination = params_value_bool (params, "ignore_pagination");
   lean = params_value_bool (params, "lean");
 
@@ -8488,17 +8504,17 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
   ret = gvm_connection_sendf_xml (
     connection,
     "<get_reports"
+    " details=\"%d\""
     " ignore_pagination=\"%d\""
     " lean=\"%d\""
     " filter=\"%s\""
     " filt_id=\"%s\""
     " report_id=\"%s\""
     " delta_report_id=\"%s\""
-    " details=\"%d\""
     " format_id=\"%s\"/>",
-    ignore_pagination, lean, filter, filter_id ? filter_id : FILT_ID_NONE,
-    report_id, delta_report_id ? delta_report_id : "0", details,
-    format_id ? format_id : "");
+    details, ignore_pagination, lean, filter,
+    filter_id ? filter_id : FILT_ID_NONE, report_id,
+    delta_report_id ? delta_report_id : "0", format_id ? format_id : "");
 
   if (ret == -1)
     {
@@ -8755,10 +8771,70 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
         g_string_append (xml, extra_xml);
 
       if (delta_report_id)
-        g_string_append_printf (xml, "<delta>%s</delta>", delta_report_id);
+        {
+          g_string_append_printf (xml, "<delta>%s</delta>", delta_report_id);
 
-      entity = NULL;
-      if (read_entity_and_string_c (connection, &entity, &xml))
+          entity = NULL;
+          if (read_entity_and_string_c (connection, &entity, &xml))
+            {
+              cmd_response_data_set_status_code (response_data,
+                                                 MHD_HTTP_INTERNAL_SERVER_ERROR);
+              return gsad_message (
+                credentials, "Internal error", __FUNCTION__, __LINE__,
+                "An internal error occurred while getting a report. "
+                "The report could not be delivered. "
+                "Diagnostics: Failure to receive response from manager daemon.",
+                response_data);
+            }
+
+           if (gmp_success (entity) != 1)
+             {
+               gchar *message;
+
+               set_http_status_from_entity (entity, response_data);
+
+               message = gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
+                                       entity_attribute (entity, "status_text"),
+                                       response_data);
+
+               g_string_free (xml, TRUE);
+               free_entity (entity);
+               return message;
+             }
+
+           report_entity = entity_child (entity, "report");
+           if (report_entity)
+             report_entity = entity_child (report_entity, "report");
+           if (report_entity)
+             {
+               const char *id;
+               entity_t task_entity, name;
+
+               id = NULL;
+               task_entity = entity_child (report_entity, "task");
+               if (task_entity)
+                 {
+                   id = entity_attribute (task_entity, "id");
+                   name = entity_child (task_entity, "name");
+                 }
+               else
+                 name = NULL;
+
+               if (delta_report_id && id && name)
+                 g_string_append_printf (xml,
+                                         "<task id=\"%s\"><name>%s</name></task>",
+                                         id, entity_text (name));
+
+               free_entity (entity);
+             }
+
+          g_string_append (xml, "</get_report>");
+
+          return envelope_gmp (connection, credentials, params,
+                               g_string_free (xml, FALSE), response_data);
+        }
+
+      if (read_string_c (connection, &xml))
         {
           cmd_response_data_set_status_code (response_data,
                                              MHD_HTTP_INTERNAL_SERVER_ERROR);
@@ -8768,47 +8844,6 @@ get_report (gvm_connection_t *connection, credentials_t *credentials,
             "The report could not be delivered. "
             "Diagnostics: Failure to receive response from manager daemon.",
             response_data);
-        }
-
-      if (gmp_success (entity) != 1)
-        {
-          gchar *message;
-
-          set_http_status_from_entity (entity, response_data);
-
-          message = gsad_message (credentials, "Error", __FUNCTION__, __LINE__,
-                                  entity_attribute (entity, "status_text"),
-                                  response_data);
-
-          g_string_free (xml, TRUE);
-          free_entity (entity);
-          return message;
-        }
-
-      report_entity = entity_child (entity, "report");
-      if (report_entity)
-        report_entity = entity_child (report_entity, "report");
-      if (report_entity)
-        {
-          const char *id;
-          entity_t task_entity, name;
-
-          id = NULL;
-          task_entity = entity_child (report_entity, "task");
-          if (task_entity)
-            {
-              id = entity_attribute (task_entity, "id");
-              name = entity_child (task_entity, "name");
-            }
-          else
-            name = NULL;
-
-          if (delta_report_id && id && name)
-            g_string_append_printf (xml,
-                                    "<task id=\"%s\"><name>%s</name></task>",
-                                    id, entity_text (name));
-
-          free_entity (entity);
         }
 
       g_string_append (xml, "</get_report>");
@@ -9155,7 +9190,21 @@ char *
 get_results_gmp (gvm_connection_t *connection, credentials_t *credentials,
                  params_t *params, cmd_response_data_t *response_data)
 {
-  return get_many (connection, "results", credentials, params, NULL,
+  const gchar *_and_report_id;
+  gmp_arguments_t *arguments = NULL;
+
+  _and_report_id = params_value (params, "_and_report_id");
+
+  if (params_given (params, "_and_report_id"))
+    {
+      CHECK_VARIABLE_INVALID (_and_report_id, "Get results");
+
+      arguments = gmp_arguments_new ();
+
+      gmp_arguments_add (arguments, "_and_report_id", _and_report_id);
+    }
+
+  return get_many (connection, "results", credentials, params, arguments,
                    response_data);
 }
 
@@ -10229,16 +10278,16 @@ save_scanner_gmp (gvm_connection_t *connection, credentials_t *credentials,
       if (ca_pub == NULL)
         ca_pub = "";
       if (in_use)
-        ret =
-          gmpf (connection, credentials, &response, &entity, response_data,
-                "<modify_scanner scanner_id=\"%s\">"
-                "<name>%s</name>"
-                "<comment>%s</comment>"
-                "<ca_pub>%s</ca_pub>"
-                "<credential id=\"%s\"/>"
-                "</modify_scanner>",
-                scanner_id, name, comment ?: "",
-                strcmp (which_cert, "new") == 0 ? ca_pub : "", credential_id);
+        ret = gmpf (connection, credentials, &response, &entity, response_data,
+                    "<modify_scanner scanner_id=\"%s\">"
+                    "<name>%s</name>"
+                    "<comment>%s</comment>"
+                    "<ca_pub>%s</ca_pub>"
+                    "<credential id=\"%s\"/>"
+                    "</modify_scanner>",
+                    scanner_id, name, comment ?: "",
+                    strcmp (which_cert, "new") == 0 ? ca_pub : "",
+                    credential_id ? credential_id : "");
       else
         ret = gmpf (connection, credentials, &response, &entity, response_data,
                     "<modify_scanner scanner_id=\"%s\">"
@@ -17168,7 +17217,7 @@ gvm_connection_open (gvm_connection_t *connection, const gchar *address,
  * @param[out] language      User Interface Language, or NULL.
  * @param[out] pw_warning    Password warning message, NULL if password is OK.
  *
- * @return 0 if valid, 1 failed, 2 manager down, -1 error.
+ * @return 0 if valid, 1 manager down, 2 failed, 3 timeout, -1 error.
  */
 int
 authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
@@ -17182,7 +17231,7 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
   if (gvm_connection_open (&connection, manager_address, manager_port))
     {
       g_debug ("%s failed to acquire socket!\n", __FUNCTION__);
-      return 2;
+      return 1;
     }
 
   auth_opts = gmp_authenticate_info_opts_defaults;
@@ -17214,7 +17263,7 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
         case 1:
         case 2:
           gvm_connection_close (&connection);
-          return 2;
+          return 1;
         default:
           gvm_connection_close (&connection);
           return -1;
@@ -17227,7 +17276,7 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
       if (ret)
         {
           gvm_connection_close (&connection);
-          return 2;
+          return 1;
         }
 
       /* Read the response. */
@@ -17236,7 +17285,7 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
       if (read_entity_and_text_c (&connection, &entity, &response))
         {
           gvm_connection_close (&connection);
-          return 2;
+          return 1;
         }
 
       /* Check the response. */
@@ -17248,8 +17297,10 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
           free_entity (entity);
           return -1;
         }
+
       first = status[0];
       free_entity (entity);
+
       if (first == '2')
         {
           *capabilities = response;
@@ -17267,7 +17318,16 @@ authenticate_gmp (const gchar *username, const gchar *password, gchar **role,
   else
     {
       gvm_connection_close (&connection);
-      return 1;
+
+      switch (auth)
+        {
+        case 1: /* manager closed connection */
+        case 2: /* auth failed */
+        case 3: /* timeout */
+          return auth;
+        default:
+          return -1;
+        }
     }
 }
 
@@ -17285,7 +17345,7 @@ int
 login (http_connection_t *con, params_t *params,
        cmd_response_data_t *response_data, const char *client_address)
 {
-  int ret;
+  int ret, status;
   authentication_reason_t auth_reason;
   credentials_t *credentials;
   gchar *timezone;
@@ -17308,19 +17368,26 @@ login (http_connection_t *con, params_t *params,
                               &capabilities, &language, &pw_warning);
       if (ret)
         {
-          int status;
-          if (ret == -1)
-            status = MHD_HTTP_INTERNAL_SERVER_ERROR;
-          if (ret == 2)
-            status = MHD_HTTP_SERVICE_UNAVAILABLE;
-          else
-            status = MHD_HTTP_UNAUTHORIZED;
+          switch (ret)
+            {
+            case 1: /* could not connect to manager */
+            case 3: /* timeout */
+              status = MHD_HTTP_SERVICE_UNAVAILABLE;
+              auth_reason = GMP_SERVICE_DOWN;
+              break;
+            case 2: /* authentication failure */
+              status = MHD_HTTP_UNAUTHORIZED;
+              auth_reason = LOGIN_FAILED;
+              break;
+            default: /* unspecified error */
+              status = MHD_HTTP_INTERNAL_SERVER_ERROR;
+              auth_reason = LOGIN_ERROR;
+              break;
+            }
 
-          auth_reason = ret == 2 ? GMP_SERVICE_DOWN
-                                 : (ret == -1 ? LOGIN_ERROR : LOGIN_FAILED);
-
-          g_warning ("Authentication failure for '%s' from %s", login ?: "",
-                     client_address);
+          g_warning ("Authentication failure for '%s' from %s. "
+                     "Status was %d.",
+                     login ?: "", client_address, ret);
           return handler_send_reauthentication (con, status, auth_reason);
         }
       else
@@ -17370,7 +17437,8 @@ login (http_connection_t *con, params_t *params,
  * @param[out]  connection   Connection to Manager on success.
  * @param[out]  response_data  Extra data return for the HTTP response.
  *
- * @return 0 success, -1 failed to connect, -2 authentication failed.
+ * @return 0 success, 1 if manager closed connection, 2 if auth failed,
+ *         3 on timeout, 4 failed to connect, -1 on error
  */
 int
 manager_connect (credentials_t *credentials, gvm_connection_t *connection,
@@ -17380,20 +17448,21 @@ manager_connect (credentials_t *credentials, gvm_connection_t *connection,
 
   if (gvm_connection_open (connection, manager_address, manager_port))
     {
-      cmd_response_data_set_status_code (response_data,
-                                         MHD_HTTP_SERVICE_UNAVAILABLE);
-      return -1;
+      return 4;
     }
 
   user_t *user = credentials_get_user (credentials);
+
   auth_opts = gmp_authenticate_info_opts_defaults;
   auth_opts.username = user_get_username (user);
   auth_opts.password = user_get_password (user);
-  if (gmp_authenticate_info_ext_c (connection, auth_opts))
+
+  int ret = gmp_authenticate_info_ext_c (connection, auth_opts);
+
+  if (ret)
     {
-      g_debug ("authenticate failed!\n");
       gvm_connection_close (connection);
-      return -2;
+      return ret;
     }
 
 #ifdef DEBUG

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -29,8 +29,6 @@ import EntityCommand from 'gmp/commands/entity';
 import EntitiesCommand from 'gmp/commands/entities';
 
 import Capabilities from 'gmp/capabilities/capabilities';
-
-import CollectionCounts from 'gmp/collection/collectioncounts';
 
 import Filter from 'gmp/models/filter';
 import Settings from 'gmp/models/settings';
@@ -97,6 +95,12 @@ const elementOrString = ReactPropTypes.oneOfType([
   ReactPropTypes.string,
 ]);
 
+const error = ReactPropTypes.shape({
+  message: ReactPropTypes.string.isRequired,
+  name: ReactPropTypes.string,
+  stack: ReactPropTypes.string,
+});
+
 const numberString = ReactPropTypes.string; // TODO restrict string to contain numbers
 
 const numberOrNumberString = ReactPropTypes.oneOfType([
@@ -120,7 +124,13 @@ const stringOrFalse = ReactPropTypes.oneOfType([
   ReactPropTypes.oneOf([false]),
 ]);
 
-const counts = ReactPropTypes.instanceOf(CollectionCounts);
+const counts = ReactPropTypes.shape({
+  all: ReactPropTypes.number.isRequired,
+  filtered: ReactPropTypes.number.isRequired,
+  first: ReactPropTypes.number,
+  length: ReactPropTypes.number,
+  rows: ReactPropTypes.number,
+});
 
 const set = ReactPropTypes.instanceOf(Set);
 
@@ -218,10 +228,6 @@ const ref = ReactPropTypes.oneOfType([
     current: ReactPropTypes.any,
   }),
 ]);
-
-const error = ReactPropTypes.shape({
-  message: ReactPropTypes.string,
-});
 
 export default {
   bool: ReactPropTypes.bool,

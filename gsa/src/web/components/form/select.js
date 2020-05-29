@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -22,13 +22,15 @@ import React from 'react';
 
 import Downshift from 'downshift';
 
+import _ from 'gmp/locale';
+
 import {isDefined, isArray} from 'gmp/utils/identity';
 
-import PropTypes, {mayRequire} from '../../utils/proptypes.js';
+import PropTypes, {mayRequire} from 'web/utils/proptypes';
 
-import ArrowIcon from '../icon/arrowicon';
+import ArrowIcon from 'web/components/icon/arrowicon';
 
-import Layout from '../../components/layout/layout';
+import Layout from 'web/components/layout/layout';
 
 import styled from 'styled-components';
 
@@ -142,11 +144,12 @@ class Select extends React.Component {
       value,
       toolTipTitle,
       width = DEFAULT_WIDTH,
+      isLoading = false,
     } = this.props;
 
     const {search} = this.state;
 
-    disabled = disabled || !isDefined(items) || items.length === 0;
+    disabled = disabled || !isDefined(items) || items.length === 0 || isLoading;
 
     const displayedItems = isDefined(items)
       ? items.filter(caseInsensitiveFilter(search))
@@ -156,6 +159,17 @@ class Select extends React.Component {
       <Downshift
         selectedItem={value}
         itemToString={itemToString}
+        stateReducer={(state, changes) => {
+          if (isDefined(changes) && isDefined(changes.isOpen)) {
+            return {
+              ...changes,
+              highlightedIndex: displayedItems.findIndex(
+                item => item.value === state.selectedItem,
+              ),
+            };
+          }
+          return changes;
+        }}
         onChange={this.handleChange}
         onSelect={this.handleSelect}
       >
@@ -173,7 +187,9 @@ class Select extends React.Component {
           selectItem,
           selectedItem,
         }) => {
-          const label = find_label(items, selectedItem);
+          const label = isLoading
+            ? _('Loading...')
+            : find_label(items, selectedItem);
           return (
             <SelectContainer
               {...getRootProps({})}
@@ -211,6 +227,7 @@ class Select extends React.Component {
                     data-testid="select-open-button"
                     down={!isOpen}
                     size="small"
+                    isLoading={isLoading}
                   />
                 </Layout>
               </Box>
@@ -267,6 +284,7 @@ class Select extends React.Component {
 
 Select.propTypes = {
   disabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
   itemToString: PropTypes.func,
   items: PropTypes.arrayOf(
     PropTypes.shape({

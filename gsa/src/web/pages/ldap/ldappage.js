@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -59,7 +59,10 @@ const ToolBarIcons = ({onOpenDialogClick}) => (
       size="small"
       title={_('Help: LDAP per-User Authentication')}
     />
-    <EditIcon onClick={onOpenDialogClick} />
+    <EditIcon
+      onClick={onOpenDialogClick}
+      title={_('Edit LDAP per-User Authentication')}
+    />
   </IconDivider>
 );
 
@@ -236,10 +239,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    undefined,
-    mapDispatchToProps,
-  ),
+  connect(undefined, mapDispatchToProps),
 )(LdapAuthentication);
 
 // vim: set ts=2 sw=2 tw=80:

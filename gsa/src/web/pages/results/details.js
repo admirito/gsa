@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -29,6 +29,8 @@ import {isEmpty} from 'gmp/utils/string';
 
 import {TAG_NA} from 'gmp/models/nvt';
 
+import {DEFAULT_OID_VALUE} from 'gmp/models/override';
+
 import Layout from 'web/components/layout/layout';
 
 import PropTypes from 'web/utils/proptypes';
@@ -48,7 +50,7 @@ import References from '../nvts/references';
 import Solution from '../nvts/solution';
 import P from '../nvts/preformatted';
 
-import Diff from './diff';
+import Diff, {Added, Removed} from './diff';
 
 /*
  security and log messages from nvts are converted to results
@@ -56,8 +58,48 @@ import Diff from './diff';
 */
 const Pre = styled.pre`
   white-space: pre-wrap;
-  word-wrap: normal;
+  word-wrap: word-break;
 `;
+
+const GrowDiv = styled.div`
+  min-width: 500px;
+  max-width: 1080px;
+`;
+
+const DerivedDiff = ({deltaType, firstDescription, secondDesription}) => {
+  let Component;
+  let lines;
+  let prefix;
+
+  if (deltaType === 'new') {
+    lines = secondDesription.split(/\r|\n|\r\n/);
+    Component = Added;
+    prefix = '+';
+  } else if (deltaType === 'gone') {
+    lines = firstDescription.split(/\r|\n|\r\n/);
+    Component = Removed;
+    prefix = '-';
+  } else {
+    lines = [_('None.')];
+    Component = Pre;
+    prefix = '';
+  }
+
+  return (
+    <React.Fragment>
+      {lines.map((line, i) => {
+        const lineWithPrefix = prefix + line;
+        return <Component key={i}>{lineWithPrefix}</Component>;
+      })}
+    </React.Fragment>
+  );
+};
+
+DerivedDiff.propTypes = {
+  deltaType: PropTypes.string.isRequired,
+  firstDescription: PropTypes.string.isRequired,
+  secondDesription: PropTypes.string.isRequired,
+};
 
 const ResultDetails = ({className, links = true, entity}) => {
   const result = entity;
@@ -75,9 +117,37 @@ const ResultDetails = ({className, links = true, entity}) => {
 
   const result2 = isDefined(result.delta) ? result.delta.result : undefined;
   const result2Id = isDefined(result2) ? result2.id : undefined;
-  const result2Description = isDefined(result2)
-    ? result2.description
+
+  const deltaType = isDefined(result.delta)
+    ? result.delta.delta_type
     : undefined;
+
+  let result2Description;
+  let result1Description;
+  let result1Link;
+  let result2Link;
+
+  if (deltaType === 'same') {
+    result2Description = result.description;
+    result1Description = result.description;
+    result1Link = result.id;
+    result2Link = result.id;
+  } else if (deltaType === 'changed') {
+    result1Description = result.description;
+    result2Description = result2.description;
+    result1Link = result.id;
+    result2Link = result2Id;
+  } else if (deltaType === 'new') {
+    result1Description = undefined;
+    result2Description = result.description;
+    result1Link = undefined;
+    result2Link = result.id;
+  } else {
+    result1Description = result.description;
+    result2Description = undefined;
+    result1Link = result.id;
+    result2Link = undefined;
+  }
 
   return (
     <Layout flex="column" grow="1" className={className}>
@@ -88,23 +158,31 @@ const ResultDetails = ({className, links = true, entity}) => {
       {result.hasDelta() ? (
         <DetailsBlock title={_('Detection Results')}>
           <div>
-            <DetailsLink id={result.id} type="result">
+            {isDefined(result1Link) ? (
+              <DetailsLink id={result1Link} type="result">
+                <h3>{_('Result 1')}</h3>
+              </DetailsLink>
+            ) : (
               <h3>{_('Result 1')}</h3>
-            </DetailsLink>
+            )}
             <Pre>
-              {isDefined(result.description) ? result.description : _('N/A')}
+              {isDefined(result1Description)
+                ? result1Description
+                : _('No first result available.')}
             </Pre>
           </div>
           <div>
-            {isDefined(result2Id) ? (
-              <DetailsLink id={result2Id} type="result">
+            {isDefined(result2Link) ? (
+              <DetailsLink id={result2Link} type="result">
                 <h3>{_('Result 2')}</h3>
               </DetailsLink>
             ) : (
               <h3>{_('Result 2')}</h3>
             )}
             <Pre>
-              {isDefined(result2Description) ? result2Description : _('N/A')}
+              {isDefined(result2Description)
+                ? result2Description
+                : _('No second result available.')}
             </Pre>
           </div>
           <div>
@@ -112,14 +190,20 @@ const ResultDetails = ({className, links = true, entity}) => {
             {isDefined(result.delta.diff) ? (
               <Diff>{result.delta.diff}</Diff>
             ) : (
-              <Pre>{_('N/A')}</Pre>
+              <DerivedDiff
+                deltaType={deltaType}
+                firstDescription={result1Description}
+                secondDesription={result2Description}
+              />
             )}
           </div>
         </DetailsBlock>
       ) : (
         <DetailsBlock title={_('Detection Result')}>
           {!isEmpty(result.description) && result.description.length > 1 ? (
-            <Pre>{result.description}</Pre>
+            <GrowDiv>
+              <Pre>{result.description}</Pre>
+            </GrowDiv>
           ) : (
             _(
               'Vulnerability was detected according to the ' +
@@ -217,7 +301,7 @@ const ResultDetails = ({className, links = true, entity}) => {
                       {oid}
                     </DetailsLink>
                   )}
-                  {isDefined(oid) && oid.startsWith('1.3.6.1.4.1.25623.1.0.') && (
+                  {isDefined(oid) && oid.startsWith(DEFAULT_OID_VALUE) && (
                     <span>
                       <DetailsLink type="nvt" id={oid} textOnly={!links}>
                         {renderNvtName(oid, nvt.name)}

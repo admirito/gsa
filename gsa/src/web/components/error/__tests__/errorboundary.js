@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -69,15 +69,13 @@ describe('ErrorBoundary tests', () => {
       </ErrorBoundary>,
     );
 
-    const toggle = getByTestId('errorboundary-toggle');
+    const toggle = getByTestId('errorpanel-toggle');
 
     fireEvent.click(toggle);
 
-    expect(getByTestId('errorboundary-heading')).toHaveTextContent(
-      'Error: foo',
-    );
-    expect(getByTestId('errorboundary-component-stack')).not.toBeNull();
-    expect(getByTestId('errorboundary-error-stack')).not.toBeNull();
+    expect(getByTestId('errorpanel-heading')).toHaveTextContent('Error: foo');
+    expect(getByTestId('errorpanel-component-stack')).not.toBeNull();
+    expect(getByTestId('errorpanel-error-stack')).not.toBeNull();
 
     console.error = origConsoleError;
   });

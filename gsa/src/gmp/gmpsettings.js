@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -19,10 +19,14 @@
 import {isDefined} from './utils/identity';
 
 export const DEFAULT_RELOAD_INTERVAL = 15 * 1000; // fifteen seconds
+export const DEFAULT_RELOAD_INTERVAL_ACTIVE = 3 * 1000; // three seconds
+export const DEFAULT_RELOAD_INTERVAL_INACTIVE = 60 * 1000; // one minute
 export const DEFAULT_MANUAL_URL = 'http://docs.greenbone.net/GSM-Manual/gos-6/';
 export const DEFAULT_PROTOCOLDOC_URL =
   'https://docs.greenbone.net/API/GMP/gmp-9.0.html';
+export const DEFAULT_REPORT_RESULTS_THRESHOLD = 25000;
 export const DEFAULT_LOG_LEVEL = 'warn';
+export const DEFAULT_TIMEOUT = 300000; // 5 minutes
 
 const set = (storage, name, value) => {
   if (isDefined(value)) {
@@ -39,6 +43,17 @@ const setAndFreeze = (obj, name, value) => {
   });
 };
 
+const warnDeprecatedSetting = (oldName, newName) => {
+  // eslint-disable-next-line no-console
+  console.warn(
+    'A deprecated setting',
+    oldName,
+    'is used. Please use',
+    newName,
+    'instead.',
+  );
+};
+
 class GmpSettings {
   constructor(storage = global.localStorage, options = {}) {
     const {
@@ -47,36 +62,72 @@ class GmpSettings {
       enableStoreDebugLog,
       guestUsername,
       guestPassword,
-      loglevel = storage.loglevel,
+      loglevel,
       manualUrl = DEFAULT_MANUAL_URL,
       manualLanguageMapping,
-      protocol = global.location.protocol,
-      protocoldocurl = DEFAULT_PROTOCOLDOC_URL,
-      reloadinterval = DEFAULT_RELOAD_INTERVAL,
-      server = global.location.host,
-      timeout,
+      protocol,
+      protocolDocUrl = DEFAULT_PROTOCOLDOC_URL,
+      reloadInterval = DEFAULT_RELOAD_INTERVAL,
+      reloadIntervalActive = DEFAULT_RELOAD_INTERVAL_ACTIVE,
+      reloadIntervalInactive = DEFAULT_RELOAD_INTERVAL_INACTIVE,
+      reportResultsThreshold = DEFAULT_REPORT_RESULTS_THRESHOLD,
+      server,
+      timeout = DEFAULT_TIMEOUT,
       vendorVersion,
       vendorLabel,
-    } = {...options};
+    } = options;
+    let {
+      apiProtocol = protocol,
+      apiServer = server,
+      logLevel = loglevel,
+    } = options;
+
     this.storage = storage;
+
+    if (isDefined(loglevel)) {
+      warnDeprecatedSetting('loglevel', 'logLevel');
+    }
+    if (isDefined(server)) {
+      warnDeprecatedSetting('server', 'apiServer');
+    }
+    if (isDefined(protocol)) {
+      warnDeprecatedSetting('protocol', 'apiProtocol');
+    }
 
     if (isDefined(enableStoreDebugLog)) {
       this.enableStoreDebugLog = enableStoreDebugLog;
     }
 
-    this.loglevel = isDefined(loglevel) ? loglevel : DEFAULT_LOG_LEVEL;
-    this.reloadinterval = reloadinterval;
+    if (!isDefined(logLevel)) {
+      logLevel = storage.logLevel;
+    }
+    if (!isDefined(logLevel)) {
+      logLevel = DEFAULT_LOG_LEVEL;
+    }
+
+    if (!isDefined(apiProtocol)) {
+      apiProtocol = global.location.protocol;
+    }
+    if (!isDefined(apiServer)) {
+      apiServer = global.location.host;
+    }
+
+    this.logLevel = logLevel;
+    this.reloadInterval = reloadInterval;
+    this.reloadIntervalActive = reloadIntervalActive;
+    this.reloadIntervalInactive = reloadIntervalInactive;
+    this.reportResultsThreshold = reportResultsThreshold;
     this.timeout = timeout;
 
+    setAndFreeze(this, 'apiProtocol', apiProtocol);
+    setAndFreeze(this, 'apiServer', apiServer);
     setAndFreeze(this, 'disableLoginForm', disableLoginForm);
     setAndFreeze(this, 'enableGreenboneSensor', enableGreenboneSensor);
     setAndFreeze(this, 'guestUsername', guestUsername);
     setAndFreeze(this, 'guestPassword', guestPassword);
     setAndFreeze(this, 'manualUrl', manualUrl);
     setAndFreeze(this, 'manualLanguageMapping', manualLanguageMapping);
-    setAndFreeze(this, 'protocol', protocol);
-    setAndFreeze(this, 'protocoldocurl', protocoldocurl);
-    setAndFreeze(this, 'server', server);
+    setAndFreeze(this, 'protocolDocUrl', protocolDocUrl);
     setAndFreeze(this, 'vendorVersion', vendorVersion);
     setAndFreeze(this, 'vendorLabel', vendorLabel);
   }
@@ -113,12 +164,12 @@ class GmpSettings {
     return this.storage.locale;
   }
 
-  get loglevel() {
-    return this.storage.loglevel;
+  get logLevel() {
+    return this.storage.logLevel;
   }
 
-  set loglevel(value) {
-    set(this.storage, 'loglevel', value);
+  set logLevel(value) {
+    set(this.storage, 'logLevel', value);
   }
 
   get enableStoreDebugLog() {

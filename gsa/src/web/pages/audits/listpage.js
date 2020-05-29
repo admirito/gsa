@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -36,8 +36,6 @@ import withEntitiesContainer from 'web/entities/withEntitiesContainer';
 import IconDivider from 'web/components/layout/icondivider';
 import PageTitle from 'web/components/layout/pagetitle';
 
-import {DEFAULT_RELOAD_INTERVAL_ACTIVE} from 'web/utils/constants';
-
 import NewIcon from 'web/components/icon/newicon';
 import ManualIcon from 'web/components/icon/manualicon';
 
@@ -45,6 +43,7 @@ import AuditComponent from './component';
 import Table from './table';
 
 import AuditIcon from 'web/components/icon/auditicon';
+import {taskReloadInterval} from '../tasks/listpage';
 
 export const ToolBarIcons = withCapabilities(
   ({capabilities, onAuditCreateClick}) => (
@@ -129,16 +128,11 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
-const auditReloadInterval = ({entities = [], defaultReloadInterval}) =>
-  entities.some(audit => audit.isActive())
-    ? DEFAULT_RELOAD_INTERVAL_ACTIVE
-    : defaultReloadInterval;
-
 export default withEntitiesContainer('audit', {
   entitiesSelector,
   loadEntities,
   defaultFilter: RESET_FILTER,
-  reloadInterval: auditReloadInterval,
+  reloadInterval: taskReloadInterval,
 })(Page);
 
 // vim: set ts=2 sw=2 tw=80:

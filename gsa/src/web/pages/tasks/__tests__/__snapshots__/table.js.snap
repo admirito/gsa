@@ -155,7 +155,7 @@ exports[`Tasks table tests should render 1`] = `
   align-items: center;
 }
 
-.c24 {
+.c23 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -274,7 +274,7 @@ exports[`Tasks table tests should render 1`] = `
   display: inline-flex;
 }
 
-.c4 {
+.c2 {
   cursor: pointer;
 }
 
@@ -293,7 +293,7 @@ exports[`Tasks table tests should render 1`] = `
   width: inherit;
 }
 
-.c43 {
+.c42 {
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -318,13 +318,13 @@ exports[`Tasks table tests should render 1`] = `
   cursor: pointer;
 }
 
-.c42 {
+.c43 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c42 * {
+.c43 * {
   height: inherit;
   width: inherit;
 }
@@ -513,7 +513,7 @@ exports[`Tasks table tests should render 1`] = `
   border-bottom: 1px solid #c8d3d9;
 }
 
-.c2 {
+.c4 {
   margin-top: 2px;
   margin-left: 2px;
 }
@@ -609,13 +609,13 @@ exports[`Tasks table tests should render 1`] = `
   white-space: nowrap;
 }
 
-.c23:hover {
+.c24:hover {
   -webkit-text-decoration: none;
   text-decoration: none;
 }
 
 @media print {
-  .c4 {
+  .c2 {
     display: none;
   }
 }
@@ -766,7 +766,7 @@ exports[`Tasks table tests should render 1`] = `
   />
   <div>
     <div
-      class="entities-table c0"
+      class="c0 entities-table"
     >
       <div
         class="c1"
@@ -776,7 +776,9 @@ exports[`Tasks table tests should render 1`] = `
           data-testid="svg-icon"
           title="Unfold all details"
         >
-          <svg>
+          <svg
+            title="Unfold all details"
+          >
             fold.svg
           </svg>
         </span>
@@ -791,20 +793,24 @@ exports[`Tasks table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -823,20 +829,24 @@ exports[`Tasks table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>
@@ -990,7 +1000,7 @@ exports[`Tasks table tests should render 1`] = `
                   class="c13"
                 >
                   <a
-                    class="c24"
+                    class="c23"
                     href="/reports?filter=task_id%3D1234%20sort-reverse%3Ddate"
                     title="View list of all reports for Task foo, including unfinished ones"
                   >
@@ -1005,7 +1015,7 @@ exports[`Tasks table tests should render 1`] = `
               >
                 <span>
                   <a
-                    class="c24"
+                    class="c23"
                     data-testid="details-link"
                     href="/report/1234"
                   >
@@ -1054,57 +1064,69 @@ exports[`Tasks table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Start"
                     >
-                      <svg>
+                      <svg
+                        title="Start"
+                      >
                         start.svg
                       </svg>
                     </span>
                     <span
                       alt="Resume"
-                      class="c3 c8"
+                      class="c8 c3"
                       data-testid="svg-icon"
                       title="Task is not stopped"
                     >
-                      <svg>
+                      <svg
+                        title="Task is not stopped"
+                      >
                         resume.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Task to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Task to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Task"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Task"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Task"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Task"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Task"
                     >
-                      <svg>
+                      <svg
+                        title="Export Task"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1136,11 +1158,13 @@ exports[`Tasks table tests should render 1`] = `
                     >
                       <span
                         alt="Task owned by user"
-                        class="c3 "
+                        class="c3"
                         data-testid="svg-icon"
                         title="Task owned by user"
                       >
-                        <svg>
+                        <svg
+                          title="Task owned by user"
+                        >
                           view_other.svg
                         </svg>
                       </span>
@@ -1219,57 +1243,69 @@ exports[`Tasks table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Start"
                     >
-                      <svg>
+                      <svg
+                        title="Start"
+                      >
                         start.svg
                       </svg>
                     </span>
                     <span
                       alt="Resume"
-                      class="c3 c8"
+                      class="c8 c3"
                       data-testid="svg-icon"
                       title="Task is not stopped"
                     >
-                      <svg>
+                      <svg
+                        title="Task is not stopped"
+                      >
                         resume.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Task to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Task to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Task"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Task"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Task"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Task"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Task"
                     >
-                      <svg>
+                      <svg
+                        title="Export Task"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1301,11 +1337,13 @@ exports[`Tasks table tests should render 1`] = `
                     >
                       <span
                         alt="Task owned by user"
-                        class="c3 "
+                        class="c3"
                         data-testid="svg-icon"
                         title="Task owned by user"
                       >
-                        <svg>
+                        <svg
+                          title="Task owned by user"
+                        >
                           view_other.svg
                         </svg>
                       </span>
@@ -1360,7 +1398,7 @@ exports[`Tasks table tests should render 1`] = `
                   class="c13"
                 >
                   <a
-                    class="c24"
+                    class="c23"
                     href="/reports?filter=task_id%3D123456%20sort-reverse%3Ddate"
                     title="View list of all reports for Task hello, including unfinished ones"
                   >
@@ -1375,7 +1413,7 @@ exports[`Tasks table tests should render 1`] = `
               >
                 <span>
                   <a
-                    class="c24"
+                    class="c23"
                     data-testid="details-link"
                     href="/report/1234"
                   >
@@ -1424,57 +1462,69 @@ exports[`Tasks table tests should render 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Stop"
                     >
-                      <svg>
+                      <svg
+                        title="Stop"
+                      >
                         stop.svg
                       </svg>
                     </span>
                     <span
                       alt="Resume"
-                      class="c3 c8"
+                      class="c8 c3"
                       data-testid="svg-icon"
                       title="Task is not stopped"
                     >
-                      <svg>
+                      <svg
+                        title="Task is not stopped"
+                      >
                         resume.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Move Task to trashcan"
                     >
-                      <svg>
+                      <svg
+                        title="Move Task to trashcan"
+                      >
                         trashcan.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Edit Task"
                     >
-                      <svg>
+                      <svg
+                        title="Edit Task"
+                      >
                         edit.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Clone Task"
                     >
-                      <svg>
+                      <svg
+                        title="Clone Task"
+                      >
                         clone.svg
                       </svg>
                     </span>
                     <span
-                      class="c3 c4"
+                      class="c2 c3"
                       data-testid="svg-icon"
                       title="Export Task"
                     >
-                      <svg>
+                      <svg
+                        title="Export Task"
+                      >
                         export.svg
                       </svg>
                     </span>
@@ -1539,7 +1589,7 @@ exports[`Tasks table tests should render 1`] = `
                         margin="5px"
                       >
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1547,7 +1597,7 @@ exports[`Tasks table tests should render 1`] = `
                           </svg>
                         </span>
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1555,7 +1605,7 @@ exports[`Tasks table tests should render 1`] = `
                           </svg>
                         </span>
                         <span
-                          class="c3 "
+                          class="c3"
                           data-testid="svg-icon"
                         >
                           <svg>
@@ -1590,20 +1640,24 @@ exports[`Tasks table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="First"
               >
-                <svg>
+                <svg
+                  title="First"
+                >
                   first.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Previous"
               >
-                <svg>
+                <svg
+                  title="Previous"
+                >
                   previous.svg
                 </svg>
               </span>
@@ -1622,20 +1676,24 @@ exports[`Tasks table tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Next"
               >
-                <svg>
+                <svg
+                  title="Next"
+                >
                   next.svg
                 </svg>
               </span>
               <span
-                class="c3 c8"
+                class="c8 c3"
                 data-testid="svg-icon"
                 title="Last"
               >
-                <svg>
+                <svg
+                  title="Last"
+                >
                   last.svg
                 </svg>
               </span>

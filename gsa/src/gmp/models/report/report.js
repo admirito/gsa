@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -94,7 +94,7 @@ class ReportReport extends Model {
 
     copy.cves = parseCves(element, filter);
 
-    copy.closed_cves = parseClosedCves(element, filter);
+    copy.closedCves = parseClosedCves(element, filter);
 
     copy.errors = parse_errors(element, filter);
 

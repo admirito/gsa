@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -22,7 +22,9 @@ import styled from 'styled-components';
 
 import PropTypes from 'web/utils/proptypes.js';
 
-import withIconSize from 'web/components/icon/withIconSize';
+import withIconSize, {
+  ICON_SIZE_SMALL_PIXELS,
+} from 'web/components/icon/withIconSize';
 
 const Styled = styled.span`
   background-color: transparent;
@@ -37,12 +39,19 @@ const Styled = styled.span`
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
 `;
 
-const ArrowIcon = ({down = false, ...props}) => (
-  <Styled {...props}>{down ? '▼' : '▲'}</Styled>
+const Loading = styled.span`
+  height: ${ICON_SIZE_SMALL_PIXELS + 'px'};
+  width: ${ICON_SIZE_SMALL_PIXELS + 'px'};
+  background: url(/img/loading.gif) center center no-repeat;
+`;
+
+const ArrowIcon = ({down = false, isLoading = false, ...props}) => (
+  <Styled {...props}>{isLoading ? <Loading /> : down ? '▼' : '▲'}</Styled>
 );
 
 ArrowIcon.propTypes = {
   down: PropTypes.bool,
+  isLoading: PropTypes.bool,
 };
 
 export default withIconSize()(ArrowIcon);

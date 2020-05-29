@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -31,8 +31,6 @@ import {buildUrlParams} from './utils';
 
 const log = logger.getLogger('gmp.http');
 
-export const DEFAULT_TIMEOUT = 300000; // 5 min
-
 function formdata_append(formdata, key, value) {
   if (hasValue(value)) {
     formdata.append(key, value);
@@ -41,7 +39,7 @@ function formdata_append(formdata, key, value) {
 
 class Http {
   constructor(url, options = {}) {
-    const {timeout = DEFAULT_TIMEOUT, transform = DefaultTransform} = options;
+    const {timeout, transform = DefaultTransform} = options;
 
     this.url = url;
     this.params = {};
@@ -115,9 +113,12 @@ class Http {
     const promise = new Promise(function(resolve, reject) {
       xhr = new XMLHttpRequest();
 
-      if (isDefined(responseType)) {
-        xhr.responseType = responseType;
-      }
+      xhr.onloadstart = function() {
+        // defer setting the responseType to avoid InvalidStateError with IE 11
+        if (isDefined(responseType)) {
+          xhr.responseType = responseType;
+        }
+      };
 
       xhr.open(method, url, true);
 

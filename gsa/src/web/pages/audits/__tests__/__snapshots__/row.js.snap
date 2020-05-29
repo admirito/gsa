@@ -55,7 +55,7 @@ exports[`Audit Row tests should render 1`] = `
   align-items: stretch;
 }
 
-.c6 {
+.c5 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -174,7 +174,7 @@ exports[`Audit Row tests should render 1`] = `
   display: inline-flex;
 }
 
-.c16 {
+.c15 {
   cursor: pointer;
 }
 
@@ -182,13 +182,13 @@ exports[`Audit Row tests should render 1`] = `
   fill: #aaaaaa;
 }
 
-.c15 {
+.c16 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c15 * {
+.c16 * {
   height: inherit;
   width: inherit;
 }
@@ -243,13 +243,13 @@ exports[`Audit Row tests should render 1`] = `
   white-space: nowrap;
 }
 
-.c5:hover {
+.c6:hover {
   -webkit-text-decoration: none;
   text-decoration: none;
 }
 
 @media print {
-  .c16 {
+  .c15 {
     display: none;
   }
 }
@@ -359,7 +359,7 @@ exports[`Audit Row tests should render 1`] = `
         >
           <span>
             <a
-              class="c6"
+              class="c5"
               data-testid="details-link"
               href="/report/1234"
             >
@@ -405,17 +405,21 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Start"
               >
-                <svg>
+                <svg
+                  title="Start"
+                >
                   start.svg
                 </svg>
               </span>
               <span
                 alt="Resume"
-                class="c15 c17"
+                class="c17 c16"
                 data-testid="svg-icon"
                 title="Audit is not stopped"
               >
-                <svg>
+                <svg
+                  title="Audit is not stopped"
+                >
                   resume.svg
                 </svg>
               </span>
@@ -424,7 +428,9 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Move Audit to trashcan"
               >
-                <svg>
+                <svg
+                  title="Move Audit to trashcan"
+                >
                   trashcan.svg
                 </svg>
               </span>
@@ -433,7 +439,9 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Edit Audit"
               >
-                <svg>
+                <svg
+                  title="Edit Audit"
+                >
                   edit.svg
                 </svg>
               </span>
@@ -442,7 +450,9 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Clone Audit"
               >
-                <svg>
+                <svg
+                  title="Clone Audit"
+                >
                   clone.svg
                 </svg>
               </span>
@@ -451,7 +461,9 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Export Audit"
               >
-                <svg>
+                <svg
+                  title="Export Audit"
+                >
                   export.svg
                 </svg>
               </span>
@@ -460,7 +472,9 @@ exports[`Audit Row tests should render 1`] = `
                 data-testid="svg-icon"
                 title="Download Greenbone Compliance Report"
               >
-                <svg>
+                <svg
+                  title="Download Greenbone Compliance Report"
+                >
                   download.svg
                 </svg>
               </span>

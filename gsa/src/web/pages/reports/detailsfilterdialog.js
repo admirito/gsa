@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -53,6 +53,7 @@ const FilterDialog = ({
   delta = false,
   filter,
   filterstring,
+  onFilterChange,
   onFilterStringChange,
   onFilterValueChange,
   onSearchTermChange,
@@ -62,6 +63,7 @@ const FilterDialog = ({
   onValueChange,
 }) => {
   const result_hosts_only = filter.get('result_hosts_only');
+  const handleRemoveLevels = () => onFilterChange(filter.delete('levels'));
   return (
     <Layout flex="column">
       <FilterStringGroup
@@ -102,7 +104,11 @@ const FilterDialog = ({
         onChange={onFilterValueChange}
       />
 
-      <SeverityLevelsGroup filter={filter} onChange={onFilterValueChange} />
+      <SeverityLevelsGroup
+        filter={filter}
+        onChange={onFilterValueChange}
+        onRemove={handleRemoveLevels}
+      />
 
       <SeverityValuesGroup
         name="severity"
@@ -152,9 +158,6 @@ const FilterDialog = ({
 
 FilterDialog.propTypes = FilterDialogPropTypes;
 
-export default compose(
-  withCapabilities,
-  withFilterDialog(),
-)(FilterDialog);
+export default compose(withCapabilities, withFilterDialog())(FilterDialog);
 
 // vim: set ts=2 sw=2 tw=80:

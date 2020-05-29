@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -158,7 +158,7 @@ const Dialog = ({
                       !hasPermissions ||
                       !isDefined(state.permissionName)
                     }
-                    loading={isCreatingPermission}
+                    isLoading={isCreatingPermission}
                     value={{roleId: state.id, name: state.permissionName}}
                     onClick={onCreatePermission}
                   />
@@ -179,7 +179,7 @@ const Dialog = ({
                   <LoadingButton
                     title={_('Create Permission')}
                     disabled={!hasGroups || !isDefined(state.groupId)}
-                    loading={isCreatingSuperPermission}
+                    isLoading={isCreatingSuperPermission}
                     value={{roleId: state.id, groupId: state.groupId}}
                     onClick={onCreateSuperPermission}
                   />

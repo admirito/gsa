@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -143,11 +143,11 @@ class PowerFilter extends React.Component {
   }
 
   handleNamedFilterChange(value) {
-    const {filters} = this.props;
+    const {filters, resetFilter = RESET_FILTER} = this.props;
 
     let filter = filters.find(f => f.id === value);
     if (!isDefined(filter)) {
-      filter = RESET_FILTER;
+      filter = resetFilter;
     }
     this.updateFilter(filter);
   }
@@ -178,6 +178,8 @@ class PowerFilter extends React.Component {
       capabilities,
       filter,
       filters,
+      isLoading = false,
+      isLoadingFilters,
       onEditClick,
       onRemoveClick,
       onResetClick,
@@ -233,7 +235,7 @@ class PowerFilter extends React.Component {
               {onEditClick && (
                 <EditIcon
                   title={_('Edit Filter')}
-                  active={isDefined(filter)}
+                  disabled={!isDefined(filter) || isLoading}
                   onClick={isDefined(filter) ? onEditClick : undefined}
                 />
               )}
@@ -242,6 +244,7 @@ class PowerFilter extends React.Component {
           {capabilities.mayAccess('filters') && (
             <Select
               items={renderSelectItems(filters, DEFAULT_FILTER_ID)}
+              isLoading={isLoadingFilters}
               menuPosition="right"
               toolTipTitle={_('Loaded filter')}
               value={
@@ -265,6 +268,9 @@ PowerFilter.propTypes = {
   filter: PropTypes.filter,
   filters: PropTypes.array,
   gmp: PropTypes.gmp.isRequired,
+  isLoading: PropTypes.bool,
+  isLoadingFilters: PropTypes.bool,
+  resetFilter: PropTypes.filter,
   onEditClick: PropTypes.func,
   onError: PropTypes.func,
   onFilterCreated: PropTypes.func,
@@ -273,9 +279,6 @@ PowerFilter.propTypes = {
   onUpdate: PropTypes.func,
 };
 
-export default compose(
-  withCapabilities,
-  withGmp,
-)(PowerFilter);
+export default compose(withCapabilities, withGmp)(PowerFilter);
 
 // vim: set ts=2 sw=2 tw=80:

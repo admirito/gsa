@@ -101,18 +101,18 @@ exports[`StartTimeSelection tests should render 1`] = `
   display: inline-flex;
 }
 
-.c8 {
+.c7 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c8 * {
+.c7 * {
   height: inherit;
   width: inherit;
 }
 
-.c16 {
+.c15 {
   display: inline-block;
   padding: 0 15px;
   color: #393637;
@@ -132,12 +132,12 @@ exports[`StartTimeSelection tests should render 1`] = `
   z-index: 1;
 }
 
-.c16:focus,
-.c16:hover {
+.c15:focus,
+.c15:hover {
   border: 1px solid #393637;
 }
 
-.c16:hover {
+.c15:hover {
   -webkit-text-decoration: none;
   text-decoration: none;
   background: #66c430;
@@ -145,26 +145,26 @@ exports[`StartTimeSelection tests should render 1`] = `
   color: #fff;
 }
 
-.c16[disabled] {
+.c15[disabled] {
   cursor: not-allowed;
   opacity: 0.65;
   box-shadow: none;
 }
 
-.c16 img {
+.c15 img {
   height: 32px;
   width: 32px;
   margin-top: 5px 10px 5px -10px;
   vertical-align: middle;
 }
 
-.c16:link {
+.c15:link {
   -webkit-text-decoration: none;
   text-decoration: none;
   color: #393637;
 }
 
-.c15 {
+.c16 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -355,11 +355,11 @@ exports[`StartTimeSelection tests should render 1`] = `
   text-decoration: none;
 }
 
-.c7 {
+.c8 {
   margin-left: 5px;
 }
 
-.c7:hover {
+.c8:hover {
   cursor: pointer;
 }
 
@@ -425,7 +425,7 @@ exports[`StartTimeSelection tests should render 1`] = `
               >
                 01/01/2019
                 <span
-                  class="c7 c8 "
+                  class="c7 c8"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -537,7 +537,7 @@ exports[`StartTimeSelection tests should render 1`] = `
               >
                 01/01/2019
                 <span
-                  class="c7 c8 "
+                  class="c7 c8"
                   data-testid="svg-icon"
                 >
                   <svg>

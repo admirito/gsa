@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -168,6 +168,7 @@ describe('TaskCommand tests', () => {
       .then(resp => {
         expect(fakeHttp.request).toHaveBeenCalledWith('post', {
           data: {
+            auto_delete_data: AUTO_DELETE_KEEP_DEFAULT_VALUE,
             cmd: 'create_container_task',
             comment: 'comment',
             name: 'foo',

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -41,6 +41,8 @@ export const pluralizeType = type => {
     return type;
   } else if (type === 'policy') {
     return 'policies';
+  } else if (type === 'vulnerability') {
+    return 'vulns';
   }
   return type + 's';
 };

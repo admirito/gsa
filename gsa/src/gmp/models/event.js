@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -21,12 +21,12 @@ import 'core-js/features/object/values';
 
 import ical from 'ical.js';
 
-import uuid from 'uuid/v4';
+import {v4 as uuid} from 'uuid';
 
 import Logger from 'gmp/log';
 
-import {isDefined} from '../utils/identity';
-import {isEmpty} from '../utils/string';
+import {isDefined} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
 
 import date, {duration as createDuration} from './date';
 
@@ -396,7 +396,7 @@ class Event {
           return dates;
         }
 
-        const mnext = convertIcalDate(next);
+        const mnext = convertIcalDate(next, this.timezone);
 
         if (mnext.isAfter(until)) {
           return dates;

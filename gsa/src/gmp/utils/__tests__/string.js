@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -58,6 +58,10 @@ describe('shorten function tests', () => {
 
   test('should not shorten string before limit', () => {
     expect(shorten('foo bar', 10)).toEqual('foo bar');
+  });
+
+  test('should shorten non string values', () => {
+    expect(shorten(123, 2)).toEqual('12...');
   });
 });
 

@@ -146,7 +146,7 @@ exports[`ErrorMessage tests should render 1`] = `
       margin="15px"
     >
       <span
-        class="c3 "
+        class="c3"
         data-testid="svg-icon"
       >
         <svg>

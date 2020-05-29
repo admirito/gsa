@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -68,7 +68,7 @@ const SectionElements = withCapabilities(
             />
           )}
           <ManualIcon
-            page="gui_introduction"
+            page="web-interface"
             anchor="tags"
             title={_('Help: User Tags')}
           />

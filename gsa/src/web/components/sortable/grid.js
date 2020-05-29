@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -19,7 +19,7 @@
 import 'core-js/features/array/find-index';
 import 'core-js/features/array/find';
 
-import uuid from 'uuid/v4';
+import {v4 as uuid} from 'uuid';
 
 import React from 'react';
 

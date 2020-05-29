@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -46,8 +46,8 @@ const RadiusDialog = ({
   };
   return (
     <SaveDialog
-      buttonTitle={_('OK')}
-      title={_('Edit Authentication')}
+      buttonTitle={_('Save')}
+      title={_('Edit RADIUS Authentication')}
       defaultValues={uncontrolledValues}
       onClose={onClose}
       onSave={onSave}

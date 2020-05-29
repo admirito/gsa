@@ -315,11 +315,11 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
   position: relative;
 }
 
-.c10 {
+.c9 {
   margin: 0 0 1px 0;
 }
 
-.c9 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -464,7 +464,7 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
   margin-bottom: 15px;
 }
 
-.c26 {
+.c25 {
   border: 0;
   border-spacing: 0px;
   font-size: 12px;
@@ -472,11 +472,11 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
   table-layout: auto;
 }
 
-.c25 td {
+.c26 td {
   padding: 4px 4px 4px 0;
 }
 
-.c25 tr td:first-child {
+.c26 tr td:first-child {
   padding-right: 5px;
 }
 
@@ -528,7 +528,7 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
 }
 
 @media print {
-  .c26 {
+  .c25 {
     border-collapse: collapse;
   }
 }
@@ -537,7 +537,7 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
   class="c0"
 >
   <div
-    class="toolbar c1"
+    class="c1 toolbar"
   >
     <div
       class="c2"
@@ -559,11 +559,13 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
               target="_blank"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Help: Policies"
               >
-                <svg>
+                <svg
+                  title="Help: Policies"
+                >
                   help.svg
                 </svg>
               </span>
@@ -573,11 +575,13 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
               href="/policies"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Policies List"
               >
-                <svg>
+                <svg
+                  title="Policies List"
+                >
                   list.svg
                 </svg>
               </span>
@@ -592,38 +596,46 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
             margin="5px"
           >
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Clone Policy"
             >
-              <svg>
+              <svg
+                title="Clone Policy"
+              >
                 clone.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Edit Policy"
             >
-              <svg>
+              <svg
+                title="Edit Policy"
+              >
                 edit.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Move Policy to trashcan"
             >
-              <svg>
+              <svg
+                title="Move Policy to trashcan"
+              >
                 trashcan.svg
               </svg>
             </span>
             <span
-              class="c5 c7"
+              class="c7 c5"
               data-testid="svg-icon"
               title="Export Policy as XML"
             >
-              <svg>
+              <svg
+                title="Export Policy as XML"
+              >
                 export.svg
               </svg>
             </span>
@@ -636,7 +648,7 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
     class="entity-section"
   >
     <div
-      class="section-header c8"
+      class="c8 section-header"
     >
       <h2
         class="c9 c10"
@@ -645,7 +657,7 @@ exports[`Policy Detailspage tests should render full Detailspage 1`] = `
           class="c11"
         >
           <span
-            class="c12 "
+            class="c12"
             data-testid="svg-icon"
           >
             <svg>
@@ -1009,11 +1021,13 @@ exports[`Policy ToolBarIcons tests should render 1`] = `
           target="_blank"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Help: Policies"
           >
-            <svg>
+            <svg
+              title="Help: Policies"
+            >
               help.svg
             </svg>
           </span>
@@ -1023,11 +1037,13 @@ exports[`Policy ToolBarIcons tests should render 1`] = `
           href="/policies"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Policies List"
           >
-            <svg>
+            <svg
+              title="Policies List"
+            >
               list.svg
             </svg>
           </span>
@@ -1042,38 +1058,46 @@ exports[`Policy ToolBarIcons tests should render 1`] = `
         margin="5px"
       >
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Clone Policy"
         >
-          <svg>
+          <svg
+            title="Clone Policy"
+          >
             clone.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Edit Policy"
         >
-          <svg>
+          <svg
+            title="Edit Policy"
+          >
             edit.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Move Policy to trashcan"
         >
-          <svg>
+          <svg
+            title="Move Policy to trashcan"
+          >
             trashcan.svg
           </svg>
         </span>
         <span
-          class="c3 c5"
+          class="c5 c3"
           data-testid="svg-icon"
           title="Export Policy as XML"
         >
-          <svg>
+          <svg
+            title="Export Policy as XML"
+          >
             export.svg
           </svg>
         </span>

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2019 Greenbone Networks GmbH
+/* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -175,9 +175,9 @@ class Gmp {
 
   buildUrl(path, params, anchor) {
     let url = buildServerUrl(
-      this.settings.server,
+      this.settings.apiServer,
       path,
-      this.settings.protocol,
+      this.settings.apiProtocol,
     );
 
     if (isDefined(params)) {
@@ -203,10 +203,6 @@ class Gmp {
   setTimezone(timezone) {
     this.settings.timezone = timezone;
     return this;
-  }
-
-  get reloadInterval() {
-    return this.settings.reloadinterval;
   }
 
   addHttpErrorHandler(handler) {

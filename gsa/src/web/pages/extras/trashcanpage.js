@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -98,7 +98,7 @@ const EmptyTrashButton = withCapabilities(
     }
     return (
       <Layout align="end">
-        <LoadingButton onClick={onClick} loading={loading}>
+        <LoadingButton onClick={onClick} isLoading={loading}>
           {_('Empty Trash')}
         </LoadingButton>
       </Layout>
@@ -168,7 +168,7 @@ class Trashcan extends React.Component {
 
     this.handleInteraction();
 
-    gmp.trashcan
+    return gmp.trashcan
       .restore(entity)
       .then(this.getTrash)
       .catch(error => {
@@ -183,7 +183,7 @@ class Trashcan extends React.Component {
 
     this.handleInteraction();
 
-    gmp.trashcan
+    return gmp.trashcan
       .delete(entity)
       .then(this.getTrash)
       .catch(error => {
@@ -557,10 +557,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    undefined,
-    mapDispatchToProps,
-  ),
+  connect(undefined, mapDispatchToProps),
 )(Trashcan);
 
 // vim: set ts=2 sw=2 tw=80:

@@ -171,13 +171,13 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
   display: inline-flex;
 }
 
-.c9 {
+.c8 {
   height: 24px;
   width: 24px;
   line-height: 24px;
 }
 
-.c9 * {
+.c8 * {
   height: inherit;
   width: inherit;
 }
@@ -273,7 +273,7 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
   border-bottom: 1px solid #787878;
 }
 
-.c8 {
+.c9 {
   margin-right: 10px;
 }
 
@@ -373,7 +373,7 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
         data-testid="usermenu"
       >
         <span
-          class="c8 c9 "
+          class="c8 c9"
           data-testid="svg-icon"
         >
           <svg>
@@ -398,7 +398,7 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
                   margin="5px"
                 >
                   <span
-                    class="c15 "
+                    class="c15"
                     data-testid="svg-icon"
                   >
                     <svg>
@@ -422,7 +422,7 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
                   margin="5px"
                 >
                   <span
-                    class="c15 "
+                    class="c15"
                     data-testid="svg-icon"
                   >
                     <svg>
@@ -451,7 +451,7 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c15 "
+                      class="c15"
                       data-testid="svg-icon"
                     >
                       <svg>
@@ -467,17 +467,17 @@ exports[`Titlebar tests should render content if user is logged in 1`] = `
             </li>
             <li
               class="c12"
+              data-testid="usermenu-logout"
             >
               <div
                 class="c13"
               >
                 <div
                   class="c14"
-                  data-testid="usermenu-logout"
                   margin="5px"
                 >
                   <span
-                    class="c15 "
+                    class="c15"
                     data-testid="svg-icon"
                   >
                     <svg>

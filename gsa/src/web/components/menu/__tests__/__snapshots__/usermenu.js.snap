@@ -53,13 +53,13 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
   display: inline-flex;
 }
 
-.c3 {
+.c2 {
   height: 24px;
   width: 24px;
   line-height: 24px;
 }
 
-.c3 * {
+.c2 * {
   height: inherit;
   width: inherit;
 }
@@ -155,7 +155,7 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
   border-bottom: 1px solid #787878;
 }
 
-.c2 {
+.c3 {
   margin-right: 10px;
 }
 
@@ -183,7 +183,7 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
   data-testid="usermenu"
 >
   <span
-    class="c2 c3 "
+    class="c2 c3"
     data-testid="svg-icon"
   >
     <svg>
@@ -208,7 +208,7 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
             margin="5px"
           >
             <span
-              class="c9 "
+              class="c9"
               data-testid="svg-icon"
             >
               <svg>
@@ -230,7 +230,7 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
             margin="5px"
           >
             <span
-              class="c9 "
+              class="c9"
               data-testid="svg-icon"
             >
               <svg>
@@ -259,7 +259,7 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
               margin="5px"
             >
               <span
-                class="c9 "
+                class="c9"
                 data-testid="svg-icon"
               >
                 <svg>
@@ -275,17 +275,17 @@ exports[`UserMenu component tests should render UserMenu 1`] = `
       </li>
       <li
         class="c6"
+        data-testid="usermenu-logout"
       >
         <div
           class="c7"
         >
           <div
             class="c8"
-            data-testid="usermenu-logout"
             margin="5px"
           >
             <span
-              class="c9 "
+              class="c9"
               data-testid="svg-icon"
             >
               <svg>

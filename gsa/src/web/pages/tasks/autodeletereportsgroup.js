@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -53,7 +53,8 @@ const AutoDeleteReportsGroup = ({
       />
       <Spinner
         type="int"
-        min="1"
+        min="2"
+        max="1200"
         name="auto_delete_data"
         value={autoDeleteData}
         disabled={autoDelete !== AUTO_DELETE_KEEP}

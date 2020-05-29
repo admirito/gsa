@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -21,8 +21,6 @@ import React, {useEffect, useState} from 'react';
 
 import {useSelector, useDispatch} from 'react-redux';
 
-import {withRouter} from 'react-router-dom';
-
 import {ROWS_PER_PAGE_SETTING_ID} from 'gmp/commands/users';
 
 import Filter, {
@@ -42,16 +40,15 @@ import {loadUserSettingsDefaultFilter} from 'web/store/usersettings/defaultfilte
 import {getUserSettingsDefaultFilter} from 'web/store/usersettings/defaultfilters/selectors';
 
 import PropTypes from 'web/utils/proptypes';
-import withGmp from 'web/utils/withGmp';
-import compose from 'web/utils/compose';
+import useGmp from 'web/utils/useGmp';
 
 const FilterProvider = ({
   children,
   fallbackFilter,
-  gmp,
   gmpname,
   locationQuery = {},
 }) => {
+  const gmp = useGmp();
   const dispatch = useDispatch();
 
   let returnedFilter;
@@ -93,7 +90,9 @@ const FilterProvider = ({
   }, [returnedFilter, rowsPerPage, gmp, dispatch]);
 
   const [locationQueryFilter, setLocationQueryFilter] = useState(
-    Filter.fromString(locationQuery.filter),
+    isDefined(locationQuery.filter)
+      ? Filter.fromString(locationQuery.filter)
+      : undefined,
   );
 
   useEffect(() => {
@@ -144,17 +143,12 @@ const FilterProvider = ({
 
 FilterProvider.propTypes = {
   fallbackFilter: PropTypes.filter,
-  gmp: PropTypes.gmp.isRequired,
   gmpname: PropTypes.string,
-  history: PropTypes.object.isRequired,
   locationQuery: PropTypes.shape({
     filter: PropTypes.string,
   }),
 };
 
-export default compose(
-  withGmp,
-  withRouter,
-)(FilterProvider);
+export default FilterProvider;
 
 // vim: set ts=2 sw=2 tw=80:

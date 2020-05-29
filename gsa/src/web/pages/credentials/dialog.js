@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 import 'core-js/features/array/includes';
+import 'core-js/features/string/starts-with';
 
 import React from 'react';
 
@@ -78,6 +79,15 @@ class CredentialsDialog extends React.Component {
     this.handleError = this.handleError.bind(this);
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const {error} = props;
+    if (isDefined(error)) {
+      return {
+        error: error,
+      };
+    }
+  }
+
   componentDidMount() {
     const {autogenerate, credential_type} = this.props;
 
@@ -117,6 +127,12 @@ class CredentialsDialog extends React.Component {
   }
 
   handleErrorClose() {
+    const {onErrorClose} = this.props;
+
+    if (isDefined(onErrorClose)) {
+      onErrorClose();
+    }
+
     this.setState({error: undefined});
   }
 
@@ -319,7 +335,9 @@ class CredentialsDialog extends React.Component {
                 </FormGroup>
               )}
 
-              {state.credential_type === USERNAME_SSH_KEY_CREDENTIAL_TYPE && (
+              {(state.credential_type === USERNAME_SSH_KEY_CREDENTIAL_TYPE ||
+                state.credential_type ===
+                  CLIENT_CERTIFICATE_CREDENTIAL_TYPE) && (
                 <FormGroup title={_('Passphrase')}>
                   <Divider>
                     {is_edit && (
@@ -484,6 +502,7 @@ CredentialsDialog.propTypes = {
   title: PropTypes.string,
   types: PropTypes.arrayOf(pwtypes),
   onClose: PropTypes.func.isRequired,
+  onErrorClose: PropTypes.func,
   onSave: PropTypes.func.isRequired,
 };
 

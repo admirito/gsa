@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -21,6 +21,147 @@ import {isArray} from '../../utils/identity';
 import Filter, {UNKNOWN_FILTER_ID} from '../filter';
 import FilterTerm from '../filter/filterterm';
 
+describe('Filter parse filter terms from string', () => {
+  test('should parse terms from string', () => {
+    const filter = Filter.fromString('foo=bar lorem~ipsum');
+    expect(filter.toFilterString()).toEqual('foo=bar lorem~ipsum');
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[0]).toEqual({
+      keyword: 'foo',
+      relation: '=',
+      value: 'bar',
+    });
+    expect(filter.terms[1]).toEqual({
+      keyword: 'lorem',
+      relation: '~',
+      value: 'ipsum',
+    });
+  });
+
+  test('should parse filter strings with compound statements', () => {
+    // should parse filter strings with and
+    let filter = Filter.fromString('foo=bar and lorem~ipsum');
+    expect(filter.toFilterString()).toEqual('foo=bar and lorem~ipsum');
+    expect(filter.terms.length).toBe(3);
+    expect(filter.terms[0]).toEqual({
+      keyword: 'foo',
+      relation: '=',
+      value: 'bar',
+    });
+    expect(filter.terms[1]).toEqual({
+      keyword: undefined,
+      relation: undefined,
+      value: 'and',
+    });
+    expect(filter.terms[2]).toEqual({
+      keyword: 'lorem',
+      relation: '~',
+      value: 'ipsum',
+    });
+
+    // should parse filter strings with or
+    filter = Filter.fromString('foo=bar or lorem~ipsum');
+    expect(filter.toFilterString()).toEqual('foo=bar or lorem~ipsum');
+    expect(filter.terms.length).toBe(3);
+    expect(filter.terms[0]).toEqual({
+      keyword: 'foo',
+      relation: '=',
+      value: 'bar',
+    });
+    expect(filter.terms[1]).toEqual({
+      keyword: undefined,
+      relation: undefined,
+      value: 'or',
+    });
+    expect(filter.terms[2]).toEqual({
+      keyword: 'lorem',
+      relation: '~',
+      value: 'ipsum',
+    });
+
+    // should parse filter strings with not
+    filter = Filter.fromString('not foo=bar');
+    expect(filter.toFilterString()).toEqual('not foo=bar');
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[0]).toEqual({
+      keyword: undefined,
+      relation: undefined,
+      value: 'not',
+    });
+    expect(filter.terms[1]).toEqual({
+      keyword: 'foo',
+      relation: '=',
+      value: 'bar',
+    });
+  });
+
+  test('should parse strings with double quotes', () => {
+    const filter = Filter.fromString('name="foo bar" comment~"lorem ipsum"');
+    expect(filter.toFilterString()).toEqual(
+      'name="foo bar" comment~"lorem ipsum"',
+    );
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[0]).toEqual({
+      keyword: 'name',
+      relation: '=',
+      value: '"foo bar"',
+    });
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[1]).toEqual({
+      keyword: 'comment',
+      relation: '~',
+      value: '"lorem ipsum"',
+    });
+  });
+
+  test('should parse strings with double quotes and without columns', () => {
+    const filter = Filter.fromString('="foo bar" ~"lorem ipsum"');
+    expect(filter.toFilterString()).toEqual('="foo bar" ~"lorem ipsum"');
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[0]).toEqual({
+      keyword: undefined,
+      relation: '=',
+      value: '"foo bar"',
+    });
+    expect(filter.terms.length).toBe(2);
+    expect(filter.terms[1]).toEqual({
+      keyword: undefined,
+      relation: '~',
+      value: '"lorem ipsum"',
+    });
+  });
+
+  test('should parse strings with double quotes and special characters', () => {
+    const filter = Filter.fromString(
+      'name="foo <= bar" ~"foo & bar" and comment="hello : world ?"',
+    );
+    expect(filter.toFilterString()).toEqual(
+      'name="foo <= bar" ~"foo & bar" and comment="hello : world ?"',
+    );
+    expect(filter.terms.length).toBe(4);
+    expect(filter.terms[0]).toEqual({
+      keyword: 'name',
+      relation: '=',
+      value: '"foo <= bar"',
+    });
+    expect(filter.terms[1]).toEqual({
+      keyword: undefined,
+      relation: '~',
+      value: '"foo & bar"',
+    });
+    expect(filter.terms[2]).toEqual({
+      keyword: undefined,
+      relation: undefined,
+      value: 'and',
+    });
+    expect(filter.terms[3]).toEqual({
+      keyword: 'comment',
+      relation: '=',
+      value: '"hello : world ?"',
+    });
+  });
+});
+
 describe('Filter parse from string tests', () => {
   test('should parse aprox relation without column', () => {
     const filter = Filter.fromString('~abc');
@@ -40,6 +181,11 @@ describe('Filter parse from string tests', () => {
   test('should parse equal relation without column and with quotes', () => {
     const filter = Filter.fromString('="abc def"');
     expect(filter.toFilterString()).toEqual('="abc def"');
+  });
+
+  test('should parse equal relation without column and with special characters in quotes', () => {
+    const filter = Filter.fromString('="abc : def"');
+    expect(filter.toFilterString()).toEqual('="abc : def"');
   });
 
   test('should parse above relation without column', () => {
@@ -108,6 +254,17 @@ describe('Filter parse from string tests', () => {
   test('should ignore null as filter argument', () => {
     const filter = Filter.fromString('foo=1', null);
     expect(filter.toFilterString()).toEqual('foo=1');
+  });
+
+  test('should ignore filter terms starting with _', () => {
+    let filter = Filter.fromString('rows=100 _foo=bar');
+    expect(filter.toFilterString()).toEqual('rows=100');
+
+    filter = Filter.fromString('_bar=foo rows=100');
+    expect(filter.toFilterString()).toEqual('rows=100');
+
+    filter = Filter.fromString('_foo rows=100');
+    expect(filter.toFilterString()).toEqual('rows=100');
   });
 });
 
@@ -251,6 +408,22 @@ describe('Filter parse from keywords', () => {
     const filter2 = Filter.fromString(filterstring);
     expect(filter.equals(filter2)).toEqual(true);
   });
+
+  test('should parse columns with underscore', () => {
+    const elem = {
+      keywords: {
+        keyword: [
+          {
+            column: '_foo',
+            relation: '=',
+            value: 'abc',
+          },
+        ],
+      },
+    };
+    const filter = Filter.fromElement(elem);
+    expect(filter.toFilterString()).toEqual('_foo=abc');
+  });
 });
 
 describe('Filter set', () => {
@@ -304,6 +477,11 @@ describe('Filter set', () => {
 
     filter.set('first', '0');
     expect(filter.id).toBeUndefined();
+  });
+
+  test('should allow to set a filter term with underscore', () => {
+    const filter = Filter.fromElement();
+    expect(filter.set('_foo', '1', '=').toFilterString()).toEqual('_foo=1');
   });
 });
 
@@ -961,6 +1139,22 @@ describe('Filter merge extra keywords', () => {
     expect(filter3.get('timezone')).toBe('CET');
   });
 
+  test('should merge new keywords', () => {
+    const filter1 = Filter.fromString('abc=1 autofp=0 trend=more');
+    const filter2 = Filter.fromString(
+      'autofp=1 delta_states=1 severity>3 sort=name',
+    );
+
+    const filter3 = filter2.mergeKeywords(filter1);
+
+    expect(filter3.get('abc')).toBe('1');
+    expect(filter3.get('delta_states')).toBe('1');
+    expect(filter3.get('sort')).toBe('name');
+    expect(filter3.get('severity')).toBe('3');
+    expect(filter3.get('autofp')).toBe(1);
+    expect(filter3.get('trend')).toBe('more');
+  });
+
   test('should not merge non extra keywords', () => {
     const filter1 = Filter.fromString('abc=1');
     const filter2 = Filter.fromString('apply_overrides=1 def=1');
@@ -981,6 +1175,48 @@ describe('Filter merge extra keywords', () => {
     expect(filter3.get('abc')).toBe('1');
     expect(filter3.get('apply_overrides')).toBe(1);
     expect(filter3.get('min_qod')).toBe(80);
+  });
+
+  test('should not merge sort or sort-reverse if already exis', () => {
+    let filter1 = Filter.fromString('sort=foo');
+    let filter2 = Filter.fromString('sort=bar');
+
+    let filter3 = filter1.mergeExtraKeywords(filter2);
+
+    expect(filter3.getSortOrder()).toEqual('sort');
+    expect(filter3.getSortBy()).toEqual('foo');
+
+    expect(filter3.toFilterString()).toEqual('sort=foo');
+
+    filter1 = Filter.fromString('sort=foo');
+    filter2 = Filter.fromString('sort-reverse=bar');
+
+    filter3 = filter1.mergeExtraKeywords(filter2);
+
+    expect(filter3.getSortOrder()).toEqual('sort');
+    expect(filter3.getSortBy()).toEqual('foo');
+
+    expect(filter3.toFilterString()).toEqual('sort=foo');
+
+    filter1 = Filter.fromString('sort-reverse=foo');
+    filter2 = Filter.fromString('sort-reverse=bar');
+
+    filter3 = filter1.mergeExtraKeywords(filter2);
+
+    expect(filter3.getSortOrder()).toEqual('sort-reverse');
+    expect(filter3.getSortBy()).toEqual('foo');
+
+    expect(filter3.toFilterString()).toEqual('sort-reverse=foo');
+
+    filter1 = Filter.fromString('sort-reverse=foo');
+    filter2 = Filter.fromString('sort=bar');
+
+    filter3 = filter1.mergeExtraKeywords(filter2);
+
+    expect(filter3.getSortOrder()).toEqual('sort-reverse');
+    expect(filter3.getSortBy()).toEqual('foo');
+
+    expect(filter3.toFilterString()).toEqual('sort-reverse=foo');
   });
 
   test('should reset filter id', () => {

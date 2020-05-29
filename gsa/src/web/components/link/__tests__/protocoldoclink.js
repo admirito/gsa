@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -26,7 +26,7 @@ describe('ProtocolDocLink tests', () => {
   test('should render ProtocolDocLink', () => {
     const gmp = {
       settings: {
-        protocoldocurl: 'http://foo.bar',
+        protocolDocUrl: 'http://foo.bar',
       },
     };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -42,7 +42,6 @@ describe('Entity DeleteIcon component tests', () => {
       <DeleteIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(caps.mayDelete('task')).toEqual(true);
     expect(entity.userCapabilities.mayDelete('task')).toEqual(true);
 
@@ -67,7 +66,6 @@ describe('Entity DeleteIcon component tests', () => {
       <DeleteIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(caps.mayDelete('task')).toEqual(false);
     expect(entity.userCapabilities.mayDelete('task')).toEqual(true);
 
@@ -91,7 +89,6 @@ describe('Entity DeleteIcon component tests', () => {
       <DeleteIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(caps.mayDelete('task')).toEqual(true);
     expect(entity.userCapabilities.mayDelete('task')).toEqual(false);
 

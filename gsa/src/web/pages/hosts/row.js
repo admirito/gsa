@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -112,10 +112,8 @@ const Row = ({
   onToggleDetailsClick,
   ...props
 }) => {
-  const {details = {}} = entity;
-  const os_cpe = isDefined(details.best_os_cpe)
-    ? details.best_os_cpe.value
-    : undefined;
+  const {details = {}, os} = entity;
+  const os_cpe = os;
   const os_txt = isDefined(details.best_os_txt)
     ? details.best_os_txt.value
     : undefined;

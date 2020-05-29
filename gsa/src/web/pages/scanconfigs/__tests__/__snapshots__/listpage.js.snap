@@ -87,30 +87,36 @@ exports[`ScanConfigsPage ToolBarIcons test should render 1`] = `
       target="_blank"
     >
       <span
-        class="c2 "
+        class="c2"
         data-testid="svg-icon"
         title="Help: Scan Configs"
       >
-        <svg>
+        <svg
+          title="Help: Scan Configs"
+        >
           help.svg
         </svg>
       </span>
     </a>
     <span
-      class="c2 c3"
+      class="c3 c2"
       data-testid="svg-icon"
       title="New Scan Config"
     >
-      <svg>
+      <svg
+        title="New Scan Config"
+      >
         new.svg
       </svg>
     </span>
     <span
-      class="c2 c3"
+      class="c3 c2"
       data-testid="svg-icon"
       title="Import Scan Config"
     >
-      <svg>
+      <svg
+        title="Import Scan Config"
+      >
         upload.svg
       </svg>
     </span>
@@ -379,7 +385,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   margin-left: 5px;
 }
 
-.c10 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -398,14 +404,14 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   margin-left: -5px;
 }
 
-.c10 > * {
+.c9 > * {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
 }
 
-.c10 > * {
+.c9 > * {
   margin-left: 5px;
 }
 
@@ -543,11 +549,11 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   position: relative;
 }
 
-.c23 {
+.c22 {
   margin: 0 0 1px 0;
 }
 
-.c22 {
+.c23 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -604,7 +610,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   min-width: 100px;
 }
 
-.c20 {
+.c19 {
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -629,13 +635,13 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   cursor: pointer;
 }
 
-.c19 {
+.c20 {
   height: 16px;
   width: 16px;
   line-height: 16px;
 }
 
-.c19 * {
+.c20 * {
   height: inherit;
   width: inherit;
 }
@@ -756,7 +762,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   width: 8%;
 }
 
-.c14 {
+.c13 {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -770,11 +776,11 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   padding: 1px 8px;
 }
 
-.c14:-webkit-autofill {
+.c13:-webkit-autofill {
   box-shadow: 0 0 0 1000px white inset;
 }
 
-.c13 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -796,7 +802,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
   margin-right: 5px;
 }
 
-.c9 {
+.c10 {
   margin-right: 5px;
 }
 
@@ -1003,7 +1009,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
       class="c0"
     >
       <div
-        class="toolbar c1"
+        class="c1 toolbar"
       >
         <div
           class="c2"
@@ -1018,30 +1024,36 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
               target="_blank"
             >
               <span
-                class="c4 "
+                class="c4"
                 data-testid="svg-icon"
                 title="Help: Scan Configs"
               >
-                <svg>
+                <svg
+                  title="Help: Scan Configs"
+                >
                   help.svg
                 </svg>
               </span>
             </a>
             <span
-              class="c4 c5"
+              class="c5 c4"
               data-testid="svg-icon"
               title="New Scan Config"
             >
-              <svg>
+              <svg
+                title="New Scan Config"
+              >
                 new.svg
               </svg>
             </span>
             <span
-              class="c4 c5"
+              class="c5 c4"
               data-testid="svg-icon"
               title="Import Scan Config"
             >
-              <svg>
+              <svg
+                title="Import Scan Config"
+              >
                 upload.svg
               </svg>
             </span>
@@ -1051,7 +1063,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
           class="c6"
         >
           <div
-            class="powerfilter c7"
+            class="c7 powerfilter"
           >
             <div
               class="c8"
@@ -1086,33 +1098,39 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     class="c2"
                   >
                     <div
-                      class="c10"
+                      class="c9"
                       margin="5px"
                     >
                       <span
-                        class="c4 c5"
+                        class="c5 c4"
                         data-testid="svg-icon"
                         title="Update Filter"
                       >
-                        <svg>
+                        <svg
+                          title="Update Filter"
+                        >
                           refresh.svg
                         </svg>
                       </span>
                       <span
-                        class="c4 c5"
+                        class="c5 c4"
                         data-testid="svg-icon"
                         title="Remove Filter"
                       >
-                        <svg>
+                        <svg
+                          title="Remove Filter"
+                        >
                           delete.svg
                         </svg>
                       </span>
                       <span
-                        class="c4 c5"
+                        class="c5 c4"
                         data-testid="svg-icon"
                         title="Reset to Default Filter"
                       >
-                        <svg>
+                        <svg
+                          title="Reset to Default Filter"
+                        >
                           reset.svg
                         </svg>
                       </span>
@@ -1122,21 +1140,25 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                         target="_blank"
                       >
                         <span
-                          class="c4 "
+                          class="c4"
                           data-testid="svg-icon"
                           title="Help: Powerfilter"
                         >
-                          <svg>
+                          <svg
+                            title="Help: Powerfilter"
+                          >
                             help.svg
                           </svg>
                         </span>
                       </a>
                       <span
-                        class="c4 c5"
+                        class="c5 c4"
                         data-testid="svg-icon"
                         title="Edit Filter"
                       >
-                        <svg>
+                        <svg
+                          title="Edit Filter"
+                        >
                           edit.svg
                         </svg>
                       </span>
@@ -1188,7 +1210,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
         class="entities-section"
       >
         <div
-          class="section-header c21"
+          class="c21 section-header"
         >
           <h2
             class="c22 c23"
@@ -1197,7 +1219,7 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
               class="c24"
             >
               <span
-                class="c25 "
+                class="c25"
                 data-testid="svg-icon"
               >
                 <svg>
@@ -1219,17 +1241,19 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
           class="c0"
         >
           <div
-            class="entities-table c27"
+            class="c27 entities-table"
           >
             <div
               class="c28"
             >
               <span
-                class="c29 c4 c5"
+                class="c5 c4 c29"
                 data-testid="svg-icon"
                 title="Unfold all details"
               >
-                <svg>
+                <svg
+                  title="Unfold all details"
+                >
                   fold.svg
                 </svg>
               </span>
@@ -1244,20 +1268,24 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="First"
                     >
-                      <svg>
+                      <svg
+                        title="First"
+                      >
                         first.svg
                       </svg>
                     </span>
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Previous"
                     >
-                      <svg>
+                      <svg
+                        title="Previous"
+                      >
                         previous.svg
                       </svg>
                     </span>
@@ -1276,20 +1304,24 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Next"
                     >
-                      <svg>
+                      <svg
+                        title="Next"
+                      >
                         next.svg
                       </svg>
                     </span>
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Last"
                     >
-                      <svg>
+                      <svg
+                        title="Last"
+                      >
                         last.svg
                       </svg>
                     </span>
@@ -1471,11 +1503,13 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     >
                       <span
                         alt="Static"
-                        class="c4 "
+                        class="c4"
                         data-testid="svg-icon"
                         title="The family selection is STATIC. New families will NOT automatically be added and considered."
                       >
-                        <svg>
+                        <svg
+                          title="The family selection is STATIC. New families will NOT automatically be added and considered."
+                        >
                           trend_nochange.svg
                         </svg>
                       </span>
@@ -1494,11 +1528,13 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     >
                       <span
                         alt="Dynamic"
-                        class="c4 "
+                        class="c4"
                         data-testid="svg-icon"
                         title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
                       >
-                        <svg>
+                        <svg
+                          title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
+                        >
                           trend_more.svg
                         </svg>
                       </span>
@@ -1516,38 +1552,46 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                           margin="5px"
                         >
                           <span
-                            class="c4 c5"
+                            class="c5 c4"
                             data-testid="svg-icon"
                             title="Move Scan Config to trashcan"
                           >
-                            <svg>
+                            <svg
+                              title="Move Scan Config to trashcan"
+                            >
                               trashcan.svg
                             </svg>
                           </span>
                           <span
-                            class="c4 c5"
+                            class="c5 c4"
                             data-testid="svg-icon"
                             title="Edit Scan Config"
                           >
-                            <svg>
+                            <svg
+                              title="Edit Scan Config"
+                            >
                               edit.svg
                             </svg>
                           </span>
                           <span
-                            class="c4 c5"
+                            class="c5 c4"
                             data-testid="svg-icon"
                             title="Clone Scan Config"
                           >
-                            <svg>
+                            <svg
+                              title="Clone Scan Config"
+                            >
                               clone.svg
                             </svg>
                           </span>
                           <span
-                            class="c4 c5"
+                            class="c5 c4"
                             data-testid="svg-icon"
                             title="Export Scan Config"
                           >
-                            <svg>
+                            <svg
+                              title="Export Scan Config"
+                            >
                               export.svg
                             </svg>
                           </span>
@@ -1615,29 +1659,35 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                               margin="5px"
                             >
                               <span
-                                class="c4 c5"
+                                class="c5 c4"
                                 data-testid="svg-icon"
                                 title="Add tag to page contents"
                               >
-                                <svg>
+                                <svg
+                                  title="Add tag to page contents"
+                                >
                                   tags.svg
                                 </svg>
                               </span>
                               <span
-                                class="c4 c5"
+                                class="c5 c4"
                                 data-testid="svg-icon"
                                 title="Move page contents to trashcan"
                               >
-                                <svg>
+                                <svg
+                                  title="Move page contents to trashcan"
+                                >
                                   trashcan.svg
                                 </svg>
                               </span>
                               <span
-                                class="c4 c5"
+                                class="c5 c4"
                                 data-testid="svg-icon"
                                 title="Export page contents"
                               >
-                                <svg>
+                                <svg
+                                  title="Export page contents"
+                                >
                                   export.svg
                                 </svg>
                               </span>
@@ -1669,20 +1719,24 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="First"
                     >
-                      <svg>
+                      <svg
+                        title="First"
+                      >
                         first.svg
                       </svg>
                     </span>
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Previous"
                     >
-                      <svg>
+                      <svg
+                        title="Previous"
+                      >
                         previous.svg
                       </svg>
                     </span>
@@ -1701,20 +1755,24 @@ exports[`ScanConfigsPage tests should render full ScanConfigsPage 1`] = `
                     margin="5px"
                   >
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Next"
                     >
-                      <svg>
+                      <svg
+                        title="Next"
+                      >
                         next.svg
                       </svg>
                     </span>
                     <span
-                      class="c4 c31"
+                      class="c31 c4"
                       data-testid="svg-icon"
                       title="Last"
                     >
-                      <svg>
+                      <svg
+                        title="Last"
+                      >
                         last.svg
                       </svg>
                     </span>

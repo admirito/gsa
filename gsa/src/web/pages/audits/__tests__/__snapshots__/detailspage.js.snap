@@ -316,11 +316,11 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
   position: relative;
 }
 
-.c14 {
+.c13 {
   margin: 0 0 1px 0;
 }
 
-.c13 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -465,7 +465,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
   margin-bottom: 15px;
 }
 
-.c30 {
+.c29 {
   border: 0;
   border-spacing: 0px;
   font-size: 12px;
@@ -482,11 +482,11 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
   width: 100%;
 }
 
-.c29 td {
+.c30 td {
   padding: 4px 4px 4px 0;
 }
 
-.c29 tr td:first-child {
+.c30 tr td:first-child {
   padding-right: 5px;
 }
 
@@ -624,7 +624,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
 }
 
 @media print {
-  .c30 {
+  .c29 {
     border-collapse: collapse;
   }
 }
@@ -658,7 +658,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
   class="c0"
 >
   <div
-    class="toolbar c1"
+    class="c1 toolbar"
   >
     <div
       class="c2"
@@ -680,11 +680,13 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
               target="_blank"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Help: Audits"
               >
-                <svg>
+                <svg
+                  title="Help: Audits"
+                >
                   help.svg
                 </svg>
               </span>
@@ -694,21 +696,25 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
               href="/audits"
             >
               <span
-                class="c5 "
+                class="c5"
                 data-testid="svg-icon"
                 title="Audit List"
               >
-                <svg>
+                <svg
+                  title="Audit List"
+                >
                   list.svg
                 </svg>
               </span>
             </a>
             <span
-              class="c5 "
+              class="c5"
               data-testid="svg-icon"
               title="This is an Alterable Audit. Reports may not relate to current Policy or Target!"
             >
-              <svg>
+              <svg
+                title="This is an Alterable Audit. Reports may not relate to current Policy or Target!"
+              >
                 alterable.svg
               </svg>
             </span>
@@ -722,38 +728,46 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
             margin="5px"
           >
             <span
-              class="c5 c8"
+              class="c8 c5"
               data-testid="svg-icon"
               title="Clone Audit"
             >
-              <svg>
+              <svg
+                title="Clone Audit"
+              >
                 clone.svg
               </svg>
             </span>
             <span
-              class="c5 c8"
+              class="c8 c5"
               data-testid="svg-icon"
               title="Edit Audit"
             >
-              <svg>
+              <svg
+                title="Edit Audit"
+              >
                 edit.svg
               </svg>
             </span>
             <span
-              class="c5 c8"
+              class="c8 c5"
               data-testid="svg-icon"
               title="Move Audit to trashcan"
             >
-              <svg>
+              <svg
+                title="Move Audit to trashcan"
+              >
                 trashcan.svg
               </svg>
             </span>
             <span
-              class="c5 c8"
+              class="c8 c5"
               data-testid="svg-icon"
               title="Export Audit as XML"
             >
-              <svg>
+              <svg
+                title="Export Audit as XML"
+              >
                 export.svg
               </svg>
             </span>
@@ -767,21 +781,25 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
             margin="5px"
           >
             <span
-              class="c5 c8"
+              class="c8 c5"
               data-testid="svg-icon"
               title="Start"
             >
-              <svg>
+              <svg
+                title="Start"
+              >
                 start.svg
               </svg>
             </span>
             <span
               alt="Resume"
-              class="c5 c9"
+              class="c9 c5"
               data-testid="svg-icon"
               title="Audit is not stopped"
             >
-              <svg>
+              <svg
+                title="Audit is not stopped"
+              >
                 resume.svg
               </svg>
             </span>
@@ -808,7 +826,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
                   title="Last Report for Audit foo from 07/30/2019"
                 >
                   <span
-                    class="c5 "
+                    class="c5"
                     data-testid="svg-icon"
                   >
                     <svg>
@@ -825,7 +843,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
                     class="c10"
                   >
                     <span
-                      class="c5 "
+                      class="c5"
                       data-testid="svg-icon"
                     >
                       <svg>
@@ -851,7 +869,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
                 class="c10"
               >
                 <span
-                  class="c5 "
+                  class="c5"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -875,7 +893,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
     class="entity-section"
   >
     <div
-      class="section-header c12"
+      class="c12 section-header"
     >
       <h2
         class="c13 c14"
@@ -884,7 +902,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
           class="c15"
         >
           <span
-            class="c16 "
+            class="c16"
             data-testid="svg-icon"
           >
             <svg>
@@ -1051,7 +1069,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
                   class="c28"
                 >
                   <a
-                    class="c33 c6"
+                    class="c6 c33"
                     data-testid="details-link"
                     href="/report/1234"
                   >
@@ -1110,7 +1128,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
                 class="c2"
               >
                 <div
-                  class="c38 c7"
+                  class="c7 c38"
                   margin="5px"
                 >
                   <span>
@@ -1134,7 +1152,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c29 c39"
+                class="c39 c30"
               >
                 <colgroup>
                   <col
@@ -1201,7 +1219,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c29 c39"
+                class="c39 c30"
               >
                 <colgroup>
                   <col
@@ -1244,7 +1262,7 @@ exports[`Audit Detailspage tests should render full Detailspage 1`] = `
             </h2>
             <div>
               <table
-                class="c29 c39"
+                class="c39 c30"
               >
                 <colgroup>
                   <col
@@ -1512,11 +1530,13 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
           target="_blank"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Help: Audits"
           >
-            <svg>
+            <svg
+              title="Help: Audits"
+            >
               help.svg
             </svg>
           </span>
@@ -1526,21 +1546,25 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
           href="/audits"
         >
           <span
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="Audit List"
           >
-            <svg>
+            <svg
+              title="Audit List"
+            >
               list.svg
             </svg>
           </span>
         </a>
         <span
-          class="c3 "
+          class="c3"
           data-testid="svg-icon"
           title="This is an Alterable Audit. Reports may not relate to current Policy or Target!"
         >
-          <svg>
+          <svg
+            title="This is an Alterable Audit. Reports may not relate to current Policy or Target!"
+          >
             alterable.svg
           </svg>
         </span>
@@ -1554,38 +1578,46 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
         margin="5px"
       >
         <span
-          class="c3 c6"
+          class="c6 c3"
           data-testid="svg-icon"
           title="Clone Audit"
         >
-          <svg>
+          <svg
+            title="Clone Audit"
+          >
             clone.svg
           </svg>
         </span>
         <span
-          class="c3 c6"
+          class="c6 c3"
           data-testid="svg-icon"
           title="Edit Audit"
         >
-          <svg>
+          <svg
+            title="Edit Audit"
+          >
             edit.svg
           </svg>
         </span>
         <span
-          class="c3 c6"
+          class="c6 c3"
           data-testid="svg-icon"
           title="Move Audit to trashcan"
         >
-          <svg>
+          <svg
+            title="Move Audit to trashcan"
+          >
             trashcan.svg
           </svg>
         </span>
         <span
-          class="c3 c6"
+          class="c6 c3"
           data-testid="svg-icon"
           title="Export Audit as XML"
         >
-          <svg>
+          <svg
+            title="Export Audit as XML"
+          >
             export.svg
           </svg>
         </span>
@@ -1599,21 +1631,25 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
         margin="5px"
       >
         <span
-          class="c3 c6"
+          class="c6 c3"
           data-testid="svg-icon"
           title="Start"
         >
-          <svg>
+          <svg
+            title="Start"
+          >
             start.svg
           </svg>
         </span>
         <span
           alt="Resume"
-          class="c3 c7"
+          class="c7 c3"
           data-testid="svg-icon"
           title="Audit is not stopped"
         >
-          <svg>
+          <svg
+            title="Audit is not stopped"
+          >
             resume.svg
           </svg>
         </span>
@@ -1640,7 +1676,7 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
               title="Last Report for Audit foo from 07/30/2019"
             >
               <span
-                class="c3 "
+                class="c3"
                 data-testid="svg-icon"
               >
                 <svg>
@@ -1657,7 +1693,7 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
                 class="c8"
               >
                 <span
-                  class="c3 "
+                  class="c3"
                   data-testid="svg-icon"
                 >
                   <svg>
@@ -1683,7 +1719,7 @@ exports[`Audit ToolBarIcons tests should render 1`] = `
             class="c8"
           >
             <span
-              class="c3 "
+              class="c3"
               data-testid="svg-icon"
             >
               <svg>

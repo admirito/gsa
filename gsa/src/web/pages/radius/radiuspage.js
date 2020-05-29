@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -59,7 +59,10 @@ const ToolBarIcons = ({onOpenDialogClick}) => (
       size="small"
       title={_('Help: RADIUS Authentication')}
     />
-    <EditIcon onClick={onOpenDialogClick} />
+    <EditIcon
+      onClick={onOpenDialogClick}
+      title={_('Edit RADIUS Authentication')}
+    />
   </IconDivider>
 );
 
@@ -187,7 +190,7 @@ class RadiusAuthentication extends React.Component {
               </TableBody>
             </Table>
           ) : (
-            <p>{_('Support for Radius is not available.')}</p>
+            <p>{_('Support for RADIUS is not available.')}</p>
           )}
         </Layout>
         {dialogVisible && (
@@ -215,10 +218,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    undefined,
-    mapDispatchToProps,
-  ),
+  connect(undefined, mapDispatchToProps),
 )(RadiusAuthentication);
 
 // vim: set ts=2 sw=2 tw=80:

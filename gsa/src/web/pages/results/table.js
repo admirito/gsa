@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -64,7 +64,7 @@ const Header = ({
           />
         )}
         <TableHead
-          width="45%"
+          width="40%"
           rowSpan="2"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}
@@ -114,7 +114,7 @@ const Header = ({
           title={_('Location')}
         />
         <TableHead
-          width="10%"
+          width="15%"
           rowSpan="2"
           currentSortDir={currentSortDir}
           currentSortBy={currentSortBy}

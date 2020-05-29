@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -25,7 +25,7 @@ import SvgIcon from './svgicon';
 const withSvgIcon = (defaults = {}) => Component => {
   const SvgIconWrapper = props => (
     <SvgIcon {...defaults} {...props}>
-      <Component />
+      {svgProps => <Component {...svgProps} />}
     </SvgIcon>
   );
   return hoistStatics(SvgIconWrapper, Component);

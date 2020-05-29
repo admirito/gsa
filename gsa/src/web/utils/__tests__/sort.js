@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Greenbone Networks GmbH
+/* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -27,6 +27,7 @@ import {
   makeCompareIp,
   makeCompareSeverity,
   makeCompareDate,
+  makeComparePort,
 } from '../sort';
 
 describe('ipToNumber tests', () => {
@@ -76,24 +77,47 @@ describe('getProperty tests', () => {
 describe('getValue tests', () => {
   test('should return value for property', () => {
     expect(getValue(v => v, {foo: 'bar'}, 'foo')).toEqual('bar');
-    expect(getValue(v => v, {foo: 'bar'}, obj => obj.foo)).toEqual('bar');
+    expect(
+      getValue(
+        v => v,
+        {foo: 'bar'},
+        obj => obj.foo,
+      ),
+    ).toEqual('bar');
   });
 
   test('should return string for property', () => {
     expect(getValue(v => '' + v, {a: 1}, 'a')).toEqual('1');
-    expect(getValue(v => '' + v, {a: 1}, obj => obj.a)).toEqual('1');
+    expect(
+      getValue(
+        v => '' + v,
+        {a: 1},
+        obj => obj.a,
+      ),
+    ).toEqual('1');
   });
 
   test('should return undefined for unknown property', () => {
     expect(getValue(v => v, {foo: 'bar'}, 'bar')).toBeUndefined();
-    expect(getValue(v => v, {foo: 'bar'}, obj => obj.bar)).toBeUndefined();
+    expect(
+      getValue(
+        v => v,
+        {foo: 'bar'},
+        obj => obj.bar,
+      ),
+    ).toBeUndefined();
   });
 
   test('should return default for unknown property', () => {
     expect(getValue(v => v, {foo: 'bar'}, 'bar', 'ipsum')).toEqual('ipsum');
-    expect(getValue(v => v, {foo: 'bar'}, obj => obj.bar, 'ipsum')).toEqual(
-      'ipsum',
-    );
+    expect(
+      getValue(
+        v => v,
+        {foo: 'bar'},
+        obj => obj.bar,
+        'ipsum',
+      ),
+    ).toEqual('ipsum');
   });
 });
 
@@ -111,12 +135,22 @@ describe('makeCompareString tests', () => {
     const objD = {
       value: 1, // will be converted to string
     };
+    const objE = {
+      value: undefined,
+    };
+    const objF = {
+      value: 'z',
+    };
 
     const compareValues = makeCompareString('value')();
     expect(compareValues(objA, objB)).toEqual(-1);
     expect(compareValues(objB, objA)).toEqual(1);
     expect(compareValues(objA, objC)).toEqual(0);
     expect(compareValues(objA, objD)).toEqual(1);
+    expect(compareValues(objE, objA)).toEqual(-1);
+    expect(compareValues(objA, objE)).toEqual(1);
+    expect(compareValues(objE, objF)).toEqual(-1);
+    expect(compareValues(objF, objE)).toEqual(1);
   });
 
   test('should compare strings desc', () => {
@@ -132,12 +166,22 @@ describe('makeCompareString tests', () => {
     const objD = {
       value: 1, // will be converted to string
     };
+    const objE = {
+      value: undefined,
+    };
+    const objF = {
+      value: 'z',
+    };
 
     const compareValues = makeCompareString('value')(true);
     expect(compareValues(objA, objB)).toEqual(1);
     expect(compareValues(objB, objA)).toEqual(-1);
     expect(compareValues(objA, objC)).toEqual(0);
     expect(compareValues(objA, objD)).toEqual(-1);
+    expect(compareValues(objE, objA)).toEqual(1);
+    expect(compareValues(objA, objE)).toEqual(-1);
+    expect(compareValues(objE, objF)).toEqual(1);
+    expect(compareValues(objF, objE)).toEqual(-1);
   });
 });
 
@@ -371,6 +415,79 @@ describe('makeCompareDate tests', () => {
     expect(compareValues(objB, objA)).toEqual(-1);
     expect(compareValues(objA, objC)).toEqual(0);
     expect(compareValues(objA, objD)).toEqual(0);
+  });
+});
+
+describe('makeComparePort tests', () => {
+  test('should compare ports asc', () => {
+    const objA = {
+      value: 80,
+    };
+    const objB = {
+      value: 666,
+    };
+    const objC = {
+      value: 80,
+    };
+    const objD = {};
+    const objE = {
+      value: 22,
+    };
+
+    const compareValues = makeComparePort(obj => obj.value)();
+    expect(compareValues(objA, objB)).toEqual(-1);
+    expect(compareValues(objA, objC)).toEqual(0);
+    expect(compareValues(objA, objD)).toEqual(1);
+    expect(compareValues(objA, objE)).toEqual(1);
+  });
+
+  test('should compare ports desc', () => {
+    const objA = {
+      value: 80,
+    };
+    const objB = {
+      value: 666,
+    };
+    const objC = {
+      value: 80,
+    };
+    const objD = {};
+    const objE = {
+      value: 22,
+    };
+
+    const compareValues = makeComparePort(obj => obj.value)(true);
+    expect(compareValues(objA, objB)).toEqual(1);
+    expect(compareValues(objA, objC)).toEqual(0);
+    expect(compareValues(objA, objD)).toEqual(-1);
+    expect(compareValues(objA, objE)).toEqual(-1);
+  });
+
+  test('should compare ports as string', () => {
+    const objA = {
+      value: '80',
+    };
+    const objB = {
+      value: 666,
+    };
+    const objC = {
+      value: 80,
+    };
+    const objD = {};
+    const objE = {
+      value: '22',
+    };
+    const objF = {
+      value: 'foo',
+    };
+
+    const compareValues = makeComparePort(obj => obj.value)();
+    expect(compareValues(objA, objB)).toEqual(-1);
+    expect(compareValues(objA, objC)).toEqual(0);
+    expect(compareValues(objA, objD)).toEqual(1);
+    expect(compareValues(objA, objE)).toEqual(1);
+    expect(compareValues(objA, objF)).toEqual(1);
+    expect(compareValues(objD, objF)).toEqual(0);
   });
 });
 

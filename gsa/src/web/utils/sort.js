@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -99,13 +99,15 @@ const makeCompare = convertFunc => (property, undefinedVal) => (
     );
 };
 
-export const makeCompareString = makeCompare(value => '' + value);
+export const makeCompareString = makeCompare((value = '') => '' + value);
 
 export const makeCompareNumber = makeCompare(parseFloat);
 
 export const makeCompareDate = makeCompare(value => value);
 
 export const makeCompareIp = makeCompare(ipToNumber);
+
+export const makeComparePort = name => makeCompare(parseInt)(name, -1);
 
 export const makeCompareSeverity = (name = 'severity') =>
   makeCompareNumber(name, 0);

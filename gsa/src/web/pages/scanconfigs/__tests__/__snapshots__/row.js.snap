@@ -210,11 +210,13 @@ exports[`Scan Config row tests should render 1`] = `
         >
           <span
             alt="Static"
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="The family selection is STATIC. New families will NOT automatically be added and considered."
           >
-            <svg>
+            <svg
+              title="The family selection is STATIC. New families will NOT automatically be added and considered."
+            >
               trend_nochange.svg
             </svg>
           </span>
@@ -233,11 +235,13 @@ exports[`Scan Config row tests should render 1`] = `
         >
           <span
             alt="Dynamic"
-            class="c3 "
+            class="c3"
             data-testid="svg-icon"
             title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
           >
-            <svg>
+            <svg
+              title="The NVT selection is DYNAMIC. New NVTs of selected families will automatically be added and considered."
+            >
               trend_more.svg
             </svg>
           </span>
@@ -255,38 +259,46 @@ exports[`Scan Config row tests should render 1`] = `
               margin="5px"
             >
               <span
-                class="c3 c7"
+                class="c7 c3"
                 data-testid="svg-icon"
                 title="Move Scan Config to trashcan"
               >
-                <svg>
+                <svg
+                  title="Move Scan Config to trashcan"
+                >
                   trashcan.svg
                 </svg>
               </span>
               <span
-                class="c3 c7"
+                class="c7 c3"
                 data-testid="svg-icon"
                 title="Edit Scan Config"
               >
-                <svg>
+                <svg
+                  title="Edit Scan Config"
+                >
                   edit.svg
                 </svg>
               </span>
               <span
-                class="c3 c7"
+                class="c7 c3"
                 data-testid="svg-icon"
                 title="Clone Scan Config"
               >
-                <svg>
+                <svg
+                  title="Clone Scan Config"
+                >
                   clone.svg
                 </svg>
               </span>
               <span
-                class="c3 c7"
+                class="c7 c3"
                 data-testid="svg-icon"
                 title="Export Scan Config"
               >
-                <svg>
+                <svg
+                  title="Export Scan Config"
+                >
                   export.svg
                 </svg>
               </span>

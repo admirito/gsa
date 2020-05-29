@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Greenbone Networks GmbH
+/* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -42,7 +42,6 @@ describe('Entity VerifyIcon component tests', () => {
       <VerifyIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(element).not.toHaveStyleRule('fill', Theme.inputBorderGray, {
       modifier: `svg path`,
     });
@@ -70,7 +69,6 @@ describe('Entity VerifyIcon component tests', () => {
       />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(element).not.toHaveStyleRule('fill', Theme.inputBorderGray, {
       modifier: `svg path`,
     });
@@ -94,7 +92,6 @@ describe('Entity VerifyIcon component tests', () => {
       <VerifyIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(entity.userCapabilities.mayOp('verify_report_format')).toEqual(true);
 
     fireEvent.click(element);
@@ -117,7 +114,6 @@ describe('Entity VerifyIcon component tests', () => {
       <VerifyIcon entity={entity} onClick={clickHandler} />,
     );
 
-    expect(element).toMatchSnapshot();
     expect(entity.userCapabilities.mayOp('verify_report_format')).toEqual(
       false,
     );

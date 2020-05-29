@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -20,7 +20,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {SECINFO_FILTER_FILTER} from 'gmp/models/filter';
+import Filter, {SECINFO_FILTER_FILTER} from 'gmp/models/filter';
 
 import EntitiesPage from 'web/entities/page';
 import withEntitiesContainer from 'web/entities/withEntitiesContainer';
@@ -85,8 +85,11 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
+const fallbackFilter = Filter.fromString('sort-reverse=modified');
+
 export default withEntitiesContainer('allinfo', {
   entitiesSelector,
+  fallbackFilter,
   loadEntities,
 })(Page);
 
