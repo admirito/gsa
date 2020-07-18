@@ -19,10 +19,12 @@ override_dh_auto_configure:
 override_dh_auto_install:
 	dh_auto_install
 
-	rm -r debian/gsad/usr/lib/systemd
-	rm -r debian/gsad/usr/etc/default
+	mkdir -p debian/gsad/lib
+	mv debian/gsad/usr/lib/systemd debian/gsad/lib/
+	mv debian/gsad/usr/etc/* debian/gsad/etc/
 
-	mv debian/gsad/usr/etc/logrotate.d debian/gsad/etc/logrotate.d
+	sed -i 's|/usr/etc/|/etc/|' debian/gsad/lib/systemd/system/gsad.service
+	sed -i 's|^OPTIONS="|OPTIONS=" --no-redirect |' debian/gsad/etc/default/gsad
 
 	rmdir debian/gsad/usr/lib
 	rmdir debian/gsad/usr/etc
