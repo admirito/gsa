@@ -23,7 +23,18 @@ override_dh_auto_install:
 	mv debian/gsad/usr/lib/systemd debian/gsad/lib/
 	mv debian/gsad/usr/etc/* debian/gsad/etc/
 
-	sed -i 's|/usr/etc/|/etc/|' debian/gsad/lib/systemd/system/gsad.service
+#	# gsad service requires serverkey.pem created by gvmd
+#	# post-installation. When the user install the gvm package it
+#	# my configured after that. In this case systemd will try to
+#	# restart the gsad too fast and it will stop quickly with the
+#	# error "Start request repeated too quickly". Adding gvmd as a
+#	# PreDepends dependency may solve the issue but it make
+#	# difficulties for the docker installation which will require
+#	# separate containers for gsad and gvmd. So for now the best
+#	# solution it is to add a RestartSec to the systemd service to
+#	# make more time for systemd service to wait for gvmd to
+#	# configure.
+	sed -i -e 's|/usr/etc/|/etc/|' -e '/^Restart=/a RestartSec=3s' debian/gsad/lib/systemd/system/gsad.service
 	sed -i 's|^OPTIONS="|OPTIONS=" --no-redirect |' debian/gsad/etc/default/gsad
 
 	rmdir debian/gsad/usr/lib
