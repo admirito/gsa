@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -34,7 +33,7 @@ describe('FilterProvider component tests', () => {
 
     const locationQuery = {filter: 'location=query'};
 
-    const defaultSettingfilter = Filter.fromString('foo=bar');
+    const defaultSettingFilter = Filter.fromString('foo=bar');
 
     const getSetting = jest.fn().mockResolvedValue({});
     const gmp = {
@@ -51,7 +50,7 @@ describe('FilterProvider component tests', () => {
 
     store.dispatch(loadingActions.success({rowsperpage: {value: '42'}}));
     store.dispatch(
-      defaultFilterLoadingActions.success('task', defaultSettingfilter),
+      defaultFilterLoadingActions.success('task', defaultSettingFilter),
     );
 
     const renderFunc = jest
@@ -77,7 +76,7 @@ describe('FilterProvider component tests', () => {
 
     const emptyFilter = Filter.fromString('rows=42');
 
-    const defaultSettingfilter = Filter.fromString('foo=bar');
+    const defaultSettingFilter = Filter.fromString('foo=bar');
 
     const getSetting = jest.fn().mockResolvedValue({});
     const gmp = {
@@ -94,7 +93,7 @@ describe('FilterProvider component tests', () => {
 
     store.dispatch(loadingActions.success({rowsperpage: {value: '42'}}));
     store.dispatch(
-      defaultFilterLoadingActions.success('task', defaultSettingfilter),
+      defaultFilterLoadingActions.success('task', defaultSettingFilter),
     );
     store.dispatch(pageFilter('task', pFilter));
 
@@ -112,10 +111,56 @@ describe('FilterProvider component tests', () => {
     expect(renderFunc).not.toHaveBeenCalledWith({filter: emptyFilter});
   });
 
+  test('should allow to set a pageName for loading the pageFilter', async () => {
+    const gmpName = 'task';
+    const pageName = 'foo-bar-baz';
+    const resultingFilter = Filter.fromString('page=filter rows=42');
+
+    const pFilter = Filter.fromString('page=filter');
+
+    const emptyFilter = Filter.fromString('rows=42');
+
+    const defaultSettingFilter = Filter.fromString('foo=bar');
+
+    const getSetting = jest.fn().mockResolvedValue({});
+    const gmp = {
+      user: {
+        getSetting,
+      },
+    };
+
+    const {render, store} = rendererWith({
+      gmp,
+      store: true,
+      router: true,
+    });
+
+    store.dispatch(loadingActions.success({rowsperpage: {value: '42'}}));
+    store.dispatch(
+      defaultFilterLoadingActions.success(gmpName, defaultSettingFilter),
+    );
+    store.dispatch(pageFilter(pageName, pFilter));
+
+    const renderFunc = jest
+      .fn()
+      .mockReturnValue(<span data-testid="awaiting-span" />);
+
+    const {getByTestId} = render(
+      <FilterProvider gmpname={gmpName} pageName={pageName}>
+        {renderFunc}
+      </FilterProvider>,
+    );
+
+    await waitForElement(() => getByTestId('awaiting-span'));
+
+    expect(renderFunc).toHaveBeenCalledWith({filter: resultingFilter});
+    expect(renderFunc).not.toHaveBeenCalledWith({filter: emptyFilter});
+  });
+
   test('should use defaultSettingFilter', async () => {
     const resultingFilter = Filter.fromString('foo=bar rows=42');
 
-    const defaultSettingfilter = Filter.fromString('foo=bar');
+    const defaultSettingFilter = Filter.fromString('foo=bar');
 
     const emptyFilter = Filter.fromString('rows=42');
 
@@ -134,7 +179,7 @@ describe('FilterProvider component tests', () => {
 
     store.dispatch(loadingActions.success({rowsperpage: {value: '42'}}));
     store.dispatch(
-      defaultFilterLoadingActions.success('task', defaultSettingfilter),
+      defaultFilterLoadingActions.success('task', defaultSettingFilter),
     );
 
     const renderFunc = jest
@@ -151,7 +196,7 @@ describe('FilterProvider component tests', () => {
     expect(renderFunc).not.toHaveBeenCalledWith({filter: emptyFilter});
   });
 
-  test('should use fallbackfilter if defaultSettingFilter could not be loaded', async () => {
+  test('should use fallbackFilter if defaultSettingFilter could not be loaded', async () => {
     const resultingFilter = Filter.fromString('fall=back rows=42');
 
     const fallbackFilter = Filter.fromString('fall=back');
@@ -232,7 +277,7 @@ describe('FilterProvider component tests', () => {
   });
 
   test('should use default fallbackFilter as last resort', async () => {
-    const resultingFilter = DEFAULT_FALLBACK_FILTER.set('rows', 42);
+    const resultingFilter = DEFAULT_FALLBACK_FILTER.copy().set('rows', 42);
 
     const getSetting = jest.fn().mockResolvedValue({});
     const subscribe = jest.fn();

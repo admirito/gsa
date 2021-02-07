@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 import 'core-js/features/array/find';
@@ -35,6 +34,7 @@ import ListIcon from 'web/components/icon/listicon';
 import ManualIcon from 'web/components/icon/manualicon';
 import OsIcon from 'web/components/icon/osicon';
 import ResultIcon from 'web/components/icon/resulticon';
+import TlsCertificateIcon from 'web/components/icon/tlscertificateicon';
 
 import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
@@ -65,8 +65,8 @@ import withEntityContainer, {
 } from 'web/entity/withEntityContainer';
 
 import CreateIcon from 'web/entity/icon/createicon';
+import DeleteIcon from 'web/entity/icon/deleteicon';
 import EditIcon from 'web/entity/icon/editicon';
-import TrashIcon from 'web/entity/icon/trashicon';
 
 import {selector as hostsSelector, loadEntity} from 'web/store/entities/hosts';
 
@@ -108,7 +108,7 @@ const ToolBarIcons = ({
           displayName={_('Host')}
           onClick={onHostEditClick}
         />
-        <TrashIcon
+        <DeleteIcon
           entity={entity}
           displayName={_('Host')}
           onClick={onHostDeleteClick}
@@ -126,6 +126,13 @@ const ToolBarIcons = ({
           title={_('Results for this Host')}
         >
           <ResultIcon />
+        </Link>
+        <Link
+          to="tlsCertificates"
+          filter={'host_id=' + entity.id}
+          title={_('TLS Certificates for this Host')}
+        >
+          <TlsCertificateIcon />
         </Link>
       </IconDivider>
     </Divider>

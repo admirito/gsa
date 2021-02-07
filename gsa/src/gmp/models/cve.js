@@ -1,24 +1,23 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/object/entries';
 
-import {isDefined} from 'gmp/utils/identity';
+import {isArray, isDefined} from 'gmp/utils/identity';
 import {isEmpty} from 'gmp/utils/string';
 import {map} from 'gmp/utils/array';
 
@@ -124,17 +123,13 @@ class Cve extends Info {
     if (isDefined(ret.raw_data) && isDefined(ret.raw_data.entry)) {
       const {entry} = ret.raw_data;
 
-      if (isDefined(ret.cwe)) {
-        ret.cweId = entry.cwe._id;
-      }
-
-      ret.publishedTime = parseDate(entry['published-datetime'].__text);
-      ret.lastModifiedTime = parseDate(entry['last-modified-datetime'].__text);
+      ret.publishedTime = parseDate(entry['published-datetime']);
+      ret.lastModifiedTime = parseDate(entry['last-modified-datetime']);
 
       ret.references = map(entry.references, ref => ({
         name: ref.reference.__text,
         href: ref.reference._href,
-        source: ref.source.__text,
+        source: ref.source,
         reference_type: ref._reference_type,
       }));
 
@@ -143,19 +138,21 @@ class Cve extends Info {
         isDefined(entry.cvss.base_metrics) &&
         isDefined(entry.cvss.base_metrics.source)
       ) {
-        ret.source = entry.cvss.base_metrics.source.__text;
+        ret.source = entry.cvss.base_metrics.source;
       }
 
-      if (isDefined(entry.summary) && !isEmpty(entry.summary.__text)) {
+      if (isDefined(entry.summary)) {
         // really don't know why entry.summary and ret.description can differ
         // but xslt did use the summary and and e.g. the description of
         // CVE-2017-2988 was empty but summary not
-        ret.description = entry.summary.__text;
+        ret.description = entry.summary;
       }
 
       const products = entry['vulnerable-software-list'];
       if (isDefined(products)) {
-        ret.products = map(products.product, product => product.__text);
+        ret.products = isArray(products.product)
+          ? products.product
+          : [products.product];
       }
 
       delete ret.raw_data;

@@ -1,26 +1,25 @@
 /* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {NO_VALUE, YES_VALUE} from 'gmp/parser';
+import {parseYesNo, NO_VALUE, YES_VALUE} from 'gmp/parser';
 
 import PropTypes from 'web/utils/proptypes';
 
@@ -43,7 +42,7 @@ import withCapabilities from 'web/utils/withCapabilities';
 import {WizardContent, WizardIcon} from './taskwizard';
 
 const ModifyTaskWizard = ({
-  alert_email,
+  alert_email = '',
   capabilities,
   reschedule,
   start_date,
@@ -95,18 +94,24 @@ const ModifyTaskWizard = ({
               <div>
                 {_('Please be aware that:')}
                 <ul>
-                  <li>
-                    {_(
-                      'Setting a start time overwrites a possibly already ' +
-                        'existing one.',
+                  {capabilities.mayCreate('schedule') &&
+                    capabilities.mayAccess('schedules') && (
+                      <li>
+                        {_(
+                          'Setting a start time overwrites a possibly already ' +
+                            'existing one.',
+                        )}
+                      </li>
                     )}
-                  </li>
-                  <li>
-                    {_(
-                      'Setting an email Address means adding an additional' +
-                        ' Alert, not replacing an existing one.',
+                  {capabilities.mayCreate('alert') &&
+                    capabilities.mayAccess('alerts') && (
+                      <li>
+                        {_(
+                          'Setting an email Address means adding an additional' +
+                            ' Alert, not replacing an existing one.',
+                        )}
+                      </li>
                     )}
-                  </li>
                 </ul>
               </div>
             </WizardContent>
@@ -121,66 +126,71 @@ const ModifyTaskWizard = ({
               />
             </FormGroup>
 
-            <FormGroup title={_('Start Time')} titleSize="3" flex="column">
-              <FormGroup>
-                <Radio
-                  title={_('Do not change')}
-                  value={NO_VALUE}
-                  checked={state.reschedule === NO_VALUE}
-                  name="reschedule"
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-              <FormGroup>
-                <Radio
-                  title={_('Create Schedule')}
-                  value={YES_VALUE}
-                  checked={state.reschedule === YES_VALUE}
-                  name="reschedule"
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-              <FormGroup offset="1">
-                <Datepicker
-                  name="start_date"
-                  value={state.start_date}
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-              <FormGroup offset="1">
-                <Divider>
-                  <span>{_('at')}</span>
-                  <Spinner
-                    type="int"
-                    min="0"
-                    max="23"
-                    size="2"
-                    name="start_hour"
-                    value={state.start_hour}
-                    onChange={onValueChange}
-                  />
-                  <span>{_('h')}</span>
-                  <Spinner
-                    type="int"
-                    min="0"
-                    max="59"
-                    size="2"
-                    name="start_minute"
-                    value={state.start_minute}
-                    onChange={onValueChange}
-                    i
-                  />
-                  <span>{_('m')}</span>
-                </Divider>
-              </FormGroup>
-              <FormGroup offset="1">
-                <TimeZoneSelect
-                  name="start_timezone"
-                  value={state.start_timezone}
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-            </FormGroup>
+            {capabilities.mayCreate('schedule') &&
+              capabilities.mayAccess('schedules') && (
+                <FormGroup title={_('Start Time')} titleSize="3" flex="column">
+                  <FormGroup>
+                    <Radio
+                      title={_('Do not change')}
+                      value={NO_VALUE}
+                      checked={state.reschedule === NO_VALUE}
+                      convert={parseYesNo}
+                      name="reschedule"
+                      onChange={onValueChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Radio
+                      title={_('Create Schedule')}
+                      value={YES_VALUE}
+                      checked={state.reschedule === YES_VALUE}
+                      convert={parseYesNo}
+                      name="reschedule"
+                      onChange={onValueChange}
+                    />
+                  </FormGroup>
+                  <FormGroup offset="1">
+                    <Datepicker
+                      name="start_date"
+                      value={state.start_date}
+                      onChange={onValueChange}
+                    />
+                  </FormGroup>
+                  <FormGroup offset="1">
+                    <Divider>
+                      <span>{_('at')}</span>
+                      <Spinner
+                        type="int"
+                        min="0"
+                        max="23"
+                        size="2"
+                        name="start_hour"
+                        value={state.start_hour}
+                        onChange={onValueChange}
+                      />
+                      <span>{_('h')}</span>
+                      <Spinner
+                        type="int"
+                        min="0"
+                        max="59"
+                        size="2"
+                        name="start_minute"
+                        value={state.start_minute}
+                        onChange={onValueChange}
+                        i
+                      />
+                      <span>{_('m')}</span>
+                    </Divider>
+                  </FormGroup>
+                  <FormGroup offset="1">
+                    <TimeZoneSelect
+                      name="start_timezone"
+                      value={state.start_timezone}
+                      onChange={onValueChange}
+                    />
+                  </FormGroup>
+                </FormGroup>
+              )}
 
             {capabilities.mayCreate('alert') &&
               capabilities.mayAccess('alerts') && (

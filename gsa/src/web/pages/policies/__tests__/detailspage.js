@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 import {act} from 'react-dom/test-utils';
@@ -30,7 +29,7 @@ import Filter from 'gmp/models/filter';
 import Policy from 'gmp/models/policy';
 import {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 
-import {entityActions} from 'web/store/entities/policies';
+import {entityLoadingActions} from 'web/store/entities/policies';
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
 
 import {rendererWith, fireEvent} from 'web/utils/testing';
@@ -131,9 +130,16 @@ const policy = Policy.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'audit1'}, {id: '5678', name: 'audit2'}],
+    task: [
+      {id: '1234', name: 'audit1'},
+      {id: '5678', name: 'audit2'},
+    ],
   },
 });
+
+const policyId = {
+  id: '12345',
+};
 
 const policy2 = Policy.fromElement({
   _id: '12345',
@@ -152,7 +158,10 @@ const policy2 = Policy.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'audit1'}, {id: '5678', name: 'audit2'}],
+    task: [
+      {id: '1234', name: 'audit1'},
+      {id: '5678', name: 'audit2'},
+    ],
   },
 });
 
@@ -173,7 +182,10 @@ const policy3 = Policy.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'audit1'}, {id: '5678', name: 'audit2'}],
+    task: [
+      {id: '1234', name: 'audit1'},
+      {id: '5678', name: 'audit2'},
+    ],
   },
 });
 
@@ -194,7 +206,10 @@ const policy4 = Policy.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'audit1'}, {id: '5678', name: 'audit2'}],
+    task: [
+      {id: '1234', name: 'audit1'},
+      {id: '5678', name: 'audit2'},
+    ],
   },
 });
 
@@ -252,7 +267,7 @@ describe('Policy Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', policy));
+    store.dispatch(entityLoadingActions.success('12345', policy));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -319,7 +334,7 @@ describe('Policy Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', policy));
+    store.dispatch(entityLoadingActions.success('12345', policy));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -405,7 +420,7 @@ describe('Policy Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', policy));
+    store.dispatch(entityLoadingActions.success('12345', policy));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -462,7 +477,7 @@ describe('Policy Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', policy));
+    store.dispatch(entityLoadingActions.success('12345', policy));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
 
@@ -537,7 +552,7 @@ describe('Policy Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', policy));
+    store.dispatch(entityLoadingActions.success('12345', policy));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -556,7 +571,7 @@ describe('Policy Detailspage tests', () => {
       expect(icons[3]).toHaveAttribute('title', 'Edit Policy');
 
       fireEvent.click(icons[4]);
-      expect(deleteFunc).toHaveBeenCalledWith(policy);
+      expect(deleteFunc).toHaveBeenCalledWith(policyId);
       expect(icons[4]).toHaveAttribute('title', 'Move Policy to trashcan');
 
       fireEvent.click(icons[5]);
@@ -631,7 +646,7 @@ describe('Policy Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', policy2));
+    store.dispatch(entityLoadingActions.success('12345', policy2));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -641,7 +656,7 @@ describe('Policy Detailspage tests', () => {
 
     await act(async () => {
       fireEvent.click(icons[2]);
-      expect(clone).not.toHaveBeenCalledWith(policy2);
+      expect(clone).not.toHaveBeenCalled();
       expect(icons[2]).toHaveAttribute(
         'title',
         'Permission to clone Policy denied',
@@ -656,7 +671,7 @@ describe('Policy Detailspage tests', () => {
       );
 
       fireEvent.click(icons[4]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(policy2);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[4]).toHaveAttribute(
         'title',
         'Permission to move Policy to trashcan denied',
@@ -734,7 +749,7 @@ describe('Policy Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', policy3));
+    store.dispatch(entityLoadingActions.success('12345', policy3));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -753,7 +768,7 @@ describe('Policy Detailspage tests', () => {
       expect(icons[3]).toHaveAttribute('title', 'Edit Policy');
 
       fireEvent.click(icons[4]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(policy3);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[4]).toHaveAttribute('title', 'Policy is still in use');
 
       fireEvent.click(icons[5]);
@@ -828,7 +843,7 @@ describe('Policy Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', policy4));
+    store.dispatch(entityLoadingActions.success('12345', policy4));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -847,7 +862,7 @@ describe('Policy Detailspage tests', () => {
       expect(icons[3]).toHaveAttribute('title', 'Policy is not writable');
 
       fireEvent.click(icons[4]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(policy4);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[4]).toHaveAttribute('title', 'Policy is not writable');
 
       fireEvent.click(icons[5]);
@@ -969,21 +984,21 @@ describe('Policy ToolBarIcons tests', () => {
     const icons = getAllByTestId('svg-icon');
 
     fireEvent.click(icons[2]);
-    expect(handlePolicyCloneClick).not.toHaveBeenCalledWith(policy2);
+    expect(handlePolicyCloneClick).not.toHaveBeenCalled();
     expect(icons[2]).toHaveAttribute(
       'title',
       'Permission to clone Policy denied',
     );
 
     fireEvent.click(icons[3]);
-    expect(handlePolicyEditClick).not.toHaveBeenCalledWith(policy2);
+    expect(handlePolicyEditClick).not.toHaveBeenCalled();
     expect(icons[3]).toHaveAttribute(
       'title',
       'Permission to edit Policy denied',
     );
 
     fireEvent.click(icons[4]);
-    expect(handlePolicyDeleteClick).not.toHaveBeenCalledWith(policy2);
+    expect(handlePolicyDeleteClick).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute(
       'title',
       'Permission to move Policy to trashcan denied',
@@ -1029,7 +1044,7 @@ describe('Policy ToolBarIcons tests', () => {
     expect(icons[3]).toHaveAttribute('title', 'Edit Policy');
 
     fireEvent.click(icons[4]);
-    expect(handlePolicyDeleteClick).not.toHaveBeenCalledWith(policy3);
+    expect(handlePolicyDeleteClick).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute('title', 'Policy is still in use');
 
     fireEvent.click(icons[5]);
@@ -1068,11 +1083,11 @@ describe('Policy ToolBarIcons tests', () => {
     expect(icons[2]).toHaveAttribute('title', 'Clone Policy');
 
     fireEvent.click(icons[3]);
-    expect(handlePolicyEditClick).not.toHaveBeenCalledWith(policy4);
+    expect(handlePolicyEditClick).not.toHaveBeenCalled();
     expect(icons[3]).toHaveAttribute('title', 'Policy is not writable');
 
     fireEvent.click(icons[4]);
-    expect(handlePolicyDeleteClick).not.toHaveBeenCalledWith(policy4);
+    expect(handlePolicyDeleteClick).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute('title', 'Policy is not writable');
 
     fireEvent.click(icons[5]);

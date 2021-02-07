@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -58,7 +57,6 @@ import withCapabilities from 'web/utils/withCapabilities';
 import withGmp from 'web/utils/withGmp';
 
 import AlertsTable from '../alerts/table';
-import AgentsTable from '../agents/table';
 import ScanConfigsTable from '../scanconfigs/table';
 import CredentialsTable from '../credentials/table';
 import FiltersTable from '../filters/table';
@@ -223,7 +221,7 @@ class Trashcan extends React.Component {
     return (
       <TableRow key={type}>
         <TableData>
-          <InnerLink to={type}>{_(title)}</InnerLink>
+          <InnerLink to={type}>{title}</InnerLink>
         </TableData>
         <TableData>{count}</TableData>
       </TableRow>
@@ -231,7 +229,6 @@ class Trashcan extends React.Component {
   }
 
   createContentsTable(trash) {
-    const render_agents = isDefined(trash.agent_list);
     const render_alerts = isDefined(trash.alert_list);
     const render_credentials = isDefined(trash.credential_list);
     const render_filters = isDefined(trash.filter_list);
@@ -262,82 +259,95 @@ class Trashcan extends React.Component {
 
     return (
       <TableBody>
-        {render_agents &&
-          this.createContentRow('agent', 'Agents', trash.agent_list.length)}
         {render_alerts &&
-          this.createContentRow('alert', 'Alerts', trash.alert_list.length)}
+          this.createContentRow('alert', _('Alerts'), trash.alert_list.length)}
         {renderAudits &&
-          this.createContentRow('audit', 'Audits', audits.length)}
-        {renderConfigs &&
-          this.createContentRow('config', 'Configs', configs.length)}
+          this.createContentRow('audit', _('Audits'), audits.length)}
         {render_credentials &&
           this.createContentRow(
             'credential',
-            'Credentials',
+            _('Credentials'),
             trash.credential_list.length,
           )}
         {render_filters &&
-          this.createContentRow('filter', 'Filters', trash.filter_list.length)}
+          this.createContentRow(
+            'filter',
+            _('Filters'),
+            trash.filter_list.length,
+          )}
         {render_groups &&
-          this.createContentRow('group', 'Groups', trash.group_list.length)}
+          this.createContentRow('group', _('Groups'), trash.group_list.length)}
         {render_notes &&
-          this.createContentRow('note', 'Notes', trash.note_list.length)}
+          this.createContentRow('note', _('Notes'), trash.note_list.length)}
         {render_overrides &&
           this.createContentRow(
             'override',
-            'Overrides',
+            _('Overrides'),
             trash.override_list.length,
           )}
         {render_permissions &&
           this.createContentRow(
             'permission',
-            'Permissions',
+            _('Permissions'),
             trash.permission_list.length,
           )}
         {renderPolicies &&
-          this.createContentRow('policy', 'Policies', policies.length)}
+          this.createContentRow('policy', _('Policies'), policies.length)}
         {render_port_lists &&
           this.createContentRow(
             'port_list',
-            'Port Lists',
+            _('Port Lists'),
             trash.port_list_list.length,
           )}
         {render_report_formats &&
           this.createContentRow(
             'report_format',
-            'Report Formats',
+            _('Report Formats'),
             trash.report_format_list.length,
           )}
         {render_roles &&
-          this.createContentRow('role', 'Roles', trash.role_list.length)}
+          this.createContentRow('role', _('Roles'), trash.role_list.length)}
+        {renderConfigs &&
+          this.createContentRow('config', _('Scan Configs'), configs.length)}
         {render_scanners &&
           this.createContentRow(
             'scanner',
-            'Scanners',
+            _('Scanners'),
             trash.scanner_list.length,
           )}
         {render_schedules &&
           this.createContentRow(
             'schedule',
-            'Schedules',
+            _('Schedules'),
             trash.schedule_list.length,
           )}
         {render_tags &&
-          this.createContentRow('tag', 'Tags', trash.tag_list.length)}
+          this.createContentRow('tag', _('Tags'), trash.tag_list.length)}
         {render_targets &&
-          this.createContentRow('target', 'Targets', trash.target_list.length)}
-        {renderTasks && this.createContentRow('task', 'Tasks', tasks.length)}
+          this.createContentRow(
+            'target',
+            _('Targets'),
+            trash.target_list.length,
+          )}
+        {renderTasks && this.createContentRow('task', _('Tasks'), tasks.length)}
         {render_tickets &&
-          this.createContentRow('ticket', 'Tickets', trash.ticket_list.length)}
+          this.createContentRow(
+            'ticket',
+            _('Tickets'),
+            trash.ticket_list.length,
+          )}
       </TableBody>
     );
   }
 
   render() {
-    const {error, trash, loading} = this.state;
+    const {error, loading} = this.state;
+    let {trash} = this.state;
 
     if (!isDefined(trash) && !isDefined(error)) {
       return <Loading />;
+    } else if (!isDefined(trash) && isDefined(error)) {
+      trash = {};
     }
 
     const {scan: tasks, compliance: audits} = separateByUsageType(
@@ -362,7 +372,11 @@ class Trashcan extends React.Component {
       <React.Fragment>
         <PageTitle title={_('Trashcan')} />
         <Layout flex="column">
-          <ToolBarIcons />
+          <span>
+            {' '}
+            {/* span prevents Toolbar from growing */}
+            <ToolBarIcons />
+          </span>
           {error && (
             <ErrorDialog
               text={error.message}
@@ -388,13 +402,6 @@ class Trashcan extends React.Component {
             {contents_table}
           </Table>
 
-          {isDefined(trash.agent_list) && (
-            <span>
-              <LinkTarget id="agent" />
-              <h1>{_('Agents')}</h1>
-              <AgentsTable entities={trash.agent_list} {...table_props} />
-            </span>
-          )}
           {isDefined(trash.alert_list) && (
             <span>
               <LinkTarget id="alert" />
@@ -407,13 +414,6 @@ class Trashcan extends React.Component {
               <LinkTarget id="audit" />
               <h1>{_('Audits')}</h1>
               <TasksTable entities={audits} {...table_props} />
-            </span>
-          )}
-          {isDefined(trash.config_list) && (
-            <span>
-              <LinkTarget id="config" />
-              <h1>{_('Scan Configs')}</h1>
-              <ScanConfigsTable entities={configs} {...table_props} />
             </span>
           )}
           {isDefined(trash.credential_list) && (
@@ -496,6 +496,13 @@ class Trashcan extends React.Component {
               <LinkTarget id="role" />
               <h1>{_('Roles')}</h1>
               <RolesTable entities={trash.role_list} {...table_props} />
+            </span>
+          )}
+          {isDefined(trash.config_list) && (
+            <span>
+              <LinkTarget id="config" />
+              <h1>{_('Scan Configs')}</h1>
+              <ScanConfigsTable entities={configs} {...table_props} />
             </span>
           )}
           {isDefined(trash.scanner_list) && (

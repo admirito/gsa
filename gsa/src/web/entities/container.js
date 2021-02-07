@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/set';
 
@@ -54,6 +53,8 @@ import PropTypes from 'web/utils/proptypes';
 import {generateFilename} from 'web/utils/render';
 import SelectionType from 'web/utils/selectiontype';
 
+import {createDeleteEntity} from 'web/store/entities/utils/actions';
+
 import SortBy from 'web/components/sortby/sortby';
 
 import TagDialog from 'web/pages/tags/dialog';
@@ -92,6 +93,7 @@ class EntitiesContainer extends React.Component {
 
     this.handleChanged = this.handleChanged.bind(this);
     this.handleCreateTag = this.handleCreateTag.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     this.handleDeselected = this.handleDeselected.bind(this);
     this.handleDeleteBulk = this.handleDeleteBulk.bind(this);
     this.handleDownloadBulk = this.handleDownloadBulk.bind(this);
@@ -169,6 +171,12 @@ class EntitiesContainer extends React.Component {
     updateFilter(filter);
 
     this.props.reload(filter);
+  }
+
+  handleDelete(entity) {
+    const {deleteEntity} = this.props;
+
+    deleteEntity(entity.id).then(this.handleChanged, this.handleError);
   }
 
   handleChanged() {
@@ -528,6 +536,7 @@ class EntitiesContainer extends React.Component {
           sortBy,
           sortDir,
           onChanged: this.handleChanged,
+          onDelete: this.handleDelete,
           onDeleteBulk: this.handleDeleteBulk,
           onDownloadBulk: this.handleDownloadBulk,
           onDownloaded: onDownload,
@@ -582,6 +591,7 @@ class EntitiesContainer extends React.Component {
 
 EntitiesContainer.propTypes = {
   children: PropTypes.func.isRequired,
+  deleteEntity: PropTypes.func,
   entities: PropTypes.array,
   entitiesCounts: PropTypes.counts,
   entitiesError: PropTypes.error,
@@ -616,17 +626,18 @@ const mapStateToProps = rootState => {
   };
 };
 
-const mapDispatchToProps = (dispatch, {gmp}) => ({
-  loadSettings: () => dispatch(loadUserSettingDefaults(gmp)()),
-  onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
-});
+const mapDispatchToProps = (dispatch, {gmpname, gmp}) => {
+  const deleteEntity = createDeleteEntity({entityType: gmpname});
+  return {
+    deleteEntity: id => dispatch(deleteEntity(gmp)(id)),
+    loadSettings: () => dispatch(loadUserSettingDefaults(gmp)()),
+    onInteraction: () => dispatch(renewSessionTimeout(gmp)()),
+  };
+};
 
 export default compose(
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProps, mapDispatchToProps),
 )(EntitiesContainer);
 
 // vim: set ts=2 sw=2 tw=80:

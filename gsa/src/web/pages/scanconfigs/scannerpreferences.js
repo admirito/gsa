@@ -1,24 +1,24 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
 import _ from 'gmp/locale';
+import {parseInt} from 'gmp/parser';
 
 import {FoldState} from 'web/components/folding/folding';
 
@@ -37,8 +37,6 @@ import TableHead from 'web/components/table/head';
 import TableRow from 'web/components/table/row';
 
 import PropTypes from 'web/utils/proptypes';
-
-const noop_convert = value => value;
 
 const ScannerPreference = ({
   displayName,
@@ -78,12 +76,12 @@ const ScannerPreference = ({
       <TableData>
         {is_radio ? (
           <Layout>
-            <YesNoRadio
-              yesValue="yes"
-              noValue="no"
+            <YesNoRadio // booleans are now 1 and 0 and not yes/no.
+              yesValue={1}
+              noValue={0}
               name={name}
               value={value}
-              convert={noop_convert}
+              convert={parseInt}
               onChange={onPreferenceChange}
             />
           </Layout>
@@ -108,40 +106,41 @@ const ScannerPreferences = ({
   preferences = [],
   values = {},
   onValuesChange,
-}) => (
-  <Section
-    foldable
-    initialFoldState={FoldState.FOLDED}
-    title={_('Edit Scanner Preferences ({{counts}})', {
-      counts: preferences.length,
-    })}
-  >
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{_('Name')}</TableHead>
-          <TableHead>{_('New Value')}</TableHead>
-          <TableHead>{_('Default Value')}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {preferences.map(pref => (
-          <ScannerPreference
-            key={pref.name}
-            defaultValue={pref.default}
-            displayName={pref.hr_name}
-            name={pref.name}
-            value={values[pref.name]}
-            onPreferenceChange={(value, name) => {
-              values[name] = value;
-              onValuesChange(values);
-            }}
-          />
-        ))}
-      </TableBody>
-    </Table>
-  </Section>
-);
+}) => {
+  return (
+    <Section
+      foldable
+      initialFoldState={FoldState.FOLDED}
+      title={_('Edit Scanner Preferences ({{counts}})', {
+        counts: preferences.length,
+      })}
+    >
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{_('Name')}</TableHead>
+            <TableHead>{_('New Value')}</TableHead>
+            <TableHead>{_('Default Value')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {preferences.map(pref => (
+            <ScannerPreference
+              key={pref.name}
+              defaultValue={pref.default}
+              displayName={pref.hr_name}
+              name={pref.name}
+              value={values[pref.name]}
+              onPreferenceChange={(value, name) =>
+                onValuesChange({type: 'setValue', newState: {[name]: value}})
+              }
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </Section>
+  );
+};
 
 export const ScannerPreferencePropType = PropTypes.shape({
   default: PropTypes.any,

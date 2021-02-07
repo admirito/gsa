@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -69,26 +68,25 @@ describe('ComplianceStatusBar tests', () => {
     expect(element).toHaveTextContent('N/A');
   });
 
-  test('should render background for high compliance', () => {
+  test('should render colors', () => {
     const {getByTestId} = render(
       <ComplianceStatusBar complianceStatus={100} />,
     );
     const progress = getByTestId('progress');
+    const progressbarBox = getByTestId('progressbar-box');
 
-    expect(progress).toHaveStyleRule('background', Theme.paleGreen);
+    expect(progress).toHaveStyleRule('background', Theme.statusRunGreen);
+    expect(progressbarBox).toHaveStyleRule('background', Theme.errorRed);
   });
 
-  test('should render background for medium compliance', () => {
-    const {getByTestId} = render(<ComplianceStatusBar complianceStatus={75} />);
+  test('should render gray background for N/A', () => {
+    const {getByTestId} = render(<ComplianceStatusBar complianceStatus={-1} />);
     const progress = getByTestId('progress');
+    const progressbarBox = getByTestId('progressbar-box');
 
-    expect(progress).toHaveStyleRule('background', Theme.goldYellow);
-  });
+    expect(progress).toHaveStyleRule('background', Theme.statusRunGreen);
+    expect(progress).toHaveStyleRule('width', '0%');
 
-  test('should render background for low compliance', () => {
-    const {getByTestId} = render(<ComplianceStatusBar complianceStatus={25} />);
-    const progress = getByTestId('progress');
-
-    expect(progress).toHaveStyleRule('background', Theme.errorRed);
+    expect(progressbarBox).toHaveStyleRule('background', Theme.darkGray);
   });
 });

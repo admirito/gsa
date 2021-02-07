@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 import {act} from 'react-dom/test-utils';
@@ -29,7 +28,7 @@ import CollectionCounts from 'gmp/collection/collectioncounts';
 import Filter from 'gmp/models/filter';
 import ScanConfig, {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 
-import {entityActions} from 'web/store/entities/scanconfigs';
+import {entityLoadingActions} from 'web/store/entities/scanconfigs';
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
 
 import {rendererWith, fireEvent} from 'web/utils/testing';
@@ -130,9 +129,16 @@ const config = ScanConfig.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'task1'}, {id: '5678', name: 'task2'}],
+    task: [
+      {id: '1234', name: 'task1'},
+      {id: '5678', name: 'task2'},
+    ],
   },
 });
+
+const configId = {
+  id: '12345',
+};
 
 const config2 = ScanConfig.fromElement({
   _id: '12345',
@@ -151,7 +157,10 @@ const config2 = ScanConfig.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'task1'}, {id: '5678', name: 'task2'}],
+    task: [
+      {id: '1234', name: 'task1'},
+      {id: '5678', name: 'task2'},
+    ],
   },
 });
 
@@ -172,7 +181,10 @@ const config3 = ScanConfig.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'task1'}, {id: '5678', name: 'task2'}],
+    task: [
+      {id: '1234', name: 'task1'},
+      {id: '5678', name: 'task2'},
+    ],
   },
 });
 
@@ -193,7 +205,10 @@ const config4 = ScanConfig.fromElement({
   scanner: {name: 'scanner', type: '42'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '1234', name: 'task1'}, {id: '5678', name: 'task2'}],
+    task: [
+      {id: '1234', name: 'task1'},
+      {id: '5678', name: 'task2'},
+    ],
   },
 });
 
@@ -252,7 +267,7 @@ describe('Scan Config Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -320,7 +335,7 @@ describe('Scan Config Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -404,7 +419,7 @@ describe('Scan Config Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -472,7 +487,7 @@ describe('Scan Config Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
 
@@ -512,7 +527,7 @@ describe('Scan Config Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
 
@@ -587,7 +602,7 @@ describe('Scan Config Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', config));
+    store.dispatch(entityLoadingActions.success('12345', config));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -608,7 +623,7 @@ describe('Scan Config Detailspage tests', () => {
       expect(icons[4]).toHaveAttribute('title', 'Edit Scan Config');
 
       fireEvent.click(icons[5]);
-      expect(deleteFunc).toHaveBeenCalledWith(config);
+      expect(deleteFunc).toHaveBeenCalledWith(configId);
       expect(icons[5]).toHaveAttribute('title', 'Move Scan Config to trashcan');
 
       fireEvent.click(icons[6]);
@@ -685,7 +700,7 @@ describe('Scan Config Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', config2));
+    store.dispatch(entityLoadingActions.success('12345', config2));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -698,7 +713,7 @@ describe('Scan Config Detailspage tests', () => {
 
     await act(async () => {
       fireEvent.click(icons[3]);
-      expect(clone).not.toHaveBeenCalledWith(config2);
+      expect(clone).not.toHaveBeenCalled();
       expect(icons[3]).toHaveAttribute(
         'title',
         'Permission to clone Scan Config denied',
@@ -713,7 +728,7 @@ describe('Scan Config Detailspage tests', () => {
       );
 
       fireEvent.click(icons[5]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(config2);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[5]).toHaveAttribute(
         'title',
         'Permission to move Scan Config to trashcan denied',
@@ -793,7 +808,7 @@ describe('Scan Config Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', config3));
+    store.dispatch(entityLoadingActions.success('12345', config3));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -815,7 +830,7 @@ describe('Scan Config Detailspage tests', () => {
       expect(icons[4]).toHaveAttribute('title', 'Edit Scan Config');
 
       fireEvent.click(icons[5]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(config3);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[5]).toHaveAttribute('title', 'Scan Config is still in use');
 
       fireEvent.click(icons[6]);
@@ -892,7 +907,7 @@ describe('Scan Config Detailspage tests', () => {
 
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
-    store.dispatch(entityActions.success('12345', config4));
+    store.dispatch(entityLoadingActions.success('12345', config4));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -914,7 +929,7 @@ describe('Scan Config Detailspage tests', () => {
       expect(icons[4]).toHaveAttribute('title', 'Scan Config is not writable');
 
       fireEvent.click(icons[5]);
-      expect(deleteFunc).not.toHaveBeenCalledWith(config4);
+      expect(deleteFunc).not.toHaveBeenCalled();
       expect(icons[5]).toHaveAttribute('title', 'Scan Config is not writable');
 
       fireEvent.click(icons[6]);
@@ -1061,21 +1076,21 @@ describe('Scan Config ToolBarIcons tests', () => {
     expect(icons[1]).toHaveAttribute('title', 'ScanConfig List');
 
     fireEvent.click(icons[2]);
-    expect(handleScanConfigClone).not.toHaveBeenCalledWith(config2);
+    expect(handleScanConfigClone).not.toHaveBeenCalled();
     expect(icons[2]).toHaveAttribute(
       'title',
       'Permission to clone Scan Config denied',
     );
 
     fireEvent.click(icons[3]);
-    expect(handleScanConfigEdit).not.toHaveBeenCalledWith(config2);
+    expect(handleScanConfigEdit).not.toHaveBeenCalled();
     expect(icons[3]).toHaveAttribute(
       'title',
       'Permission to edit Scan Config denied',
     );
 
     fireEvent.click(icons[4]);
-    expect(handleScanConfigDelete).not.toHaveBeenCalledWith(config2);
+    expect(handleScanConfigDelete).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute(
       'title',
       'Permission to move Scan Config to trashcan denied',
@@ -1130,7 +1145,7 @@ describe('Scan Config ToolBarIcons tests', () => {
     expect(icons[4]).toHaveAttribute('title', 'Edit Scan Config');
 
     fireEvent.click(icons[5]);
-    expect(handleScanConfigDelete).not.toHaveBeenCalledWith(config3);
+    expect(handleScanConfigDelete).not.toHaveBeenCalled();
     expect(icons[5]).toHaveAttribute('title', 'Scan Config is still in use');
 
     fireEvent.click(icons[6]);
@@ -1182,11 +1197,11 @@ describe('Scan Config ToolBarIcons tests', () => {
     expect(icons[3]).toHaveAttribute('title', 'Clone Scan Config');
 
     fireEvent.click(icons[4]);
-    expect(handleScanConfigEdit).not.toHaveBeenCalledWith(config4);
+    expect(handleScanConfigEdit).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute('title', 'Scan Config is not writable');
 
     fireEvent.click(icons[5]);
-    expect(handleScanConfigDelete).not.toHaveBeenCalledWith(config4);
+    expect(handleScanConfigDelete).not.toHaveBeenCalled();
     expect(icons[5]).toHaveAttribute('title', 'Scan Config is not writable');
 
     fireEvent.click(icons[6]);

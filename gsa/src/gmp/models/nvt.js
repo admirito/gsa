@@ -1,20 +1,19 @@
 /* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/string/starts-with';
 
@@ -28,18 +27,18 @@ import Info from './info';
 
 export const TAG_NA = 'N/A';
 
-const parse_tags = tags => {
-  const newtags = {};
+const parseTags = tags => {
+  const newTags = {};
 
   if (tags) {
-    const splited = tags.split('|');
-    for (const t of splited) {
+    const splitted = tags.split('|');
+    for (const t of splitted) {
       const [key, value] = split(t, '=', 1);
-      newtags[key] = value;
+      newTags[key] = value;
     }
   }
 
-  return newtags;
+  return newTags;
 };
 
 export const getRefs = element => {
@@ -90,15 +89,17 @@ const getFilteredRefs = (refs, type) =>
 
 const getOtherRefs = refs => {
   const filteredRefs = refs.filter(ref => {
-    const rtype = isString(ref._type) ? ref._type.toLowerCase() : undefined;
+    const referenceType = isString(ref._type)
+      ? ref._type.toLowerCase()
+      : undefined;
     return (
-      rtype !== 'url' &&
-      rtype !== 'cve' &&
-      rtype !== 'cve_id' &&
-      rtype !== 'bid' &&
-      rtype !== 'bugtraq_id' &&
-      rtype !== 'dfn-cert' &&
-      rtype !== 'cert-bund'
+      referenceType !== 'url' &&
+      referenceType !== 'cve' &&
+      referenceType !== 'cve_id' &&
+      referenceType !== 'bid' &&
+      referenceType !== 'bugtraq_id' &&
+      referenceType !== 'dfn-cert' &&
+      referenceType !== 'cert-bund'
     );
   });
   const returnRefs = filteredRefs.map(ref => {
@@ -120,7 +121,7 @@ class Nvt extends Info {
 
     ret.oid = isEmpty(ret._oid) ? undefined : ret._oid;
     ret.id = ret.oid;
-    ret.tags = parse_tags(ret.tags);
+    ret.tags = parseTags(ret.tags);
 
     const refs = getRefs(ret);
 
@@ -134,6 +135,14 @@ class Nvt extends Info {
     ret.certs = getFilteredRefs(refs, 'dfn-cert').concat(
       getFilteredRefs(refs, 'cert-bund'),
     );
+
+    if (isDefined(ret.solution)) {
+      ret.solution = {
+        type: ret.solution._type,
+        description: ret.solution.__text,
+        method: ret.solution._method,
+      };
+    }
 
     ret.xrefs = getFilteredUrlRefs(refs, 'url').concat(getOtherRefs(refs));
 

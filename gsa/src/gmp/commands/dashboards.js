@@ -1,24 +1,23 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import {v4 as uuid} from 'uuid';
 
-import {isDefined} from '../utils/identity';
+import {isArray, isDefined} from '../utils/identity';
 
 import logger from '../log';
 
@@ -80,18 +79,24 @@ class DashboardCommand extends GmpCommand {
       setting_id: id,
     }).then(response => {
       const {data} = response;
-      const {setting} = data.get_settings.get_settings_response;
+      let {setting} = data.get_settings.get_settings_response;
 
       if (!isDefined(setting)) {
         return response.setData({});
       }
 
+      if (isArray(setting)) {
+        // before https://github.com/greenbone/gvmd/pull/1106 it was possible that
+        // a setting with the same UUID is added twice to the db
+        // therefore use first setting to avoid crash
+        setting = setting[0];
+      }
       const {value, name} = setting;
       let config;
       try {
         config = JSON.parse(value);
       } catch (e) {
-        log.warn('Could not parse dashboard setting', value);
+        log.warn('Could not parse dashboard setting', id, value);
         return;
       }
       return response.setData(convertLoadedSettings(config, name));

@@ -1,22 +1,21 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 
 import _ from 'gmp/locale';
 
@@ -75,6 +74,32 @@ const createPrefValues = (preferences = []) => {
 const convertTimeout = value =>
   !isDefined(value) || value.trim().length === 0 ? undefined : value;
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'setValue':
+      const {newState} = action;
+      const {name, value} = newState;
+
+      const prefAttributes = state[name];
+
+      // preference has other attributes like id, type, etc. those must be kept so its not as simple as [name]: value
+      const updatedState = {
+        ...state,
+        [name]: {
+          ...prefAttributes,
+          value,
+        },
+      };
+
+      return updatedState;
+    case 'setAll':
+      const {formValues} = action;
+      return formValues;
+    default:
+      return state;
+  }
+};
+
 const EditNvtDetailsDialog = ({
   configId,
   configName,
@@ -97,7 +122,8 @@ const EditNvtDetailsDialog = ({
 }) => {
   timeout = convertTimeout(timeout);
 
-  const [preferenceValues, setPreferenceValues] = useState(
+  const [preferenceValues, dispatch] = useReducer(
+    reducer,
     createPrefValues(preferences),
   );
 
@@ -107,7 +133,10 @@ const EditNvtDetailsDialog = ({
   );
 
   useEffect(() => {
-    setPreferenceValues(createPrefValues(preferences));
+    dispatch({
+      type: 'setAll',
+      formValues: createPrefValues(preferences),
+    });
   }, [preferences]);
 
   useEffect(() => {
@@ -269,9 +298,7 @@ const EditNvtDetailsDialog = ({
                       key={pref.name}
                       preference={pref}
                       value={prefValue}
-                      onChange={value => {
-                        preferenceValues[pref.name].value = value.value;
-                      }}
+                      onChange={dispatch}
                     />
                   );
                 })}

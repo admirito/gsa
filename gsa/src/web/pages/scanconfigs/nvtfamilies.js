@@ -1,21 +1,23 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import 'core-js/features/array/includes';
+
 import React from 'react';
 
 import _ from 'gmp/locale';
@@ -50,6 +52,17 @@ import PropTypes from 'web/utils/proptypes';
 
 import Trend from './trend';
 
+const WHOLE_SELECTION_FAMILIES = [
+  'CentOS Local Security Checks',
+  'Debian Local Security Checks',
+  'Fedora Local Security Checks',
+  'Huawei EulerOS Local Security Checks',
+  'Oracle Linux Local Security Checks',
+  'Red Hat Local Security Checks',
+  'SuSE Local Security Checks',
+  'Ubuntu Local Security Checks',
+];
+
 const NvtFamily = ({
   familyMaxNvtCount = 0,
   familyName,
@@ -60,56 +73,62 @@ const NvtFamily = ({
   onEditConfigFamilyClick,
   onSelectChange,
   onTrendChange,
-}) => (
-  <TableRow key={familyName}>
-    <TableData>{familyName}</TableData>
-    <TableData align="start">
-      {_('{{count}} of {{max}}', {
-        count: familyNvtCount,
-        max: familyMaxNvtCount,
-      })}
-    </TableData>
-    <TableData align={['center', 'start']}>
-      <Divider>
-        <Radio
+}) => {
+  const isToSelectWhole = WHOLE_SELECTION_FAMILIES.includes(familyName);
+  return (
+    <TableRow key={familyName}>
+      <TableData>{familyName}</TableData>
+      <TableData align="start">
+        {_('{{count}} of {{max}}', {
+          count: familyNvtCount,
+          max: familyMaxNvtCount,
+        })}
+      </TableData>
+      <TableData align={['center', 'start']}>
+        <Divider>
+          <Radio
+            flex
+            name={familyName}
+            checked={isToSelectWhole || trend === SCANCONFIG_TREND_DYNAMIC}
+            convert={parseTrend}
+            value={SCANCONFIG_TREND_DYNAMIC}
+            onChange={onTrendChange}
+          />
+          <Trend trend={SCANCONFIG_TREND_DYNAMIC} />
+          <Radio
+            flex
+            name={familyName}
+            checked={!isToSelectWhole && trend === SCANCONFIG_TREND_STATIC}
+            disabled={isToSelectWhole}
+            convert={parseTrend}
+            value={SCANCONFIG_TREND_STATIC}
+            onChange={onTrendChange}
+          />
+          <Trend active={!isToSelectWhole} trend={SCANCONFIG_TREND_STATIC} />
+        </Divider>
+      </TableData>
+      <TableData align={['start', 'center']}>
+        <Checkbox
           flex
           name={familyName}
-          checked={trend === SCANCONFIG_TREND_DYNAMIC}
-          convert={parseTrend}
-          value={SCANCONFIG_TREND_DYNAMIC}
-          onChange={onTrendChange}
+          checked={select === YES_VALUE}
+          checkedValue={YES_VALUE}
+          unCheckedValue={NO_VALUE}
+          onChange={onSelectChange}
         />
-        <Trend trend={SCANCONFIG_TREND_DYNAMIC} />
-        <Radio
-          flex
-          name={familyName}
-          checked={trend === SCANCONFIG_TREND_STATIC}
-          convert={parseTrend}
-          value={SCANCONFIG_TREND_STATIC}
-          onChange={onTrendChange}
-        />
-        <Trend trend={SCANCONFIG_TREND_STATIC} />
-      </Divider>
-    </TableData>
-    <TableData align={['start', 'center']}>
-      <Checkbox
-        flex
-        name={familyName}
-        checked={select === YES_VALUE}
-        checkedValue={YES_VALUE}
-        unCheckedValue={NO_VALUE}
-        onChange={onSelectChange}
-      />
-    </TableData>
-    <TableData align={['center', 'center']}>
-      <EditIcon
-        title={title}
-        value={familyName}
-        onClick={onEditConfigFamilyClick}
-      />
-    </TableData>
-  </TableRow>
-);
+      </TableData>
+      <TableData align={['center', 'center']}>
+        {!isToSelectWhole && (
+          <EditIcon
+            title={title}
+            value={familyName}
+            onClick={onEditConfigFamilyClick}
+          />
+        )}
+      </TableData>
+    </TableRow>
+  );
+};
 
 NvtFamily.propTypes = {
   familyMaxNvtCount: PropTypes.number,

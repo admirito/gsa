@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -173,8 +172,8 @@ class PortListComponent extends React.Component {
     let promises = created_port_ranges_copy.map(range => {
       const saveData = {
         ...range,
-        port_range_start: range.start,
-        port_range_end: range.end,
+        port_range_start: parseInt(range.start),
+        port_range_end: parseInt(range.end),
         port_type: range.protocol_type,
       };
       return this.handleSavePortRange(saveData).then(id => {
@@ -203,7 +202,10 @@ class PortListComponent extends React.Component {
 
   handleTmpAddPortRange(values) {
     const {port_ranges} = this.state;
-    const {port_range_end, port_range_start, port_type} = values;
+    let {port_range_end, port_range_start, port_type} = values;
+
+    port_range_end = parseInt(port_range_end);
+    port_range_start = parseInt(port_range_start);
 
     this.handleInteraction();
 

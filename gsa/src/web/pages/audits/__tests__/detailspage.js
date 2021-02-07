@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 import {act} from 'react-dom/test-utils';
@@ -32,7 +31,7 @@ import Policy from 'gmp/models/policy';
 import Schedule from 'gmp/models/schedule';
 import {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 
-import {entityActions} from 'web/store/entities/audits';
+import {entityLoadingActions} from 'web/store/entities/audits';
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
 
 import {rendererWith, fireEvent} from 'web/utils/testing';
@@ -53,7 +52,10 @@ const policy = Policy.fromElement({
   scanner: {name: 'scanner1', type: '0'},
   policy_type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '12345', name: 'foo'}, {id: '678910', name: 'audit2'}],
+    task: [
+      {id: '12345', name: 'foo'},
+      {id: '678910', name: 'audit2'},
+    ],
   },
 });
 
@@ -114,6 +116,7 @@ const audit = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const audit2 = Audit.fromElement({
@@ -134,6 +137,7 @@ const audit2 = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const audit3 = Audit.fromElement({
@@ -153,6 +157,7 @@ const audit3 = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const audit4 = Audit.fromElement({
@@ -174,6 +179,7 @@ const audit4 = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const audit5 = Audit.fromElement({
@@ -195,7 +201,12 @@ const audit5 = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
+
+const audit5Id = {
+  id: '12345',
+};
 
 const audit6 = Audit.fromElement({
   _id: '12345',
@@ -215,6 +226,7 @@ const audit6 = Audit.fromElement({
   scanner: {_id: '1516', name: 'scanner1', type: '2'},
   config: policy,
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const audit7 = Audit.fromElement({
@@ -241,6 +253,7 @@ const audit7 = Audit.fromElement({
   },
   schedule_periods: '1',
   preferences: preferences,
+  usage_type: 'audit',
 });
 
 const caps = new Capabilities(['everything']);
@@ -311,7 +324,7 @@ describe('Audit Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', audit));
+    store.dispatch(entityLoadingActions.success('12345', audit));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -407,7 +420,7 @@ describe('Audit Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', audit2));
+    store.dispatch(entityLoadingActions.success('12345', audit2));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
     const spans = baseElement.querySelectorAll('span');
@@ -480,7 +493,7 @@ describe('Audit Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', audit5));
+    store.dispatch(entityLoadingActions.success('12345', audit5));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -492,7 +505,7 @@ describe('Audit Detailspage tests', () => {
       expect(icons[2]).toHaveAttribute('title', 'Clone Audit');
 
       fireEvent.click(icons[4]);
-      expect(deleteFunc).toHaveBeenCalledWith(audit5);
+      expect(deleteFunc).toHaveBeenCalledWith(audit5Id);
       expect(icons[4]).toHaveAttribute('title', 'Move Audit to trashcan');
 
       fireEvent.click(icons[5]);
@@ -900,8 +913,11 @@ describe('Audit ToolBarIcons tests', () => {
     expect(icons[5]).toHaveAttribute('title', 'Export Audit as XML');
 
     fireEvent.click(icons[6]);
-    expect(handleAuditStartClick).toHaveBeenCalledWith(audit6);
-    expect(icons[6]).toHaveAttribute('title', 'Start');
+    expect(handleAuditStartClick).not.toHaveBeenCalled();
+    expect(icons[6]).toHaveAttribute(
+      'title',
+      'Permission to start audit denied',
+    );
 
     fireEvent.click(icons[7]);
     expect(handleAuditResumeClick).not.toHaveBeenCalled();

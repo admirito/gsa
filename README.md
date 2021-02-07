@@ -3,8 +3,8 @@
 # Greenbone Security Assistant
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/gsa.svg)](https://github.com/greenbone/gsa/releases)
-[![code test coverage](https://codecov.io/gh/greenbone/gsa/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gsa)
-[![CircleCI](https://circleci.com/gh/greenbone/gsa/tree/gsa-8.0.svg?style=svg)](https://circleci.com/gh/greenbone/gsa/tree/gsa-8.0)
+[![code test coverage](https://codecov.io/gh/greenbone/gsa/branch/gsa-20.08/graph/badge.svg)](https://codecov.io/gh/greenbone/gsa)
+[![CircleCI](https://circleci.com/gh/greenbone/gsa/tree/gsa-8.0.svg?style=svg)](https://circleci.com/gh/greenbone/gsa/tree/gsa-20.08)
 
 The Greenbone Security Assistant is the web interface developed for the
 [Greenbone Security Manager
@@ -39,9 +39,9 @@ For detailed installation requirements and instructions, please see the file
 [INSTALL.md](INSTALL.md).
 
 If you are not familiar or comfortable building from source code, we recommend
-that you use the Greenbone Community Edition, a prepared virtual machine with a
-readily available setup. Information regarding the virtual machine is available
-at <https://www.greenbone.net/en/community-edition/>.
+that you use the Greenbone Security Manager TRIAL (GSM TRIAL), a prepared virtual
+machine with a readily available setup. Information regarding the virtual machine
+is available at <https://www.greenbone.net/en/testnow>.
 
 ## Usage
 
@@ -82,6 +82,6 @@ github](https://github.com/greenbone/gsa/issues) first.
 
 ## License
 
-Copyright (C) 2009-2019 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2020 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
-Licensed under the [GNU General Public License v2.0 or later](LICENSE).
+Licensed under the [GNU Affero General Public License v3.0 or later](LICENSE).

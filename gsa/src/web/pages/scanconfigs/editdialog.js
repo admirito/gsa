@@ -1,23 +1,22 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useReducer, useState, useEffect} from 'react';
 
 import _ from 'gmp/locale';
 
@@ -35,6 +34,7 @@ import PropTypes from 'web/utils/proptypes';
 import {renderSelectItems} from 'web/utils/render';
 
 import SaveDialog from 'web/components/dialog/savedialog';
+import DialogInlineNotification from 'web/components/dialog/dialoginlinenotification';
 
 import FormGroup from 'web/components/form/formgroup';
 import TextField from 'web/components/form/textfield';
@@ -83,6 +83,22 @@ const createScannerPreferenceValues = (preferences = []) => {
   return values;
 };
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'setValue':
+      const {newState} = action;
+      return {
+        ...state,
+        ...newState,
+      };
+    case 'setAll':
+      const {formValues} = action;
+      return formValues;
+    default:
+      return state;
+  }
+};
+
 const EditScanConfigDialog = ({
   comment = '',
   configId,
@@ -101,21 +117,24 @@ const EditScanConfigDialog = ({
   scannerId,
   scanners,
   title,
+  usageType = 'scan',
   onClose,
   onEditConfigFamilyClick,
   onEditNvtDetailsClick,
   onSave,
 }) => {
-  const [scannerPreferenceValues, setScannerPreferenceValues] = useState(
+  const [scannerPreferenceValues, dispatch] = useReducer(
+    reducer,
     createScannerPreferenceValues(scannerPreferences),
   );
-  const [trendValues, setTrendValues] = useState(undefined);
-  const [selectValues, setSelectValues] = useState(undefined);
+  const [trendValues, setTrendValues] = useState();
+  const [selectValues, setSelectValues] = useState();
 
   useEffect(() => {
-    setScannerPreferenceValues(
-      createScannerPreferenceValues(scannerPreferences),
-    );
+    dispatch({
+      type: 'setAll',
+      formValues: createScannerPreferenceValues(scannerPreferences),
+    });
   }, [scannerPreferences]);
 
   // trend and select are created only once and only after the whole config is loaded
@@ -137,6 +156,15 @@ const EditScanConfigDialog = ({
     select: selectValues,
     trend: trendValues,
   };
+
+  const notification =
+    usageType === 'policy'
+      ? _(
+          'The policy is currently in use by one or more audits, therefore only name and comment can be modified.',
+        )
+      : _(
+          'The scan config is currently in use by one or more tasks, therefore only name and comment can be modified.',
+        );
 
   return (
     <SaveDialog
@@ -168,8 +196,11 @@ const EditScanConfigDialog = ({
               onChange={onValueChange}
             />
           </FormGroup>
-
-          {!configIsInUse && (
+          {configIsInUse ? (
+            <DialogInlineNotification data-testid="inline-notification">
+              {notification}
+            </DialogInlineNotification>
+          ) : (
             <React.Fragment>
               {configType === OSP_SCAN_CONFIG_TYPE &&
                 (isLoadingScanners ? (
@@ -207,7 +238,7 @@ const EditScanConfigDialog = ({
                 <ScannerPreferences
                   values={scannerPreferenceValues}
                   preferences={scannerPreferences}
-                  onValuesChange={values => setScannerPreferenceValues(values)}
+                  onValuesChange={dispatch}
                 />
               )}
 
@@ -254,6 +285,7 @@ EditScanConfigDialog.propTypes = {
   scanners: PropTypes.array,
   select: PropTypes.object,
   title: PropTypes.string.isRequired,
+  usageType: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   onEditConfigFamilyClick: PropTypes.func,
   onEditNvtDetailsClick: PropTypes.func,

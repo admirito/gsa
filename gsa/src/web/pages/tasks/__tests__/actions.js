@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 /* eslint-disable no-console */
 import React from 'react';
@@ -115,7 +114,7 @@ describe('Task Actions tests', () => {
     expect(icons[0]).toHaveAttribute('title', 'Start');
 
     fireEvent.click(icons[1]);
-    expect(handleTaskResume).not.toHaveBeenCalledWith(task);
+    expect(handleTaskResume).not.toHaveBeenCalled();
     expect(icons[1]).toHaveAttribute('title', 'Task is not stopped');
 
     fireEvent.click(icons[2]);
@@ -172,29 +171,169 @@ describe('Task Actions tests', () => {
     const icons = getAllByTestId('svg-icon');
 
     fireEvent.click(icons[0]);
-    expect(handleTaskStart).not.toHaveBeenCalledWith(task);
+    expect(handleTaskStart).not.toHaveBeenCalled();
     expect(icons[0]).toHaveAttribute(
       'title',
-      'Permission to start Task denied',
+      'Permission to start task denied',
     );
 
     fireEvent.click(icons[1]);
-    expect(handleTaskResume).not.toHaveBeenCalledWith(task);
+    expect(handleTaskResume).not.toHaveBeenCalled();
     expect(icons[1]).toHaveAttribute('title', 'Task is not stopped');
 
     fireEvent.click(icons[2]);
-    expect(handleTaskDelete).not.toHaveBeenCalledWith(task);
+    expect(handleTaskDelete).not.toHaveBeenCalled();
     expect(icons[2]).toHaveAttribute(
       'title',
       'Permission to move Task to trashcan denied',
     );
 
     fireEvent.click(icons[3]);
-    expect(handleTaskEdit).not.toHaveBeenCalledWith(task);
+    expect(handleTaskEdit).not.toHaveBeenCalled();
     expect(icons[3]).toHaveAttribute('title', 'Permission to edit Task denied');
 
     fireEvent.click(icons[4]);
-    expect(handleTaskClone).not.toHaveBeenCalledWith(task);
+    expect(handleTaskClone).not.toHaveBeenCalled();
+    expect(icons[4]).toHaveAttribute(
+      'title',
+      'Permission to clone Task denied',
+    );
+
+    fireEvent.click(icons[5]);
+    expect(handleTaskDownload).toHaveBeenCalledWith(task);
+    expect(icons[5]).toHaveAttribute('title', 'Export Task');
+  });
+
+  test('should not call click handlers for stopped task without permissions', () => {
+    const task = Task.fromElement({
+      status: TASK_STATUS.stopped,
+      alterable: '0',
+      last_report: {report: {_id: 'id'}},
+      permissions: {permission: [{name: 'get_tasks'}]},
+      target: {_id: 'id', name: 'target'},
+    });
+
+    const handleReportImport = jest.fn();
+    const handleTaskClone = jest.fn();
+    const handleTaskDelete = jest.fn();
+    const handleTaskDownload = jest.fn();
+    const handleTaskEdit = jest.fn();
+    const handleTaskResume = jest.fn();
+    const handleTaskStart = jest.fn();
+    const handleTaskStop = jest.fn();
+
+    const {render} = rendererWith({capabilities: wrongCaps});
+    const {getAllByTestId} = render(
+      <Actions
+        entity={task}
+        links={true}
+        onReportImportClick={handleReportImport}
+        onTaskCloneClick={handleTaskClone}
+        onTaskDeleteClick={handleTaskDelete}
+        onTaskDownloadClick={handleTaskDownload}
+        onTaskEditClick={handleTaskEdit}
+        onTaskResumeClick={handleTaskResume}
+        onTaskStartClick={handleTaskStart}
+        onTaskStopClick={handleTaskStop}
+      />,
+    );
+
+    const icons = getAllByTestId('svg-icon');
+
+    fireEvent.click(icons[0]);
+    expect(handleTaskStart).not.toHaveBeenCalled();
+    expect(icons[0]).toHaveAttribute(
+      'title',
+      'Permission to start task denied',
+    );
+
+    fireEvent.click(icons[1]);
+    expect(handleTaskResume).not.toHaveBeenCalled();
+    expect(icons[1]).toHaveAttribute(
+      'title',
+      'Permission to resume task denied',
+    );
+
+    fireEvent.click(icons[2]);
+    expect(handleTaskDelete).not.toHaveBeenCalled();
+    expect(icons[2]).toHaveAttribute(
+      'title',
+      'Permission to move Task to trashcan denied',
+    );
+
+    fireEvent.click(icons[3]);
+    expect(handleTaskEdit).not.toHaveBeenCalled();
+    expect(icons[3]).toHaveAttribute('title', 'Permission to edit Task denied');
+
+    fireEvent.click(icons[4]);
+    expect(handleTaskClone).not.toHaveBeenCalled();
+    expect(icons[4]).toHaveAttribute(
+      'title',
+      'Permission to clone Task denied',
+    );
+
+    fireEvent.click(icons[5]);
+    expect(handleTaskDownload).toHaveBeenCalledWith(task);
+    expect(icons[5]).toHaveAttribute('title', 'Export Task');
+  });
+
+  test('should not call click handlers for running task without permissions', () => {
+    const task = Task.fromElement({
+      status: TASK_STATUS.running,
+      alterable: '0',
+      last_report: {report: {_id: 'id'}},
+      permissions: {permission: [{name: 'get_tasks'}]},
+      target: {_id: 'id', name: 'target'},
+    });
+
+    const handleReportImport = jest.fn();
+    const handleTaskClone = jest.fn();
+    const handleTaskDelete = jest.fn();
+    const handleTaskDownload = jest.fn();
+    const handleTaskEdit = jest.fn();
+    const handleTaskResume = jest.fn();
+    const handleTaskStart = jest.fn();
+    const handleTaskStop = jest.fn();
+
+    const {render} = rendererWith({capabilities: wrongCaps});
+    const {getAllByTestId} = render(
+      <Actions
+        entity={task}
+        links={true}
+        onReportImportClick={handleReportImport}
+        onTaskCloneClick={handleTaskClone}
+        onTaskDeleteClick={handleTaskDelete}
+        onTaskDownloadClick={handleTaskDownload}
+        onTaskEditClick={handleTaskEdit}
+        onTaskResumeClick={handleTaskResume}
+        onTaskStartClick={handleTaskStart}
+        onTaskStopClick={handleTaskStop}
+      />,
+    );
+
+    const icons = getAllByTestId('svg-icon');
+
+    fireEvent.click(icons[0]);
+    expect(handleTaskStop).not.toHaveBeenCalled();
+    expect(icons[0]).toHaveAttribute('title', 'Permission to stop task denied');
+
+    fireEvent.click(icons[1]);
+    expect(handleTaskResume).not.toHaveBeenCalled();
+    expect(icons[1]).toHaveAttribute('title', 'Task is not stopped');
+
+    fireEvent.click(icons[2]);
+    expect(handleTaskDelete).not.toHaveBeenCalled();
+    expect(icons[2]).toHaveAttribute(
+      'title',
+      'Permission to move Task to trashcan denied',
+    );
+
+    fireEvent.click(icons[3]);
+    expect(handleTaskEdit).not.toHaveBeenCalled();
+    expect(icons[3]).toHaveAttribute('title', 'Permission to edit Task denied');
+
+    fireEvent.click(icons[4]);
+    expect(handleTaskClone).not.toHaveBeenCalled();
     expect(icons[4]).toHaveAttribute(
       'title',
       'Permission to clone Task denied',
@@ -246,11 +385,11 @@ describe('Task Actions tests', () => {
     expect(icons[0]).toHaveAttribute('title', 'Stop');
 
     fireEvent.click(icons[1]);
-    expect(handleTaskResume).not.toHaveBeenCalledWith(task);
+    expect(handleTaskResume).not.toHaveBeenCalled();
     expect(icons[1]).toHaveAttribute('title', 'Task is not stopped');
 
     fireEvent.click(icons[2]);
-    expect(handleTaskDelete).not.toHaveBeenCalledWith(task);
+    expect(handleTaskDelete).not.toHaveBeenCalled();
     expect(icons[2]).toHaveAttribute('title', 'Task is still in use');
 
     fireEvent.click(icons[3]);
@@ -380,7 +519,7 @@ describe('Task Actions tests', () => {
     );
 
     fireEvent.click(icons[1]);
-    expect(handleTaskResume).not.toHaveBeenCalledWith(task);
+    expect(handleTaskResume).not.toHaveBeenCalled();
     expect(icons[1]).toHaveAttribute('title', 'Task is scheduled');
   });
 
@@ -422,7 +561,7 @@ describe('Task Actions tests', () => {
     expect(icons[0]).toHaveAttribute('title', 'Import Report');
 
     fireEvent.click(icons[1]);
-    expect(handleTaskResume).not.toHaveBeenCalledWith(task);
+    expect(handleTaskResume).not.toHaveBeenCalled();
     expect(icons[1]).toHaveAttribute('title', 'Task is a container');
 
     fireEvent.click(icons[2]);

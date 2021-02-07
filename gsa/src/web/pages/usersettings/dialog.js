@@ -1,20 +1,19 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -30,6 +29,11 @@ import {parseFloat, parseYesNo} from 'gmp/parser';
 import SaveDialog from 'web/components/dialog/savedialog';
 
 import Section from 'web/components/section/section';
+
+import useFormValidation, {
+  syncVariables,
+} from 'web/components/form/useFormValidation';
+import {userSettingsRules} from './validationrules';
 
 import compose from 'web/utils/compose';
 import withGmp from 'web/utils/withGmp';
@@ -82,7 +86,6 @@ let UserSettingsDialog = ({
   defaultSshCredential,
   defaultSchedule,
   defaultTarget,
-  agentsFilter,
   alertsFilter,
   configsFilter,
   credentialsFilter,
@@ -112,7 +115,6 @@ let UserSettingsDialog = ({
   ovalFilter,
   certBundFilter,
   dfnCertFilter,
-  secInfoFilter,
   onClose,
   onSave,
   capabilities,
@@ -145,7 +147,6 @@ let UserSettingsDialog = ({
     defaultSshCredential,
     defaultSchedule,
     defaultTarget,
-    agentsFilter,
     alertsFilter,
     configsFilter,
     credentialsFilter,
@@ -175,17 +176,29 @@ let UserSettingsDialog = ({
     ovalFilter,
     certBundFilter,
     dfnCertFilter,
-    secInfoFilter,
   };
+
+  const validationSchema = {
+    rowsPerPage,
+  };
+
+  const {
+    shouldWarn,
+    formValues,
+    handleValueChange,
+    validityStatus,
+    handleSubmit,
+  } = useFormValidation(validationSchema, userSettingsRules, onSave);
 
   return (
     <SaveDialog
       title={_('Edit User Settings')}
       onClose={onClose}
-      onSave={onSave}
+      onSave={handleSubmit}
       defaultValues={settings}
     >
       {({values, onValueChange}) => {
+        syncVariables(values, formValues);
         return (
           <React.Fragment>
             <Section title={_('General Settings')} foldable>
@@ -202,7 +215,9 @@ let UserSettingsDialog = ({
                   listExportFileName={values.listExportFileName}
                   reportExportFileName={values.reportExportFileName}
                   autoCacheRebuild={values.autoCacheRebuild}
-                  onChange={onValueChange}
+                  validityStatus={validityStatus}
+                  shouldWarn={shouldWarn}
+                  onChange={handleValueChange}
                 />
               </FormGroupSizer>
             </Section>
@@ -250,7 +265,6 @@ let UserSettingsDialog = ({
               <Section title={_('Filter Settings')} foldable>
                 <FormGroupSizer>
                   <FilterPart
-                    agentsFilter={values.agentsFilter}
                     alertsFilter={values.alertsFilter}
                     configsFilter={values.configsFilter}
                     credentialsFilter={values.credentialsFilter}
@@ -281,7 +295,6 @@ let UserSettingsDialog = ({
                     ovalFilter={values.ovalFilter}
                     certBundFilter={values.certBundFilter}
                     dfnCertFilter={values.dfnCertFilter}
-                    secInfoFilter={values.secInfoFilter}
                     filters={filters}
                     onChange={onValueChange}
                   />
@@ -296,10 +309,9 @@ let UserSettingsDialog = ({
 };
 
 UserSettingsDialog.propTypes = {
-  agentsFilter: PropTypes.string,
   alerts: PropTypes.array,
   alertsFilter: PropTypes.string,
-  autoCacheRebuild: PropTypes.string,
+  autoCacheRebuild: PropTypes.number,
   capabilities: PropTypes.capabilities.isRequired,
   certBundFilter: PropTypes.string,
   configsFilter: PropTypes.string,
@@ -316,20 +328,20 @@ UserSettingsDialog.propTypes = {
   defaultPortList: PropTypes.string,
   defaultReportFormat: PropTypes.string,
   defaultSchedule: PropTypes.string,
-  defaultSeverity: PropTypes.string,
+  defaultSeverity: PropTypes.number,
   defaultSmbCredential: PropTypes.string,
   defaultSnmpCredential: PropTypes.string,
   defaultSshCredential: PropTypes.string,
   defaultTarget: PropTypes.string,
   detailsExportFileName: PropTypes.string,
   dfnCertFilter: PropTypes.string,
-  dynamicSeverity: PropTypes.string,
+  dynamicSeverity: PropTypes.number,
   filters: PropTypes.array,
   filtersFilter: PropTypes.string,
   groupsFilter: PropTypes.string,
   hostsFilter: PropTypes.string,
   listExportFileName: PropTypes.string,
-  maxRowsPerPage: PropTypes.string,
+  maxRowsPerPage: PropTypes.number,
   notesFilter: PropTypes.string,
   nvtFilter: PropTypes.string,
   openVasScanConfigs: PropTypes.array,
@@ -348,11 +360,10 @@ UserSettingsDialog.propTypes = {
   reportsFilter: PropTypes.string,
   resultsFilter: PropTypes.string,
   rolesFilter: PropTypes.string,
-  rowsPerPage: PropTypes.string,
+  rowsPerPage: PropTypes.number,
   scannersFilter: PropTypes.string,
   schedules: PropTypes.array,
   schedulesFilter: PropTypes.string,
-  secInfoFilter: PropTypes.string,
   severityClass: PropTypes.string,
   tagsFilter: PropTypes.string,
   targets: PropTypes.array,

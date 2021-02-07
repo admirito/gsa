@@ -1,20 +1,19 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* eslint-disable max-len */
@@ -172,22 +171,17 @@ describe('CVE model tests', () => {
     expect(cve.products).toEqual([]);
   });
 
-  test('should parse cwe, published, and modified date from raw data', () => {
+  test('should parse published and modified date from raw data', () => {
     const elem = {
-      cwe: 'foo',
       raw_data: {
         entry: {
-          cwe: {
-            _id: '123abc',
-          },
-          'published-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          'last-modified-datetime': {__text: '2018-10-10T11:41:23.022Z'},
+          'published-datetime': '2018-10-10T11:41:23.022Z',
+          'last-modified-datetime': '2018-10-10T11:41:23.022Z',
         },
       },
     };
     const cve = Cve.fromElement(elem);
 
-    expect(cve.cweId).toEqual('123abc');
     expect(isDate(cve.publishedTime)).toBe(true);
     expect(isDate(cve.lastModifiedTime)).toBe(true);
   });
@@ -196,12 +190,10 @@ describe('CVE model tests', () => {
     const elem = {
       raw_data: {
         entry: {
-          'published-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          'last-modified-datetime': {__text: '2018-10-10T11:41:23.022Z'},
+          'published-datetime': '2018-10-10T11:41:23.022Z',
+          'last-modified-datetime': '2018-10-10T11:41:23.022Z',
           references: {
-            source: {
-              __text: 'foo',
-            },
+            source: 'foo',
             _reference_type: 'bar',
             reference: {
               __text: 'lorem',
@@ -227,13 +219,11 @@ describe('CVE model tests', () => {
     const elem = {
       raw_data: {
         entry: {
-          'published-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          'last-modified-datetime': {__text: '2018-10-10T11:41:23.022Z'},
+          'published-datetime': '2018-10-10T11:41:23.022Z',
+          'last-modified-datetime': '2018-10-10T11:41:23.022Z',
           cvss: {
             base_metrics: {
-              source: {
-                __text: 'prot://url',
-              },
+              source: 'prot://url',
             },
           },
         },
@@ -248,11 +238,9 @@ describe('CVE model tests', () => {
     const elem = {
       raw_data: {
         entry: {
-          'published-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          'last-modified-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          summary: {
-            __text: 'lorem ipsum',
-          },
+          'published-datetime': '2018-10-10T11:41:23.022Z',
+          'last-modified-datetime': '2018-10-10T11:41:23.022Z',
+          summary: 'lorem ipsum',
         },
       },
     };
@@ -265,10 +253,10 @@ describe('CVE model tests', () => {
     const elem = {
       raw_data: {
         entry: {
-          'published-datetime': {__text: '2018-10-10T11:41:23.022Z'},
-          'last-modified-datetime': {__text: '2018-10-10T11:41:23.022Z'},
+          'published-datetime': '2018-10-10T11:41:23.022Z',
+          'last-modified-datetime': '2018-10-10T11:41:23.022Z',
           'vulnerable-software-list': {
-            product: [{__text: 'lorem'}, {__text: 'ipsum'}],
+            product: ['lorem', 'ipsum'],
           },
         },
       },

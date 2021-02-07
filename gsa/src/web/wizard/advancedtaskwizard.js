@@ -1,20 +1,19 @@
 /* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 import React from 'react';
@@ -143,10 +142,13 @@ const AdvancedTaskWizard = ({
               </p>
               <p>
                 {_(
-                  'You can choose, whether you want to run the scan ' +
-                    'immediately, schedule the task for a later date and ' +
-                    'time, or just create the task so you can run it manually' +
-                    ' later.',
+                  'You can choose, whether you want to run the scan immediately',
+                )}
+                {capabilities.mayAccess('schedules') &&
+                  capabilities.mayCreate('schedule') &&
+                  _(', schedule the task for a later date and time,')}
+                {_(
+                  ' or just create the task so you can run it manually later.',
                 )}
               </p>
               <p>
@@ -220,54 +222,60 @@ const AdvancedTaskWizard = ({
                   onChange={onValueChange}
                 />
               </FormGroup>
-              <FormGroup>
-                <Radio
-                  title={_('Create Schedule:')}
-                  value={SCHEDULE_START_VALUE}
-                  checked={state.auto_start === SCHEDULE_START_VALUE}
-                  name="auto_start"
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-              <FormGroup offset="1">
-                <Datepicker
-                  name="start_date"
-                  value={state.start_date}
-                  onChange={onValueChange}
-                />
-              </FormGroup>
-              <FormGroup offset="1">
-                <Divider>
-                  <span>{_('at')}</span>
-                  <Spinner
-                    type="int"
-                    min="0"
-                    max="23"
-                    size="2"
-                    name="start_hour"
-                    value={state.start_hour}
-                    onChange={onValueChange}
-                  />
-                  <span>{_('h')}</span>
-                  <Spinner
-                    type="int"
-                    min="0"
-                    max="59"
-                    size="2"
-                    name="start_minute"
-                    value={state.start_minute}
-                    onChange={onValueChange}
-                  />
-                  <span>{_('m')}</span>
-                </Divider>
-              </FormGroup>
-              <FormGroup offset="1">
-                <TimeZoneSelect
-                  name="start_timezone"
-                  value={state.start_timezone}
-                  onChange={onValueChange}
-                />
-              </FormGroup>
+
+              {capabilities.mayCreate('schedule') &&
+                capabilities.mayAccess('schedules') && (
+                  <span>
+                    <FormGroup>
+                      <Radio
+                        title={_('Create Schedule:')}
+                        value={SCHEDULE_START_VALUE}
+                        checked={state.auto_start === SCHEDULE_START_VALUE}
+                        name="auto_start"
+                        onChange={onValueChange}
+                      />
+                    </FormGroup>
+                    <FormGroup offset="1">
+                      <Datepicker
+                        name="start_date"
+                        value={state.start_date}
+                        onChange={onValueChange}
+                      />
+                    </FormGroup>
+                    <FormGroup offset="1">
+                      <Divider>
+                        <span>{_('at')}</span>
+                        <Spinner
+                          type="int"
+                          min="0"
+                          max="23"
+                          size="2"
+                          name="start_hour"
+                          value={state.start_hour}
+                          onChange={onValueChange}
+                        />
+                        <span>{_('h')}</span>
+                        <Spinner
+                          type="int"
+                          min="0"
+                          max="59"
+                          size="2"
+                          name="start_minute"
+                          value={state.start_minute}
+                          onChange={onValueChange}
+                        />
+                        <span>{_('m')}</span>
+                      </Divider>
+                    </FormGroup>
+                    <FormGroup offset="1">
+                      <TimeZoneSelect
+                        name="start_timezone"
+                        value={state.start_timezone}
+                        onChange={onValueChange}
+                      />
+                    </FormGroup>
+                  </span>
+                )}
 
               <Radio
                 title={_('Do not start automatically')}

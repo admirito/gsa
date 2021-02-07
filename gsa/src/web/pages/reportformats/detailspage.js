@@ -1,30 +1,31 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import 'core-js/features/array/includes';
+
 import React from 'react';
 
 import _ from 'gmp/locale';
 
 import CreateIcon from 'web/entity/icon/createicon';
-import DeleteIcon from 'web/entity/icon/deleteicon';
+import TrashIcon from 'web/entity/icon/trashicon';
 import Divider from 'web/components/layout/divider';
 import EditIcon from 'web/entity/icon/editicon';
-import ExportIcon from 'web/components/icon/exporticon';
 import IconDivider from 'web/components/layout/icondivider';
 import Layout from 'web/components/layout/layout';
 import PageTitle from 'web/components/layout/pagetitle';
@@ -74,7 +75,6 @@ const ToolBarIcons = withCapabilities(
     entity,
     onReportFormatImportClick,
     onReportFormatDeleteClick,
-    onReportFormatDownloadClick,
     onReportFormatEditClick,
   }) => (
     <Divider margin="10px">
@@ -94,18 +94,14 @@ const ToolBarIcons = withCapabilities(
         />
         <EditIcon
           displayName={_('Report Format')}
+          disabled={entity.predefined}
           entity={entity}
           onClick={onReportFormatEditClick}
         />
-        <DeleteIcon
+        <TrashIcon
           displayName={_('Report Format')}
           entity={entity}
           onClick={onReportFormatDeleteClick}
-        />
-        <ExportIcon
-          value={entity}
-          title={_('Export Report Format as XML')}
-          onClick={onReportFormatDownloadClick}
         />
       </IconDivider>
     </Divider>
@@ -115,7 +111,6 @@ const ToolBarIcons = withCapabilities(
 ToolBarIcons.propTypes = {
   entity: PropTypes.model.isRequired,
   onReportFormatDeleteClick: PropTypes.func.isRequired,
-  onReportFormatDownloadClick: PropTypes.func.isRequired,
   onReportFormatEditClick: PropTypes.func.isRequired,
   onReportFormatImportClick: PropTypes.func.isRequired,
 };
@@ -170,7 +165,6 @@ const Page = ({
   links = true,
   permissions = [],
   onChanged,
-  onDownloaded,
   onError,
   onInteraction,
   ...props
@@ -178,13 +172,11 @@ const Page = ({
   <ReportFormatComponent
     onDeleted={goto_list('reportformats', props)}
     onDeleteError={onError}
-    onDownloaded={onDownloaded}
-    onDownloadError={onError}
     onImported={goto_details('reportformat', props)}
     onInteraction={onInteraction}
     onSaved={onChanged}
   >
-    {({delete: delete_func, download, edit, import: import_func, save}) => (
+    {({delete: delete_func, edit, import: import_func, save}) => (
       <EntityPage
         {...props}
         entity={entity}
@@ -194,7 +186,6 @@ const Page = ({
         onInteraction={onInteraction}
         onReportFormatImportClick={import_func}
         onReportFormatDeleteClick={delete_func}
-        onReportFormatDownloadClick={download}
         onReportFormatEditClick={edit}
         onReportFormatSaveClick={save}
       >
@@ -245,7 +236,6 @@ const Page = ({
                         entity={entity}
                         permissions={permissions}
                         onChanged={onChanged}
-                        onDownloaded={onDownloaded}
                         onError={onError}
                         onInteraction={onInteraction}
                       />
@@ -266,7 +256,6 @@ Page.propTypes = {
   links: PropTypes.bool,
   permissions: PropTypes.array,
   onChanged: PropTypes.func.isRequired,
-  onDownloaded: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
   onInteraction: PropTypes.func.isRequired,
 };

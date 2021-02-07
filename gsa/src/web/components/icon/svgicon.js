@@ -1,22 +1,21 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 
 import styled from 'styled-components';
 
@@ -57,6 +56,34 @@ const Styled = styled.span`
   }
 `;
 
+export const useIsMountedRef = () => {
+  const ref = useRef();
+  ref.current = true;
+  // if the ref changes, which is the case when the component unmounts
+  // set the ref.current to false in order to prevent state updates in
+  // useStateWithMountCheck()
+  useEffect(() => {
+    return () => {
+      ref.current = false;
+    };
+  }, [ref]);
+
+  return ref;
+};
+
+// only update state if the component is mounted
+// use useIsMountedRef() to track mounted status across renders
+export const useStateWithMountCheck = (...args) => {
+  const isMountedRef = useIsMountedRef();
+  const [state, nativeSetState] = useState(...args);
+  const setState = (...arg) => {
+    if (isMountedRef.current) {
+      nativeSetState(...arg);
+    }
+  };
+  return [state, setState];
+};
+
 const SvgIcon = ({
   disabled = false,
   active = !disabled,
@@ -68,7 +95,7 @@ const SvgIcon = ({
   onClick,
   ...other
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useStateWithMountCheck(false);
 
   const handleClick = event => {
     event.preventDefault();

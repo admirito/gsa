@@ -1,20 +1,19 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/object/entries';
 
@@ -93,6 +92,8 @@ const GeneralPart = ({
   listExportFileName,
   reportExportFileName,
   autoCacheRebuild,
+  shouldWarn,
+  validityStatus,
   onChange,
 }) => {
   return (
@@ -154,12 +155,14 @@ const GeneralPart = ({
       <FormGroup title={_('Rows Per Page')} titleSize="3">
         <TextField
           name="rowsPerPage"
+          hasError={shouldWarn && !validityStatus.rowsPerPage.isValid}
+          errorContent={validityStatus.rowsPerPage.error}
           value={rowsPerPage}
           size="19"
           onChange={onChange}
         />
       </FormGroup>
-      <FormGroup title={_('Details Export Filename')} titleSize="3">
+      <FormGroup title={_('Details Export File Name')} titleSize="3">
         <TextField
           name="detailsExportFileName"
           value={detailsExportFileName}
@@ -167,7 +170,7 @@ const GeneralPart = ({
           onChange={onChange}
         />
       </FormGroup>
-      <FormGroup title={_('List Export Filename')} titleSize="3">
+      <FormGroup title={_('List Export File Name')} titleSize="3">
         <TextField
           name="listExportFileName"
           value={listExportFileName}
@@ -175,7 +178,7 @@ const GeneralPart = ({
           onChange={onChange}
         />
       </FormGroup>
-      <FormGroup title={_('Report Export Filename')} titleSize="3">
+      <FormGroup title={_('Report Export File Name')} titleSize="3">
         <TextField
           name="reportExportFileName"
           value={reportExportFileName}
@@ -197,17 +200,19 @@ const GeneralPart = ({
 };
 
 GeneralPart.propTypes = {
-  autoCacheRebuild: PropTypes.string,
+  autoCacheRebuild: PropTypes.number,
   confPassword: PropTypes.string,
   detailsExportFileName: PropTypes.string,
   listExportFileName: PropTypes.string,
-  maxRowsPerPage: PropTypes.string,
+  maxRowsPerPage: PropTypes.number,
   newPassword: PropTypes.string,
   oldPassword: PropTypes.string,
   reportExportFileName: PropTypes.string,
-  rowsPerPage: PropTypes.string,
+  rowsPerPage: PropTypes.number,
+  shouldWarn: PropTypes.bool.isRequired,
   timezone: PropTypes.string,
   userInterfaceLanguage: PropTypes.string,
+  validityStatus: PropTypes.object.isRequired,
   onChange: PropTypes.func,
 };
 

@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React, {useState, useEffect} from 'react';
 
@@ -27,22 +26,35 @@ import PropTypes from 'web/utils/proptypes';
 
 import ErrorBoundary from 'web/components/error/errorboundary';
 
-import Dialog from '../dialog/dialog';
-import DialogContent from '../dialog/content';
-import DialogError from '../dialog/error';
-import DialogFooter from '../dialog/twobuttonfooter';
-import DialogTitle from '../dialog/title';
-import ScrollableContent from '../dialog/scrollablecontent';
+import Dialog from 'web/components/dialog/dialog';
+import DialogContent from 'web/components/dialog/content';
+import DialogError from 'web/components/dialog/error';
+import DialogFooter from 'web/components/dialog/twobuttonfooter';
+import DialogTitle from 'web/components/dialog/title';
+import MultiStepFooter from 'web/components/dialog/multistepfooter';
+import ScrollableContent from 'web/components/dialog/scrollablecontent';
 
 const SaveDialogContent = ({
   onSave,
   error,
+  multiStep = 0,
   onError,
   onErrorClose = undefined,
   ...props
 }) => {
   const [loading, setLoading] = useState(false);
   const [stateError, setStateError] = useState(undefined);
+
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const [prevDisabled, setPrevDisabled] = useState(true);
+  const [nextDisabled, setNextDisabled] = useState(false);
+
+  useEffect(() => {
+    setPrevDisabled(currentStep === 0);
+    setNextDisabled(currentStep === multiStep);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
 
   useEffect(() => {
     setStateError(error);
@@ -57,6 +69,10 @@ const SaveDialogContent = ({
     } else {
       setStateError(err.message);
     }
+  };
+
+  const handleStepChange = index => {
+    setCurrentStep(index);
   };
 
   const handleSaveClick = state => {
@@ -105,17 +121,40 @@ const SaveDialogContent = ({
                 {...heightProps}
               >
                 {children({
+                  currentStep,
                   values: childValues,
+                  onStepChange: handleStepChange,
                   onValueChange,
                 })}
               </ScrollableContent>
             </ErrorBoundary>
-            <DialogFooter
-              loading={loading}
-              rightButtonTitle={buttonTitle}
-              onLeftButtonClick={close}
-              onRightButtonClick={() => handleSaveClick(childValues)}
-            />
+            {multiStep > 0 ? (
+              <MultiStepFooter
+                loading={loading}
+                prevDisabled={prevDisabled}
+                nextDisabled={nextDisabled}
+                rightButtonTitle={buttonTitle}
+                onNextButtonClick={() =>
+                  setCurrentStep(
+                    currentStep < multiStep ? currentStep + 1 : currentStep,
+                  )
+                }
+                onLeftButtonClick={close}
+                onPreviousButtonClick={() =>
+                  setCurrentStep(
+                    currentStep > 0 ? currentStep - 1 : currentStep,
+                  )
+                }
+                onRightButtonClick={() => handleSaveClick(childValues)}
+              />
+            ) : (
+              <DialogFooter
+                loading={loading}
+                rightButtonTitle={buttonTitle}
+                onLeftButtonClick={close}
+                onRightButtonClick={() => handleSaveClick(childValues)}
+              />
+            )}
           </DialogContent>
         );
       }}
@@ -130,6 +169,9 @@ SaveDialogContent.propTypes = {
   error: PropTypes.string,
   heightProps: PropTypes.object,
   moveProps: PropTypes.object,
+  multiStep: PropTypes.number,
+  nextDisabled: PropTypes.bool,
+  prevDisabled: PropTypes.bool,
   title: PropTypes.string.isRequired,
   values: PropTypes.object,
   onError: PropTypes.func,
@@ -146,6 +188,7 @@ const SaveDialog = ({
   initialHeight,
   minHeight,
   minWidth,
+  multiStep = 0,
   title,
   values,
   width,
@@ -169,6 +212,7 @@ const SaveDialog = ({
           defaultValues={defaultValues}
           error={error}
           moveProps={moveProps}
+          multiStep={multiStep}
           heightProps={heightProps}
           title={title}
           values={values}
@@ -190,6 +234,7 @@ SaveDialog.propTypes = {
   initialHeight: PropTypes.string,
   minHeight: PropTypes.numberOrNumberString,
   minWidth: PropTypes.numberOrNumberString,
+  multiStep: PropTypes.number,
   title: PropTypes.string.isRequired,
   values: PropTypes.object, // should be used for controlled values
   width: PropTypes.string,

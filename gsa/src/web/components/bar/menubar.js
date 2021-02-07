@@ -1,20 +1,19 @@
 /* Copyright (C) 2016-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -89,7 +88,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
     'alerts',
     'schedules',
     'report_formats',
-    'agents',
     'scanners',
     'filters',
     'tags',
@@ -100,11 +98,10 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
     false,
   );
 
-  const mayOpAlertsSchedulesReportFormatsAgents = [
+  const mayOpAlertsSchedulesReportFormats = [
     'alerts',
     'schedules',
     'report_formats',
-    'agents',
   ].reduce((sum, cur) => sum || capabilities.mayAccess(cur), false);
 
   const mayOpScannersFiltersTags = ['scanners', 'filters', 'tags'].reduce(
@@ -118,6 +115,11 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
   );
 
   const mayOpAssets = ['assets', 'tls_certificates'].reduce(
+    (sum, cur) => sum || capabilities.mayAccess(cur),
+    false,
+  );
+
+  const mayOpBpm = ['hosts', 'tags'].reduce(
     (sum, cur) => sum || capabilities.mayAccess(cur),
     false,
   );
@@ -183,6 +185,14 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
                   <MenuEntry title={_('Compliance Audits')} to="audits" />
                 )}
               </MenuSection>
+              {mayOpBpm && (
+                <MenuSection>
+                  <MenuEntry
+                    title={_('Business Process Map')}
+                    to="processmaps"
+                  />
+                </MenuSection>
+              )}
             </Menu>
           )}
           {capabilities.mayAccess('info') && (
@@ -193,9 +203,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
               <MenuEntry title={_('OVAL Definitions')} to="ovaldefs" />
               <MenuEntry title={_('CERT-Bund Advisories')} to="certbunds" />
               <MenuEntry title={_('DFN-CERT Advisories')} to="dfncerts" />
-              <MenuSection>
-                <MenuEntry title={_('All SecInfo')} to="secinfos" />
-              </MenuSection>
             </Menu>
           )}
           {may_op_configuration && (
@@ -212,7 +219,7 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
               {capabilities.mayAccess('configs') && (
                 <MenuEntry title={_('Scan Configs')} to="scanconfigs" />
               )}
-              {mayOpAlertsSchedulesReportFormatsAgents && (
+              {mayOpAlertsSchedulesReportFormats && (
                 <MenuSection>
                   {capabilities.mayAccess('alerts') && (
                     <MenuEntry title={_('Alerts')} to="alerts" />
@@ -222,9 +229,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
                   )}
                   {capabilities.mayAccess('report_formats') && (
                     <MenuEntry title={_('Report Formats')} to="reportformats" />
-                  )}
-                  {capabilities.mayAccess('agents') && (
-                    <MenuEntry title={_('Agents')} to="agents" />
                   )}
                 </MenuSection>
               )}

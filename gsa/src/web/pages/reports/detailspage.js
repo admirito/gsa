@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 import 'core-js/features/string/includes';
@@ -264,6 +263,17 @@ class ReportDetails extends React.Component {
         // if no report format id is available we would create an infinite
         // render loop here
         this.setState({reportFormatId});
+      } else {
+        // if there is no report format at all, throw a proper error message
+        // instead of just showing x is undefined JS stacktrace
+        const noReportFormatError = _(
+          'The report cannot be displayed because' +
+            ' no Greenbone Vulnerability Manager report format is available.' +
+            ' This could be due to a missing gvmd data feed. Please update' +
+            ' the gvmd data feed, check the "feed import owner" setting, or' +
+            ' contact your system administrator.',
+        );
+        throw new Error(noReportFormatError);
       }
     }
 
@@ -707,12 +717,18 @@ const load = ({
   reportId,
   // eslint-disable-next-line no-shadow
   loadReportWithThreshold,
+  pageFilter,
   reportFilter,
   updateFilter,
 }) => filter => {
   if (!hasValue(filter)) {
     // use loaded filter after initial loading
     filter = reportFilter;
+  }
+
+  if (!hasValue(filter)) {
+    // use filter from store
+    filter = pageFilter;
   }
 
   if (!hasValue(filter)) {
@@ -730,7 +746,11 @@ const load = ({
 };
 
 const ReportDetailsWrapper = ({reportFilter, ...props}) => (
-  <FilterProvider fallbackFilter={DEFAULT_FILTER} gmpname="result">
+  <FilterProvider
+    fallbackFilter={DEFAULT_FILTER}
+    gmpname="result"
+    pageName={`report-${props.reportId}`}
+  >
     {({filter}) => (
       <Reload
         name={`report-${props.reportId}`}
@@ -823,10 +843,7 @@ export default compose(
   withGmp,
   withDialogNotification,
   withDownload,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProps, mapDispatchToProps),
 )(ReportDetailsWrapper);
 
 // vim: set ts=2 sw=2 tw=80:

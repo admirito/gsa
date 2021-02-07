@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/string/starts-with';
 
@@ -105,7 +104,7 @@ const ResultDetails = ({className, links = true, entity}) => {
   const result = entity;
 
   const {nvt} = result;
-  const {oid, tags} = nvt;
+  const {oid, tags, solution} = nvt;
 
   const is_oval = isDefined(oid) && oid.startsWith('oval:');
   const has_detection =
@@ -336,7 +335,10 @@ const ResultDetails = ({className, links = true, entity}) => {
         </DetailsBlock>
       )}
 
-      <Solution solution={tags.solution} solutionType={tags.solution_type} />
+      <Solution
+        solutionDescription={solution?.description}
+        solutionType={solution?.type}
+      />
 
       <References links={links} nvt={nvt} />
     </Layout>

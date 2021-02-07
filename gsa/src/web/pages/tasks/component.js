@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -397,8 +396,6 @@ class TaskComponent extends React.Component {
   }
 
   openStandardTaskDialog(task) {
-    const {capabilities} = this.props;
-
     this.props.loadAlerts();
     this.props.loadScanConfigs();
     this.props.loadScanners();
@@ -407,13 +404,6 @@ class TaskComponent extends React.Component {
     this.props.loadTags();
 
     if (isDefined(task)) {
-      const canAccessSchedules =
-        capabilities.mayAccess('schedules') && isDefined(task.schedule);
-      const schedule_id = canAccessSchedules ? task.schedule.id : UNSET_VALUE;
-      const schedule_periods = canAccessSchedules
-        ? task.schedule_periods
-        : undefined;
-
       this.setState({
         taskDialogVisible: true,
         alert_ids: map(task.alerts, alert => alert.id),
@@ -431,8 +421,8 @@ class TaskComponent extends React.Component {
         min_qod: task.min_qod,
         name: task.name,
         scanner_id: hasId(task.scanner) ? task.scanner.id : undefined,
-        schedule_id,
-        schedule_periods,
+        schedule_id: isDefined(task.schedule) ? task.schedule.id : UNSET_VALUE,
+        schedule_periods: task.schedule_periods,
         source_iface: task.source_iface,
         target_id: hasId(task.target) ? task.target.id : undefined,
         task,

@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -27,6 +26,7 @@ import {dateTimeWithTimeZone} from 'gmp/locale/date';
 
 import LogoutIcon from 'web/components/icon/logouticon';
 import MySettingsIcon from 'web/components/icon/mysettingsicon';
+import RefreshIcon from 'web/components/icon/refreshicon';
 import ScheduleIcon from 'web/components/icon/scheduleicon';
 import UserIcon from 'web/components/icon/usericon';
 
@@ -72,12 +72,12 @@ const List = styled.ul`
   z-index: ${Theme.Layers.menu};
   list-style: none;
   font-size: 10px;
-  width: 255px;
+  width: 300px;
 `;
 
 const Entry = styled.li`
   height: 30px;
-  width: 255px;
+  width: 300px;
   border-left: 1px solid ${Theme.mediumGray};
   border-right: 1px solid ${Theme.mediumGray};
   display: flex;
@@ -129,9 +129,9 @@ const StyledLink = styled(Link)`
 `;
 
 const UserMenuContainer = () => {
-  const sessionTimeout = useUserSessionTimeout();
-  const userTimezone = useUserTimezone();
-  const userName = useUserName();
+  const [sessionTimeout, setSessionTimeout] = useUserSessionTimeout();
+  const [userTimezone] = useUserTimezone();
+  const [userName] = useUserName();
   const gmp = useGmp();
   const history = useHistory();
 
@@ -141,6 +141,10 @@ const UserMenuContainer = () => {
     gmp.doLogout().then(() => {
       history.push('/login?type=logout');
     });
+  };
+
+  const handleRenewSessionTimeout = () => {
+    gmp.user.renewSession().then(response => setSessionTimeout(response.data));
   };
 
   return (
@@ -162,6 +166,11 @@ const UserMenuContainer = () => {
                   date: dateTimeWithTimeZone(sessionTimeout, userTimezone),
                 })}
               </span>
+              <RefreshIcon
+                title={_('Renew session timeout')}
+                size="small"
+                onClick={handleRenewSessionTimeout}
+              />
             </Divider>
           </Entry>
           <Entry>

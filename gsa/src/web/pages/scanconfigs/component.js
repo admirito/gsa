@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'core-js/features/promise/finally';
 
@@ -94,6 +93,7 @@ class ScanConfigComponent extends React.Component {
     );
     this.openImportDialog = this.openImportDialog.bind(this);
     this.handleCloseImportDialog = this.handleCloseImportDialog.bind(this);
+    this.handleSaveScanConfig = this.handleSaveScanConfig.bind(this);
   }
 
   openEditConfigDialog(config) {
@@ -121,6 +121,22 @@ class ScanConfigComponent extends React.Component {
   handleCloseEditConfigDialog() {
     this.closeEditConfigDialog();
     this.handleInteraction();
+  }
+
+  handleSaveScanConfig(d) {
+    const {gmp} = this.props;
+    const {config} = this.state;
+
+    this.handleInteraction();
+    const {name, comment, id} = d;
+    let saveData = d;
+    if (config.isInUse()) {
+      saveData = {name, comment, id};
+    }
+
+    return gmp.scanconfig
+      .save(saveData)
+      .then(() => this.closeEditConfigDialog());
   }
 
   openCreateConfigDialog() {
@@ -513,10 +529,7 @@ class ScanConfigComponent extends React.Component {
                   onClose={this.handleCloseEditConfigDialog}
                   onEditConfigFamilyClick={this.openEditConfigFamilyDialog}
                   onEditNvtDetailsClick={this.openEditNvtDetailsDialog}
-                  onSave={d => {
-                    this.handleInteraction();
-                    return save(d).then(() => this.closeEditConfigDialog());
-                  }}
+                  onSave={this.handleSaveScanConfig}
                 />
               )}
             </React.Fragment>

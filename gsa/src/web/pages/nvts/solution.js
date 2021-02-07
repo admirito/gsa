@@ -1,20 +1,19 @@
 /* Copyright (C) 2017-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -22,21 +21,19 @@ import _ from 'gmp/locale';
 
 import {isDefined} from 'gmp/utils/identity';
 
-import {TAG_NA} from 'gmp/models/nvt';
+import PropTypes from 'web/utils/proptypes';
+import DetailsBlock from 'web/entity/block';
 
-import PropTypes from '../../utils/proptypes.js';
-import DetailsBlock from '../../entity/block.js';
+import SolutionTypeIcon from 'web/components/icon/solutiontypeicon';
 
-import SolutionTypeIcon from '../../components/icon/solutiontypeicon.js';
-
-import IconDivider from '../../components/layout/icondivider.js';
+import IconDivider from 'web/components/layout/icondivider';
 
 import Pre from './preformatted';
 
-const Solution = ({solution, solutionType}) => {
-  const has_solution = isDefined(solution) && solution !== TAG_NA;
+const Solution = ({solutionDescription, solutionType}) => {
+  const hasSolution = isDefined(solutionDescription) || isDefined(solutionType);
 
-  if (!has_solution) {
+  if (!hasSolution) {
     return null;
   }
 
@@ -46,13 +43,13 @@ const Solution = ({solution, solutionType}) => {
         <b>{_('Solution Type: ')}</b>
         <SolutionTypeIcon displayTitleText type={solutionType} />
       </IconDivider>
-      <Pre>{solution}</Pre>
+      <Pre>{solutionDescription}</Pre>
     </DetailsBlock>
   );
 };
 
 Solution.propTypes = {
-  solution: PropTypes.string,
+  solutionDescription: PropTypes.string,
   solutionType: PropTypes.string,
 };
 

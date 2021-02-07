@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 import {act} from 'react-dom/test-utils';
@@ -31,7 +30,7 @@ import Task, {TASK_STATUS} from 'gmp/models/task';
 import Schedule from 'gmp/models/schedule';
 import ScanConfig, {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 
-import {entityActions} from 'web/store/entities/tasks';
+import {entityLoadingActions} from 'web/store/entities/tasks';
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
 
 import {rendererWith, fireEvent} from 'web/utils/testing';
@@ -52,7 +51,10 @@ const config = ScanConfig.fromElement({
   scanner: {name: 'scanner1', type: '0'},
   type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
-    task: [{id: '12345', name: 'foo'}, {id: '678910', name: 'task2'}],
+    task: [
+      {id: '12345', name: 'foo'},
+      {id: '678910', name: 'task2'},
+    ],
   },
 });
 
@@ -210,6 +212,10 @@ const task5 = Task.fromElement({
   preferences: preferences,
 });
 
+const task5Id = {
+  id: '12345',
+};
+
 const task6 = Task.fromElement({
   _id: '12345',
   owner: {name: 'admin'},
@@ -343,7 +349,7 @@ describe('Task Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', task));
+    store.dispatch(entityLoadingActions.success('12345', task));
 
     const {baseElement, element, getAllByTestId} = render(
       <Detailspage id="12345" />,
@@ -456,7 +462,7 @@ describe('Task Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', task2));
+    store.dispatch(entityLoadingActions.success('12345', task2));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
     const spans = baseElement.querySelectorAll('span');
@@ -510,7 +516,7 @@ describe('Task Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', task2));
+    store.dispatch(entityLoadingActions.success('12345', task2));
 
     const {baseElement, element} = render(<Detailspage id="12345" />);
     const spans = baseElement.querySelectorAll('span');
@@ -589,7 +595,7 @@ describe('Task Detailspage tests', () => {
     store.dispatch(setTimezone('CET'));
     store.dispatch(setUsername('admin'));
 
-    store.dispatch(entityActions.success('12345', task5));
+    store.dispatch(entityLoadingActions.success('12345', task5));
 
     const {getAllByTestId} = render(<Detailspage id="12345" />);
 
@@ -601,7 +607,7 @@ describe('Task Detailspage tests', () => {
       expect(icons[3]).toHaveAttribute('title', 'Clone Task');
 
       fireEvent.click(icons[5]);
-      expect(deleteFunc).toHaveBeenCalledWith(task5);
+      expect(deleteFunc).toHaveBeenCalledWith(task5Id);
       expect(icons[5]).toHaveAttribute('title', 'Move Task to trashcan');
 
       fireEvent.click(icons[6]);
@@ -1150,7 +1156,7 @@ describe('Task ToolBarIcons tests', () => {
     expect(handleTaskStart).not.toHaveBeenCalled();
     expect(icons[7]).toHaveAttribute(
       'title',
-      'Permission to start Task denied',
+      'Permission to start task denied',
     );
 
     fireEvent.click(icons[8]);

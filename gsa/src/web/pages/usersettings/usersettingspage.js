@@ -1,20 +1,19 @@
 /* Copyright (C) 2018-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 import 'core-js/features/object/entries';
@@ -333,7 +332,6 @@ class UserSettings extends React.Component {
       defaultSshCredential = {},
       defaultSchedule = {},
       defaultTarget = {},
-      agentsFilter,
       alertsFilter,
       configsFilter,
       credentialsFilter,
@@ -364,11 +362,9 @@ class UserSettings extends React.Component {
       ovalFilter,
       certBundFilter,
       dfnCertFilter,
-      secInfoFilter,
       autoCacheRebuild = {},
     } = this.props;
 
-    agentsFilter = hasValue(agentsFilter) ? agentsFilter : {};
     alertsFilter = hasValue(alertsFilter) ? alertsFilter : {};
     configsFilter = hasValue(configsFilter) ? configsFilter : {};
     credentialsFilter = hasValue(credentialsFilter) ? credentialsFilter : {};
@@ -407,7 +403,6 @@ class UserSettings extends React.Component {
     ovalFilter = hasValue(ovalFilter) ? ovalFilter : {};
     certBundFilter = hasValue(certBundFilter) ? certBundFilter : {};
     dfnCertFilter = hasValue(dfnCertFilter) ? dfnCertFilter : {};
-    secInfoFilter = hasValue(secInfoFilter) ? secInfoFilter : {};
 
     const openVasScanConfigs = scanconfigs.filter(openVasScanConfigsFilter);
     const ospScanConfigs = scanconfigs.filter(ospScanConfigsFilter);
@@ -634,11 +629,6 @@ class UserSettings extends React.Component {
                         <colgroup width={FIRST_COL_WIDTH} />
                         <TableBody>
                           <SettingTableRow
-                            setting={agentsFilter}
-                            title={_('Agents Filter')}
-                            type="filter"
-                          />
-                          <SettingTableRow
                             setting={alertsFilter}
                             title={_('Alerts Filter')}
                             type="filter"
@@ -788,11 +778,6 @@ class UserSettings extends React.Component {
                             title={_('DFN-CERT Advisories Filter')}
                             type="filter"
                           />
-                          <SettingTableRow
-                            setting={secInfoFilter}
-                            title={_('SecInfo Filter')}
-                            type="filter"
-                          />
                         </TableBody>
                       </Table>
                     </TabPanel>
@@ -840,7 +825,6 @@ class UserSettings extends React.Component {
               defaultSshCredential={defaultSshCredential.id}
               defaultSchedule={defaultSchedule.id}
               defaultTarget={defaultTarget.id}
-              agentsFilter={agentsFilter.id}
               alertsFilter={alertsFilter.id}
               configsFilter={configsFilter.id}
               credentialsFilter={credentialsFilter.id}
@@ -871,7 +855,6 @@ class UserSettings extends React.Component {
               ovalFilter={ovalFilter.id}
               certBundFilter={certBundFilter.id}
               dfnCertFilter={dfnCertFilter.id}
-              secInfoFilter={secInfoFilter.id}
               onClose={this.handleCloseDialog}
               onSave={this.handleSaveSettings}
               onValueChange={this.handleValueChange}
@@ -884,7 +867,6 @@ class UserSettings extends React.Component {
 }
 
 UserSettings.propTypes = {
-  agentsFilter: PropTypes.object,
   alerts: PropTypes.array,
   alertsFilter: PropTypes.object,
   autoCacheRebuild: PropTypes.object,
@@ -951,7 +933,6 @@ UserSettings.propTypes = {
   scannersFilter: PropTypes.object,
   schedules: PropTypes.array,
   schedulesFilter: PropTypes.object,
-  secInfoFilter: PropTypes.object,
   setLocale: PropTypes.func.isRequired,
   setTimezone: PropTypes.func.isRequired,
   severityClass: PropTypes.object,
@@ -1059,7 +1040,6 @@ const mapStateToProps = rootState => {
   const defaultSshCredential = credentialsSel.getEntity(defaultSshCredentialId);
   const defaultSchedule = schedulesSel.getEntity(defaultScheduleId);
   const defaultTarget = targetsSel.getEntity(defaultTargetId);
-  const agentsFilter = userDefaultFilterSelector.getFilter('agent');
   const alertsFilter = userDefaultFilterSelector.getFilter('alert');
   const configsFilter = userDefaultFilterSelector.getFilter('scanconfig');
   const credentialsFilter = userDefaultFilterSelector.getFilter('credential');
@@ -1098,7 +1078,6 @@ const mapStateToProps = rootState => {
   const dfnCertFilter = userDefaultFilterSelector.getFilter('dfncert');
   const nvtFilter = userDefaultFilterSelector.getFilter('nvt');
   const ovalFilter = userDefaultFilterSelector.getFilter('ovaldef');
-  const secInfoFilter = userDefaultFilterSelector.getFilter('allinfo');
 
   let scanconfigs = scanConfigsSel.getEntities(ALL_FILTER);
   if (isDefined(scanconfigs)) {
@@ -1139,7 +1118,6 @@ const mapStateToProps = rootState => {
     defaultSshCredential,
     defaultSchedule,
     defaultTarget,
-    agentsFilter,
     alertsFilter,
     configsFilter,
     credentialsFilter,
@@ -1170,7 +1148,6 @@ const mapStateToProps = rootState => {
     dfnCertFilter,
     nvtFilter,
     ovalFilter,
-    secInfoFilter,
     autoCacheRebuild,
   };
 };
@@ -1181,7 +1158,6 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
   loadFilters: () => dispatch(loadFilters(gmp)(ALL_FILTER)),
   loadFilterDefaults: () =>
     Promise.all([
-      dispatch(loadUserSettingsDefaultFilter(gmp)('agent')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('alert')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('scanconfig')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('credential')),
@@ -1212,7 +1188,6 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
       dispatch(loadUserSettingsDefaultFilter(gmp)('dfncert')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('nvt')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('ovaldef')),
-      dispatch(loadUserSettingsDefaultFilter(gmp)('allinfo')),
     ]),
   loadPortLists: () => dispatch(loadPortLists(gmp)(ALL_FILTER)),
   loadReportFormats: () => dispatch(loadReportFormats(gmp)(ALL_FILTER)),
@@ -1230,7 +1205,10 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 export default compose(
   withGmp,
   withCapabilities,
-  connect(mapStateToProps, mapDispatchToProps),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  ),
 )(UserSettings);
 
 // vim: set ts=2 sw=2 tw=80:

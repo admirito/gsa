@@ -1,20 +1,19 @@
 /* Copyright (C) 2019-2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
 
@@ -122,6 +121,7 @@ describe('EditTicketDialog component tests', () => {
 
     const {baseElement, getByTestId} = render(
       <EditTicketDialog
+        fixedNote="Ticket has been fixed"
         status={TICKET_STATUS.open}
         ticketId="t1"
         userId="u1"
@@ -149,7 +149,7 @@ describe('EditTicketDialog component tests', () => {
       userId: 'u1',
       openNote: '',
       closedNote: '',
-      fixedNote: '',
+      fixedNote: 'Ticket has been fixed',
     });
   });
 
@@ -159,6 +159,7 @@ describe('EditTicketDialog component tests', () => {
 
     const {baseElement, getByTestId} = render(
       <EditTicketDialog
+        openNote="Ticket has been opened"
         status={TICKET_STATUS.open}
         ticketId="t1"
         userId="u1"
@@ -184,10 +185,32 @@ describe('EditTicketDialog component tests', () => {
       status: TICKET_STATUS.open,
       ticketId: 't1',
       userId: 'u2',
-      openNote: '',
+      openNote: 'Ticket has been opened',
       closedNote: '',
       fixedNote: '',
     });
+  });
+
+  test('should not save invalid form states and render error bubble', () => {
+    const handleClose = jest.fn();
+    const handleSave = jest.fn();
+
+    const {getByTestId} = render(
+      <EditTicketDialog
+        openNote="Ticket has been opened."
+        status={TICKET_STATUS.closed}
+        ticketId="t1"
+        userId="u1"
+        users={users}
+        onClose={handleClose}
+        onSave={handleSave}
+      />,
+    );
+    const saveButton = getByTestId('dialog-save-button');
+
+    fireEvent.click(saveButton);
+
+    expect(handleSave).not.toHaveBeenCalled();
   });
 
   test('should allow to close the dialog', () => {
