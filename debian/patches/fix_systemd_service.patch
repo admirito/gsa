@@ -1,0 +1,41 @@
+--- a/gsad/config/gsad.default
++++ b/gsad/config/gsad.default
+@@ -21,4 +21,4 @@
+ #
+ # Additional options
+ #
+-GSAD_OPTIONS=""
++GSAD_OPTIONS=" --no-redirect"
+--- a/gsad/config/gsad.service.in
++++ b/gsad/config/gsad.service.in
+@@ -6,13 +6,27 @@
+ 
+ [Service]
+ Type=forking
+-User=$GSAD_USER
+-Group=$GSAD_GROUP
+-PIDFile=${GVM_RUN_DIR}/gsad.pid
++User=gvm
++Group=gvm
++PIDFile=/var/run/gvm/gsad.pid
++RuntimeDirectory=gvm
+ EnvironmentFile=${DEFAULT_CONFIG_DIR}/gsad
+ ExecStart=${SBINDIR}/gsad --listen $GSAD_ADDRESS --port $GSAD_PORT $GSAD_OPTIONS
+ Restart=always
+ TimeoutStopSec=10
++# gsad service requires serverkey.pem created by gvmd
++# post-installation. When the user install the gvm package it
++# may configure after that. In this case systemd will try to
++# restart the gsad too fast and it will stop quickly with the
++# error "Start request repeated too quickly". Adding gvmd as a
++# PreDepends dependency may solve the issue but it make
++# difficulties for the docker installation which will require
++# separate containers for gsad and gvmd. So for now the best
++# solution it is to add a RestartSec to the systemd service to
++# make more time for systemd service to wait for gvmd to
++# configure.
++RestartSec=3s
++
+ 
+ [Install]
+ WantedBy=multi-user.target

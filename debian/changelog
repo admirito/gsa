@@ -1,3 +1,9 @@
+gsa (20.8.1-1) focal; urgency=medium
+
+  * Imported upstream version 20.8.1
+
+ -- Mohammad Razavi <mrazavi64@gmail.com>  Sun, 07 Feb 2021 14:14:20 +0330
+
 gsa (9.0.1-4) focal; urgency=medium
 
   * Imported upstream version 9.0.1

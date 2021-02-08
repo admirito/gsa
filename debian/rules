@@ -9,36 +9,11 @@
 override_dh_auto_clean:
 	rm -rf gsa/build
 	rm -rf gsa/node_modules
-	rm -rf gsa/public/locales
 	dh_auto_clean
 
 override_dh_auto_configure:
 	extract-yarn-offline-cache || true
-	dh_auto_configure -- -DLOCALSTATEDIR=/var -DSYSCONFDIR=/etc -DYARN_OFFLINE=1 -DCMAKE_BUILD_TYPE=Release
-
-override_dh_auto_install:
-	dh_auto_install
-
-	mkdir -p debian/gsad/lib
-	mv debian/gsad/usr/lib/systemd debian/gsad/lib/
-	mv debian/gsad/usr/etc/* debian/gsad/etc/
-
-#	# gsad service requires serverkey.pem created by gvmd
-#	# post-installation. When the user install the gvm package it
-#	# my configured after that. In this case systemd will try to
-#	# restart the gsad too fast and it will stop quickly with the
-#	# error "Start request repeated too quickly". Adding gvmd as a
-#	# PreDepends dependency may solve the issue but it make
-#	# difficulties for the docker installation which will require
-#	# separate containers for gsad and gvmd. So for now the best
-#	# solution it is to add a RestartSec to the systemd service to
-#	# make more time for systemd service to wait for gvmd to
-#	# configure.
-	sed -i -e 's|/usr/etc/|/etc/|' -e '/^Restart=/a RestartSec=3s' debian/gsad/lib/systemd/system/gsad.service
-	sed -i 's|^OPTIONS="|OPTIONS=" --no-redirect |' debian/gsad/etc/default/gsad
-
-	rmdir debian/gsad/usr/lib
-	rmdir debian/gsad/usr/etc
+	dh_auto_configure -- -DLOCALSTATEDIR=/var -DGVM_RUN_DIR=/run/gvm -DSYSCONFDIR=/etc -DDEFAULT_CONFIG_DIR=/etc/default -DSYSTEMD_SERVICE_DIR=/lib/systemd/system -DLOGROTATE_DIR=/etc/logrotate.d -DYARN_OFFLINE=1 -DCMAKE_BUILD_TYPE=Release
 
 override_dh_installchangelogs:
 	dh_installchangelogs -k CHANGELOG.md
