@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -17,10 +17,10 @@
  */
 import {_l} from 'gmp/locale/lang';
 
-import {isDefined, isArray, isString} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {map} from '../utils/array';
-import {normalizeType} from '../utils/entitytype';
+import {isDefined, isArray, isString} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
+import {normalizeType} from 'gmp/utils/entitytype';
 
 import {
   parseInt,
@@ -31,9 +31,9 @@ import {
   parseText,
   parseDuration,
   NO_VALUE,
-} from '../parser';
+} from 'gmp/parser';
 
-import Model, {parseModelFromElement} from '../model';
+import Model, {parseModelFromElement} from 'gmp/model';
 
 import Report from './report';
 import Schedule from './schedule';

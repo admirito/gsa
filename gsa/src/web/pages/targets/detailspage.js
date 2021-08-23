@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbHH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbHH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -73,7 +73,7 @@ import withComponentDefaults from 'web/utils/withComponentDefaults';
 import TargetDetails from './details';
 import TargetComponent from './component';
 
-const ToolBarIcons = ({
+export const ToolBarIcons = ({
   entity,
   onTargetCloneClick,
   onTargetCreateClick,

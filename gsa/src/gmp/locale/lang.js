@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,15 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/string/includes';
-import 'core-js/features/array/includes';
 
 import i18next from 'i18next';
 import XHRBackend from 'i18next-xhr-backend';
 
-import logger from '../log';
+import logger from 'gmp/log';
 
-import {isDefined} from '../utils/identity';
+import {isDefined} from 'gmp/utils/identity';
 
 import {setLocale as setDateLocale} from './date';
 import Detector from './detector';
@@ -75,11 +73,7 @@ export const initLocale = ({
   backend = XHRBackend,
   detector = Detector,
   options = I18N_OPTIONS,
-} = {}) =>
-  i18next
-    .use(backend)
-    .use(detector)
-    .init(options);
+} = {}) => i18next.use(backend).use(detector).init(options);
 
 /**
  * Subscribe to get notified about locale changes

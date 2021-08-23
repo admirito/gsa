@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,15 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
 
-import {isDefined, isObject} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {forEach, map} from '../utils/array';
+import {isDefined, isObject} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {forEach, map} from 'gmp/utils/array';
 
-import {parseYesNo, YES_VALUE} from '../parser.js';
+import {parseYesNo, YES_VALUE} from 'gmp/parser';
 
-import Model, {parseModelFromElement} from '../model.js';
+import Model, {parseModelFromElement} from 'gmp/model';
 
 export const EVENT_TYPE_UPDATED_SECINFO = 'Updated SecInfo arrived';
 export const EVENT_TYPE_NEW_SECINFO = 'New SecInfo arrived';
@@ -129,7 +128,7 @@ class Alert extends Model {
       ret.tasks = [];
     }
 
-    const methDatRepForm = ret.method.data.report_formats;
+    const methDatRepForm = ret.method?.data?.report_formats; // in case method is not defined
 
     if (isDefined(methDatRepForm) && isDefined(methDatRepForm.value)) {
       const methDatRepFormSplit = methDatRepForm.value.split(',');
@@ -138,7 +137,7 @@ class Alert extends Model {
       ret.method.data.report_formats = [];
     }
 
-    if (isDefined(ret.method.data.notice?.value)) {
+    if (isDefined(ret.method?.data?.notice?.value)) {
       ret.method.data.notice.value = ret.method.data.notice.value.toString();
     }
 

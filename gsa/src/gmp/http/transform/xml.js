@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,7 +19,7 @@ import {_} from 'gmp/locale/lang';
 
 import {isDefined} from 'gmp/utils/identity';
 
-import Rejection from '../rejection';
+import Rejection from 'gmp/http//rejection';
 
 export const success = transform => (response, options = {}) => {
   try {

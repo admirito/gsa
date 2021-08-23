@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -24,8 +24,8 @@ import {map} from 'gmp/utils/array';
 
 import ExportIcon from 'web/components/icon/exporticon';
 
-import Divider from 'web/components/layout/divider';
 import IconDivider from 'web/components/layout/icondivider';
+import HorizontalSeparator from 'web/components/layout/horizontalsep';
 
 import DetailsLink from 'web/components/link/detailslink';
 
@@ -121,10 +121,10 @@ const Row = ({
         onToggleDetailsClick={onToggleDetailsClick}
       />
       <TableData>
-        <Divider>{roles}</Divider>
+        <HorizontalSeparator wrap>{roles}</HorizontalSeparator>
       </TableData>
       <TableData>
-        <Divider>{groups}</Divider>
+        <HorizontalSeparator wrap>{groups}</HorizontalSeparator>
       </TableData>
       <TableData>{host_allow}</TableData>
       <TableData>{authMethod}</TableData>

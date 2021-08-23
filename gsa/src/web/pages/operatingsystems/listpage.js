@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,7 +19,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {OS_FILTER_FILTER} from 'gmp/models/filter';
+import Filter, {OS_FILTER_FILTER} from 'gmp/models/filter';
 
 import PropTypes from 'web/utils/proptypes';
 
@@ -124,7 +124,12 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
+const FALLBACK_OS_LIST_FILTER = Filter.fromString(
+  'sort-reverse=latest_severity first=1',
+);
+
 export default withEntitiesContainer('operatingsystem', {
+  fallbackFilter: FALLBACK_OS_LIST_FILTER,
   entitiesSelector,
   loadEntities,
 })(Page);

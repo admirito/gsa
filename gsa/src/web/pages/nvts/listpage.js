@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -42,7 +42,7 @@ import NvtsTable from './table';
 
 import NvtsDashboard, {NVTS_DASHBOARD_ID} from './dashboard';
 
-const ToolBarIcons = () => (
+export const ToolBarIcons = () => (
   <ManualIcon
     page="managing-secinfo"
     anchor="network-vulnerability-tests-nvt"

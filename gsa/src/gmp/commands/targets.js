@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,20 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import logger from '../log';
+import logger from 'gmp/log';
 
-import {isString} from '../utils/identity';
+import {isString} from 'gmp/utils/identity';
 
-import registerCommand from '../command';
+import registerCommand from 'gmp/command';
 
-import Target from '../models/target';
+import Target from 'gmp/models/target';
+
+import {UNSET_VALUE} from 'web/utils/render';
 
 import EntitiesCommand from './entities';
 import EntityCommand from './entity';
 
 const log = logger.getLogger('gmp.commands.targets');
 
-class TargetCommand extends EntityCommand {
+export class TargetCommand extends EntityCommand {
   constructor(http) {
     super(http, 'target', Target);
   }
@@ -45,7 +47,9 @@ class TargetCommand extends EntityCommand {
       reverse_lookup_unify,
       port_list_id,
       alive_tests,
+      allowSimultaneousIPs,
       ssh_credential_id = 0,
+      ssh_elevate_credential_id = 0,
       port,
       smb_credential_id = 0,
       esxi_credential_id = 0,
@@ -59,6 +63,7 @@ class TargetCommand extends EntityCommand {
       cmd: 'create_target',
       name,
       comment,
+      allow_simultaneous_ips: allowSimultaneousIPs,
       target_source,
       target_exclude_source,
       hosts,
@@ -69,6 +74,10 @@ class TargetCommand extends EntityCommand {
       alive_tests,
       port,
       ssh_credential_id,
+      ssh_elevate_credential_id:
+        ssh_credential_id === UNSET_VALUE
+          ? UNSET_VALUE
+          : ssh_elevate_credential_id,
       smb_credential_id,
       esxi_credential_id,
       snmp_credential_id,
@@ -91,7 +100,9 @@ class TargetCommand extends EntityCommand {
       reverse_lookup_unify,
       port_list_id,
       alive_tests,
+      allowSimultaneousIPs,
       ssh_credential_id = 0,
+      ssh_elevate_credential_id = 0,
       port,
       smb_credential_id = 0,
       esxi_credential_id = 0,
@@ -105,6 +116,7 @@ class TargetCommand extends EntityCommand {
       cmd: 'save_target',
       target_id: id,
       alive_tests,
+      allow_simultaneous_ips: allowSimultaneousIPs,
       comment,
       esxi_credential_id,
       exclude_hosts,
@@ -120,6 +132,10 @@ class TargetCommand extends EntityCommand {
       smb_credential_id,
       snmp_credential_id,
       ssh_credential_id,
+      ssh_elevate_credential_id:
+        ssh_credential_id === UNSET_VALUE
+          ? UNSET_VALUE
+          : ssh_elevate_credential_id,
       target_source,
       target_exclude_source,
     });

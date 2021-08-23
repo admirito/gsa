@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -53,11 +53,7 @@ const ResultsDashboard = props => (
     id={RESULTS_DASHBOARD_ID}
     permittedDisplays={RESULTS_DISPLAYS}
     defaultDisplays={[
-      [
-        ResultsSeverityDisplay.displayId,
-        ResultsWordCloudDisplay.displayId,
-        ResultsCvssDisplay.displayId,
-      ],
+      [ResultsSeverityDisplay.displayId, ResultsCvssDisplay.displayId],
     ]}
   />
 );

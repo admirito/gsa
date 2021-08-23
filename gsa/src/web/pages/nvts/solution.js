@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -39,11 +39,13 @@ const Solution = ({solutionDescription, solutionType}) => {
 
   return (
     <DetailsBlock title={_('Solution')}>
-      <IconDivider>
-        <b>{_('Solution Type: ')}</b>
-        <SolutionTypeIcon displayTitleText type={solutionType} />
-      </IconDivider>
-      <Pre>{solutionDescription}</Pre>
+      {isDefined(solutionType) && (
+        <IconDivider>
+          <b>{_('Solution Type: ')}</b>
+          <SolutionTypeIcon displayTitleText type={solutionType} />
+        </IconDivider>
+      )}
+      {isDefined(solutionDescription) && <Pre>{solutionDescription}</Pre>}
     </DetailsBlock>
   );
 };

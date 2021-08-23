@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -43,7 +43,7 @@ import ResultsFilterDialog from './filterdialog';
 import ResultsTable from './table';
 import ResultsDashboard, {RESULTS_DASHBOARD_ID} from './dashboard';
 
-const ToolBarIcons = () => (
+export const ToolBarIcons = () => (
   <Layout>
     <ManualIcon
       page="reports"

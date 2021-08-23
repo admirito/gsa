@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Greenbone Networks GmbH
+# Copyright (C) 2016-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -19,17 +19,27 @@ cmake_minimum_required (VERSION 3.0)
 
 message ("-- Configuring gsa")
 
-project (gsa VERSION 20.8.1 LANGUAGES)
+project (gsa VERSION 21.4.2 LANGUAGES)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package (Node 10.0 REQUIRED)
 find_package (Yarn 1.0)
 
-if (NOT DEFINED PROJECT_VERSION_STRING)
-   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-   include (ProjectVersion)
-endif()
+# Set dev version if this is a development version and not a full release,
+# unset (put value 0 or delete line) before a full release and reset after.
+set (PROJECT_DEV_VERSION 0)
+
+# If PROJECT_DEV_VERSION is set, the version string will be set to:
+#   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
+# If PROJECT_DEV_VERSION is NOT set, the version string will be set to:
+#   "major.minor.patch${GIT_REVISION}"
+# For CMAKE_BUILD_TYPE "Release" the git revision will be empty.
+if (PROJECT_DEV_VERSION)
+  set (PROJECT_VERSION_SUFFIX "~dev${PROJECT_DEV_VERSION}")
+endif (PROJECT_DEV_VERSION)
+
+set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
 
 if (NOT DATADIR)
     set (DATADIR "${CMAKE_INSTALL_PREFIX}/share")
@@ -567,7 +577,6 @@ set (GSA_JS_SRC_FILES
      ${GSA_SRC_DIR}/src/web/components/pagination/pagination.js
      ${GSA_SRC_DIR}/src/web/components/panel/infopanel.js
      ${GSA_SRC_DIR}/src/web/components/powerfilter/applyoverridesgroup.js
-     ${GSA_SRC_DIR}/src/web/components/powerfilter/autofpgroup.js
      ${GSA_SRC_DIR}/src/web/components/powerfilter/createnamedfiltergroup.js
      ${GSA_SRC_DIR}/src/web/components/powerfilter/dialog.js
      ${GSA_SRC_DIR}/src/web/components/powerfilter/dialogproptypes.js

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -54,7 +54,9 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
     smb_credential,
     snmp_credential,
     ssh_credential,
+    ssh_elevate_credential,
     tasks,
+    allowSimultaneousIPs,
   } = entity;
 
   const hostsListing = hosts
@@ -99,6 +101,13 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
             <TableRow>
               <TableData>{_('Maximum Number of Hosts')}</TableData>
               <TableData>{max_hosts}</TableData>
+            </TableRow>
+
+            <TableRow>
+              <TableData>
+                {_('Allow simultaneous scanning via multiple IPs')}
+              </TableData>
+              <TableData>{renderYesNo(allowSimultaneousIPs)}</TableData>
             </TableRow>
 
             <TableRow>
@@ -151,6 +160,24 @@ const TargetDetails = ({capabilities, entity, links = true}) => {
                     </TableData>
                   </TableRow>
                 )}
+
+                {isDefined(ssh_credential) &&
+                  isDefined(ssh_elevate_credential) && ( // Skip one column, because there is no way to fit a variation of the word "elevate" without leaving lots of white space on other rows
+                    <TableRow>
+                      <TableData>{''}</TableData>
+                      <TableData>
+                        <span>
+                          {_('SSH elevate credential ')}
+                          <DetailsLink
+                            id={ssh_elevate_credential.id}
+                            type="credential"
+                          >
+                            {ssh_elevate_credential.name}
+                          </DetailsLink>
+                        </span>
+                      </TableData>
+                    </TableRow>
+                  )}
 
                 {isDefined(smb_credential) && (
                   <TableRow>

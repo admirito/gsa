@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2018 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -198,8 +198,7 @@ send_redirect_to_uri (http_connection_t *connection, const char *uri,
 
   if (!response)
     {
-      g_warning ("%s: failed to create response, dropping request",
-                 __func__);
+      g_warning ("%s: failed to create response, dropping request", __func__);
       return MHD_NO;
     }
   ret = MHD_add_response_header (response, MHD_HTTP_HEADER_LOCATION, uri);
@@ -516,9 +515,9 @@ remove_sid (http_response_t *response)
    * Tim Brown's suggested cookie included a domain attribute.  How would
    * we get the domain in here?  Maybe a --domain option. */
 
-  value =
-    g_strdup_printf (SID_COOKIE_NAME "=0; expires=%s; path=/; %sHTTPonly",
-                     expires, (is_use_secure_cookie () ? "secure; " : ""));
+  value = g_strdup_printf (
+    SID_COOKIE_NAME "=0; expires=%s; path=/; %sHTTPonly; SameSite=strict",
+    expires, (is_use_secure_cookie () ? "secure; " : ""));
   ret = MHD_add_response_header (response, "Set-Cookie", value);
   g_free (value);
   return ret;
@@ -592,8 +591,9 @@ attach_sid (http_response_t *response, const char *sid)
    * we get the domain in here?  Maybe a --domain option. */
 
   value = g_strdup_printf (
-    SID_COOKIE_NAME "=%s; expires=%s; max-age=%d; path=/; %sHTTPonly", sid,
-    expires, timeout, (is_use_secure_cookie () ? "secure; " : ""));
+    SID_COOKIE_NAME
+    "=%s; expires=%s; max-age=%d; path=/; %sHTTPonly; SameSite=strict",
+    sid, expires, timeout, (is_use_secure_cookie () ? "secure; " : ""));
   ret = MHD_add_response_header (response, "Set-Cookie", value);
   g_free (value);
   return ret;
@@ -673,7 +673,7 @@ file_content_response (http_connection_t *connection, const char *url,
                        const char *path, cmd_response_data_t *response_data)
 {
   char date_2822[DATE_2822_LEN];
-  struct tm *mtime;
+  struct tm mtime;
   time_t next_week;
   http_response_t *response;
   FILE *file;
@@ -721,17 +721,17 @@ file_content_response (http_connection_t *connection, const char *url,
     buf.st_size, 32 * 1024, (MHD_ContentReaderCallback) &file_reader, file,
     (MHD_ContentReaderFreeCallback) &fclose);
 
-  mtime = localtime (&buf.st_mtime);
-  if (mtime
-      && strftime (date_2822, DATE_2822_LEN, "%a, %d %b %Y %H:%M:%S %Z", mtime))
+  if (localtime_r (&buf.st_mtime, &mtime)
+      && strftime (date_2822, DATE_2822_LEN, "%a, %d %b %Y %H:%M:%S %Z",
+                   &mtime))
     {
       MHD_add_response_header (response, "Last-Modified", date_2822);
     }
 
   next_week = time (NULL) + 7 * 24 * 60 * 60;
-  mtime = localtime (&next_week);
-  if (mtime
-      && strftime (date_2822, DATE_2822_LEN, "%a, %d %b %Y %H:%M:%S %Z", mtime))
+  if (localtime_r (&next_week, &mtime)
+      && strftime (date_2822, DATE_2822_LEN, "%a, %d %b %Y %H:%M:%S %Z",
+                   &mtime))
     {
       MHD_add_response_header (response, "Expires", date_2822);
     }

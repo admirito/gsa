@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,9 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'core-js/features/object/entries';
-
-import {isDefined} from '../utils/identity';
+import {isDefined} from 'gmp/utils/identity';
 
 class Settings {
   constructor() {

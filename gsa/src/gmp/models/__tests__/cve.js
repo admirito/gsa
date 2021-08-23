@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -47,7 +47,7 @@ describe('CVE model tests', () => {
 
   test('should parse severity', () => {
     const elem = {
-      cvss: '8.5',
+      severity: '8.5',
     };
     const cve = Cve.fromElement(elem);
 
@@ -134,13 +134,8 @@ describe('CVE model tests', () => {
   test('should parse CVSS metrics', () => {
     const elem = {
       cve: {
-        cvss: '10.0',
-        vector: 'NETWORK',
-        complexity: 'LOW',
-        authentication: 'NONE',
-        confidentiality_impact: 'COMPLETE',
-        integrity_impact: 'COMPLETE',
-        availability_impact: 'COMPLETE',
+        severity: '10.0',
+        cvss_vector: 'AV:N/AC:L/Au:N/C:C/I:C/A:C',
       },
     };
     const cve = Cve.fromElement(elem);
@@ -284,5 +279,16 @@ describe('CVE model tests', () => {
     const cve = Cve.fromElement({});
 
     expect(cve.references).toEqual([]);
+  });
+
+  test('should parse result cve', () => {
+    const elem = {
+      name: 'CVE-1234',
+    };
+
+    const cve = Cve.fromResultElement(elem);
+
+    expect(cve.name).toBe('CVE-1234');
+    expect(cve.id).toBe('CVE-1234');
   });
 });

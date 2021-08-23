@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/promise/finally';
 
 import React from 'react';
 
@@ -36,7 +35,6 @@ import {
   ospScannersFilter,
   OPENVAS_DEFAULT_SCANNER_ID,
   OPENVAS_SCANNER_TYPE,
-  GMP_SCANNER_TYPE,
   GREENBONE_SENSOR_SCANNER_TYPE,
 } from 'gmp/models/scanner';
 
@@ -881,8 +879,7 @@ const mapStateToProps = rootState => {
     ? scannerList.filter(
         scanner =>
           scanner.scannerType === OPENVAS_SCANNER_TYPE ||
-          scanner.scannerType === GREENBONE_SENSOR_SCANNER_TYPE ||
-          scanner.scannerType === GMP_SCANNER_TYPE,
+          scanner.scannerType === GREENBONE_SENSOR_SCANNER_TYPE,
       )
     : undefined;
 

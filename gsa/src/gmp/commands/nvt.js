@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {isDefined} from '../utils/identity';
+import {isDefined} from 'gmp/utils/identity';
 
-import InfoEntitiesCommand from './infoentities.js';
-import InfoEntityCommand from './infoentity.js';
+import InfoEntitiesCommand from './infoentities';
+import InfoEntityCommand from './infoentity';
 
-import registerCommand from '../command.js';
+import registerCommand from 'gmp/command';
 
-import Nvt from '../models/nvt.js';
+import Nvt from 'gmp/models/nvt';
 
 const info_filter = info => isDefined(info.nvt);
 

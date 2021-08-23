@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import Model, {parseModelFromElement} from '../model';
+import Model, {parseModelFromElement} from 'gmp/model';
 
-import {isDefined} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {map} from '../utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
 
-import {parseInt, parseYesNo, parseCsv} from '../parser';
+import {parseInt, parseYesNo, parseCsv} from 'gmp/parser';
 
 import PortList from './portlist';
 
@@ -30,6 +30,7 @@ export const TARGET_CREDENTIAL_NAMES = [
   'snmp_credential',
   'ssh_credential',
   'esxi_credential',
+  'ssh_elevate_credential',
 ];
 
 class Target extends Model {
@@ -66,6 +67,8 @@ class Target extends Model {
         parseModelFromElement(task, 'task'),
       );
     }
+
+    ret.allowSimultaneousIPs = parseYesNo(element.allow_simultaneous_ips);
 
     return ret;
   }

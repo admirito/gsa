@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -33,24 +33,6 @@ describe('convert tests', () => {
       keyword: 'apply_overrides',
       relation: '=',
       value: 1,
-    });
-  });
-
-  test('should convert autofp keyword', () => {
-    expect(convert('autofp', '1', '=')).toEqual({
-      keyword: 'autofp',
-      relation: '=',
-      value: 1,
-    });
-    expect(convert('autofp', '0', '=')).toEqual({
-      keyword: 'autofp',
-      relation: '=',
-      value: 0,
-    });
-    expect(convert('autofp', '99', '=')).toEqual({
-      keyword: 'autofp',
-      relation: '=',
-      value: 99,
     });
   });
 

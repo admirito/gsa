@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -32,11 +32,6 @@ import Capabilities from 'gmp/capabilities/capabilities';
 import Filter from 'gmp/models/filter';
 import Settings from 'gmp/models/settings';
 
-import {
-  SEVERITY_CLASS_BSI,
-  SEVERITY_CLASS_NIST,
-  SEVERITY_CLASS_PCI_DSS,
-} from './severity';
 import warning from './warning';
 
 export const mayRequire = validator => {
@@ -214,12 +209,6 @@ const toStringValidator = (props, prop_name, component_name) => {
 
 const toString = mayRequire(toStringValidator);
 
-const severityClass = ReactPropTypes.objectOf([
-  SEVERITY_CLASS_BSI,
-  SEVERITY_CLASS_NIST,
-  SEVERITY_CLASS_PCI_DSS,
-]);
-
 const ref = ReactPropTypes.oneOfType([
   ReactPropTypes.func,
   // React.createRef() returns an object with a current property
@@ -228,7 +217,7 @@ const ref = ReactPropTypes.oneOfType([
   }),
 ]);
 
-export default {
+const gsaPropTypes = {
   bool: ReactPropTypes.bool,
   any: ReactPropTypes.any,
   array: ReactPropTypes.array,
@@ -269,11 +258,12 @@ export default {
   ref,
   set,
   settings,
-  severityClass,
   stringOrFalse,
   timeunit,
   toString,
   yesno,
 };
+
+export default gsaPropTypes;
 
 // vim: set ts=2 sw=2 tw=80:

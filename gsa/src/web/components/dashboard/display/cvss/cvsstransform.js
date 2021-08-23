@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -53,7 +53,7 @@ const getSeverityClassLabel = value => {
   }
 };
 
-const transformCvssData = (data = {}, {severityClass}) => {
+const transformCvssData = (data = {}) => {
   const {groups = []} = data;
 
   const sum = totalCount(groups);
@@ -97,7 +97,7 @@ const transformCvssData = (data = {}, {severityClass}) => {
 
       const value = parseFloat(key);
 
-      const riskFactor = resultSeverityRiskFactor(value, severityClass);
+      const riskFactor = resultSeverityRiskFactor(value);
       const label = translateRiskFactor(riskFactor);
 
       let toolTip;

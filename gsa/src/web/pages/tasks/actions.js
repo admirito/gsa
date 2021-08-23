@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -52,11 +52,10 @@ const Actions = ({
   onTaskStopClick,
 }) => (
   <IconDivider align={['center', 'center']} grow>
-    {isDefined(entity.schedule) ? (
+    {isDefined(entity.schedule) && (
       <ScheduleIcon schedule={entity.schedule} links={links} />
-    ) : (
-      <StartIcon task={entity} onClick={onTaskStartClick} />
     )}
+    <StartIcon task={entity} onClick={onTaskStartClick} />
 
     <ImportReportIcon task={entity} onClick={onReportImportClick} />
 

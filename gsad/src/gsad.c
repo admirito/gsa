@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -157,9 +157,16 @@
  * @brief Default value for HTTP header "Content-Security-Policy"
  */
 #define DEFAULT_GSAD_CONTENT_SECURITY_POLICY \
-  "default-src 'self' 'unsafe-inline';"      \
-  " img-src 'self' blob:;"                   \
-  " frame-ancestors 'self'"
+  "default-src 'none'; "                     \
+  "object-src 'none'; "                      \
+  "base-uri 'none'; "                        \
+  "connect-src 'self'; "                     \
+  "script-src 'self'; "                      \
+  "frame-ancestors 'none'; "                 \
+  "form-action 'self'; "                     \
+  "style-src-elem 'self' 'unsafe-inline'; "  \
+  "style-src 'self' 'unsafe-inline'; "       \
+  "img-src 'self' blob:;"
 
 /**
  * @brief Default "max-age" for HTTP header "Strict-Transport-Security"
@@ -172,7 +179,7 @@
 #define DEFAULT_GSAD_PER_IP_CONNECTION_LIMIT 30
 
 #define COPYRIGHT                                                        \
-  "Copyright (C) 2010 - 2020 Greenbone Networks GmbH\n"                  \
+  "Copyright (C) 2010 - 2021 Greenbone Networks GmbH\n"                  \
   "License: AGPL-3.0-or-later\n"                                         \
   "This is free software: you are free to change and redistribute it.\n" \
   "There is NO WARRANTY, to the extent permitted by law.\n\n"
@@ -477,8 +484,6 @@ init_validator ()
   gvm_validator_add (validator, "authdn", "^.{0,200}%s.{0,200}$");
   gvm_validator_add (validator, "auto_delete", "^(no|keep)$");
   gvm_validator_add (validator, "auto_delete_data", "^.*$");
-  gvm_validator_add (validator, "autofp", "^(0|1|2)$");
-  gvm_validator_add (validator, "autofp_value", "^(1|2)$");
   gvm_validator_add (validator, "boolean", "^(0|1)$");
   gvm_validator_add (validator, "bulk_selected:name", "^.*$");
   gvm_validator_add (validator, "bulk_selected:value", "(?s)^.*$");
@@ -558,12 +563,12 @@ init_validator ()
   gvm_validator_add (validator, "max", "^(-?[0-9]+|)$");
   gvm_validator_add (validator, "max_results", "^[0-9]+$");
   gvm_validator_add (validator, "format", "^[-[:alnum:]]+$");
-  gvm_validator_add (validator, "host", "^[[:alnum:]:\\.]+$");
-  gvm_validator_add (validator, "hostport", "^[-[:alnum:]\\. :]+$");
-  gvm_validator_add (validator, "hostpath", "^[-[:alnum:]\\. :/]+$");
-  gvm_validator_add (validator, "hosts", "^[-[:alnum:],: \\./]+$");
+  gvm_validator_add (validator, "host", "^[-_[:alnum:]:\\.]+$");
+  gvm_validator_add (validator, "hostport", "^[-_[:alnum:]\\. :]+$");
+  gvm_validator_add (validator, "hostpath", "^[-_[:alnum:]\\. :/]+$");
+  gvm_validator_add (validator, "hosts", "^[-_[:alnum:],: \\./]+$");
   gvm_validator_add (validator, "hosts_allow", "^(0|1)$");
-  gvm_validator_add (validator, "hosts_opt", "^[-[:alnum:],: \\./]*$");
+  gvm_validator_add (validator, "hosts_opt", "^[-_[:alnum:],: \\./]*$");
   gvm_validator_add (validator, "hosts_ordering",
                      "^(sequential|random|reverse)$");
   gvm_validator_add (validator, "hour", "^([01]?[0-9]|2[0-3])$");
@@ -709,7 +714,6 @@ init_validator ()
   gvm_validator_add (validator, "schedule_id", "^[a-z0-9\\-]+$");
   gvm_validator_add (validator, "severity",
                      "^(-1(\\.0)?|[0-9](\\.[0-9])?|10(\\.0)?)$");
-  gvm_validator_add (validator, "severity_class", "^(nist|bsi|pci\\-dss)$");
   gvm_validator_add (validator, "severity_optional",
                      "^(-1(\\.0)?|[0-9](\\.[0-9])?|10(\\.0)?)?$");
   gvm_validator_add (validator, "source_iface", "^(.*){1,16}$");
@@ -745,6 +749,7 @@ init_validator ()
   gvm_validator_alias (validator, "alert_ids:name", "number");
   gvm_validator_alias (validator, "alert_ids:value", "alert_id_optional");
   gvm_validator_alias (validator, "allow_insecure", "boolean");
+  gvm_validator_alias (validator, "allow_simultaneous_ips", "boolean");
   gvm_validator_alias (validator, "alterable", "boolean");
   gvm_validator_alias (validator, "apply_overrides", "boolean");
   gvm_validator_alias (validator, "autogenerate", "boolean");
@@ -888,6 +893,7 @@ init_validator ()
   gvm_validator_alias (validator, "smb_credential_id", "credential_id");
   gvm_validator_alias (validator, "snmp_credential_id", "credential_id");
   gvm_validator_alias (validator, "ssh_credential_id", "credential_id");
+  gvm_validator_alias (validator, "ssh_elevate_credential_id", "credential_id");
   gvm_validator_alias (validator, "subgroup_column", "group_column");
   gvm_validator_alias (validator, "subject_id", "id");
   gvm_validator_alias (validator, "subject_id_optional", "id_optional");
@@ -2270,8 +2276,7 @@ drop_privileges (struct passwd *user_pw)
 {
   if (setgroups (0, NULL))
     {
-      g_critical ("%s: failed to set groups: %s\n", __func__,
-                  strerror (errno));
+      g_critical ("%s: failed to set groups: %s\n", __func__, strerror (errno));
       return FALSE;
     }
   if (setgid (user_pw->pw_gid))
@@ -2524,6 +2529,9 @@ mhd_logger (void *arg, const char *fmt, va_list ap)
 
 static struct MHD_Daemon *
 start_unix_http_daemon (const char *unix_socket_path,
+                        const char *unix_socket_owner,
+                        const char *unix_socket_group,
+                        const char *unix_socket_mode,
 #if MHD_VERSION < 0x00097002
                         int handler (void *, struct MHD_Connection *,
                                      const char *, const char *, const char *,
@@ -2540,6 +2548,7 @@ start_unix_http_daemon (const char *unix_socket_path,
   struct sockaddr_un addr;
   struct stat ustat;
   mode_t oldmask = 0;
+  mode_t omode = 0;
 
   int unix_socket = socket (AF_UNIX, SOCK_STREAM, 0);
 
@@ -2571,6 +2580,56 @@ start_unix_http_daemon (const char *unix_socket_path,
     }
   if (oldmask)
     umask (oldmask);
+
+  if (unix_socket_owner)
+    {
+      struct passwd *passwd;
+
+      passwd = getpwnam (unix_socket_owner);
+      if (passwd == NULL)
+        {
+          g_warning ("%s: User %s not found.", __FUNCTION__, unix_socket_owner);
+          return NULL;
+        }
+      if (chown (unix_socket_path, passwd->pw_uid, -1) == -1)
+        {
+          g_warning ("%s: chown: %s", __FUNCTION__, strerror (errno));
+          return NULL;
+        }
+    }
+
+  if (unix_socket_group)
+    {
+      struct group *group;
+
+      group = getgrnam (unix_socket_group);
+      if (group == NULL)
+        {
+          g_warning ("%s: Group %s not found.", __FUNCTION__,
+                     unix_socket_group);
+          return NULL;
+        }
+      if (chown (unix_socket_path, -1, group->gr_gid) == -1)
+        {
+          g_warning ("%s: chown: %s", __FUNCTION__, strerror (errno));
+          return NULL;
+        }
+    }
+
+  if (!unix_socket_mode)
+    unix_socket_mode = "660";
+  omode = strtol (unix_socket_mode, 0, 8);
+  if (omode <= 0 || omode > 4095)
+    {
+      g_warning ("%s: Erroneous --unix-socket--mode value", __FUNCTION__);
+      return NULL;
+    }
+  if (chmod (unix_socket_path, omode) == -1)
+    {
+      g_warning ("%s: chmod: %s", __FUNCTION__, strerror (errno));
+      return NULL;
+    }
+
   if (listen (unix_socket, 128) == -1)
     {
       g_warning ("%s: Error on listen(): %s", __func__, strerror (errno));
@@ -2770,6 +2829,9 @@ main (int argc, char **argv)
   static gchar *ssl_certificate_filename = GVM_SERVER_CERTIFICATE;
   static gchar *dh_params_filename = NULL;
   static gchar *unix_socket_path = NULL;
+  static gchar *unix_socket_owner = NULL;
+  static gchar *unix_socket_group = NULL;
+  static gchar *unix_socket_mode = NULL;
   static gchar *gnutls_priorities = "NORMAL";
   static int debug_tls = 0;
   static gchar *http_frame_opts = DEFAULT_GSAD_X_FRAME_OPTIONS;
@@ -2855,6 +2917,12 @@ main (int argc, char **argv)
      "<number>"},
     {"unix-socket", '\0', 0, G_OPTION_ARG_FILENAME, &unix_socket_path,
      "Path to unix socket to listen on", "<file>"},
+    {"unix-socket-owner", '\0', 0, G_OPTION_ARG_STRING, &unix_socket_owner,
+     "Owner of the unix socket", "<string>"},
+    {"unix-socket-group", '\0', 0, G_OPTION_ARG_STRING, &unix_socket_group,
+     "Group of the unix socket", "<string>"},
+    {"unix-socket-mode", '\0', 0, G_OPTION_ARG_STRING, &unix_socket_mode,
+     "File mode of the unix socket", "<string>"},
     {"munix-socket", '\0', 0, G_OPTION_ARG_FILENAME,
      &gsad_manager_unix_socket_path, "Path to Manager unix socket", "<file>"},
     {"http-cors", 0, 0, G_OPTION_ARG_STRING, &http_cors,
@@ -3047,36 +3115,6 @@ main (int argc, char **argv)
   if (http_only)
     no_redirect = TRUE;
 
-  if (unix_socket_path)
-    {
-      /* Fork for the unix socket server. */
-      g_debug ("Forking for unix socket...\n");
-      pid_t pid = fork ();
-      switch (pid)
-        {
-        case 0:
-          /* Child. */
-#if __linux
-          if (prctl (PR_SET_PDEATHSIG, SIGKILL))
-            g_warning ("%s: Failed to change parent death signal;"
-                       " unix socket process will remain if parent is killed:"
-                       " %s\n",
-                       __func__, strerror (errno));
-#endif
-          break;
-        case -1:
-          /* Parent when error. */
-          g_warning ("%s: Failed to fork for unix socket!\n", __func__);
-          exit (EXIT_FAILURE);
-          break;
-        default:
-          /* Parent. */
-          unix_pid = pid;
-          no_redirect = TRUE;
-          break;
-        }
-    }
-
   if (!no_redirect)
     {
       /* Fork for the redirect server. */
@@ -3167,8 +3205,9 @@ main (int argc, char **argv)
       gmp_init (gsad_manager_unix_socket_path, gsad_manager_address_string,
                 gsad_manager_port);
 
-      gsad_daemon =
-        start_unix_http_daemon (unix_socket_path, handle_request, handlers);
+      gsad_daemon = start_unix_http_daemon (unix_socket_path, unix_socket_owner,
+                                            unix_socket_group, unix_socket_mode,
+                                            handle_request, handlers);
 
       if (gsad_daemon == NULL)
         {
@@ -3223,8 +3262,7 @@ main (int argc, char **argv)
                                     NULL, &error))
             {
               g_critical ("%s: Could not load private SSL key from %s: %s\n",
-                          __func__, ssl_private_key_filename,
-                          error->message);
+                          __func__, ssl_private_key_filename, error->message);
               g_error_free (error);
               exit (EXIT_FAILURE);
             }
@@ -3233,8 +3271,7 @@ main (int argc, char **argv)
                                     NULL, &error))
             {
               g_critical ("%s: Could not load SSL certificate from %s: %s\n",
-                          __func__, ssl_certificate_filename,
-                          error->message);
+                          __func__, ssl_certificate_filename, error->message);
               g_error_free (error);
               exit (EXIT_FAILURE);
             }

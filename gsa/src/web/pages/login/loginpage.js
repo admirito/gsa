@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -38,12 +38,11 @@ import PropTypes from 'web/utils/proptypes';
 import Theme from 'web/utils/theme';
 import withGmp from 'web/utils/withGmp';
 
-import Logo from 'web/components/img/greenbone';
+import Img from 'web/components/img/img';
 
 import Layout from 'web/components/layout/layout';
 
 import Footer from 'web/components/structure/footer';
-import Header from 'web/components/structure/header';
 
 import {
   setSessionTimeout,
@@ -58,48 +57,28 @@ import LoginForm from './loginform';
 
 const log = logger.getLogger('web.login');
 
-const GreenboneLogo = styled(Logo)`
-  width: 30vh;
-  margin: 30px auto;
-  position: sticky;
-`;
-
-const LoginBox = styled(Layout)`
-  ${'' /* flex-grow: 1; */}
-  width: 100%;
-  flex-direction: row;
-  align-items: stretch;
-`;
-
-const LoginSpacer = styled(Layout)`
-  width: 42%;
-`;
-
-const LoginLayout = styled(Layout)`
-  height: 100%;
-  padding: 20px 20px 0px 20px;
-`;
-
 const StyledLayout = styled(Layout)`
+  background: radial-gradient(
+    51.84% 102.52% at 58.54% 44.97%,
+    #baed81 0%,
+    ${Theme.green} 67.26%
+  );
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
 `;
 
-const LoginHeader = styled(Header)`
-  position: absolute;
+const BackgroundTopImage = styled(Img)`
+  position: fixed;
   top: 0;
-  left: 0;
   right: 0;
 `;
 
-const MenuSpacer = styled.div`
-  background: ${Theme.darkGray};
+const BackgroundBottomImage = styled(Img)`
   position: fixed;
-  top: 42px;
+  bottom: 0;
   left: 0;
-  right: 0;
-  height: 35px;
-  z-index: ${Theme.Layers.menu};
 `;
 
 const isIE11 = () =>
@@ -196,24 +175,17 @@ class LoginPage extends React.Component {
 
     return (
       <StyledLayout>
-        <LoginHeader />
-        <MenuSpacer />
-        <LoginBox>
-          <LoginSpacer />
-          <LoginLayout flex="column" className="login">
-            <GreenboneLogo />
-            <LoginForm
-              error={message}
-              showGuestLogin={showGuestLogin}
-              showLogin={showLogin}
-              showProtocolInsecure={showProtocolInsecure}
-              isIE11={isIE11()}
-              onGuestLoginClick={this.handleGuestLogin}
-              onSubmit={this.handleSubmit}
-            />
-          </LoginLayout>
-          <LoginSpacer />
-        </LoginBox>
+        <BackgroundTopImage src="login-top.svg" />
+        <BackgroundBottomImage src="login-bottom.svg" />
+        <LoginForm
+          error={message}
+          showGuestLogin={showGuestLogin}
+          showLogin={showLogin}
+          showProtocolInsecure={showProtocolInsecure}
+          isIE11={isIE11()}
+          onGuestLoginClick={this.handleGuestLogin}
+          onSubmit={this.handleSubmit}
+        />
         <Footer />
       </StyledLayout>
     );
@@ -247,10 +219,7 @@ const mapStateToProp = (rootState, ownProps) => ({
 export default compose(
   withRouter,
   withGmp,
-  connect(
-    mapStateToProp,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProp, mapDispatchToProps),
 )(LoginPage);
 
 // vim: set ts=2 sw=2 tw=80:

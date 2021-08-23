@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,13 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/string/starts-with';
 
 import {isDefined, isArray, isString} from 'gmp/utils/identity';
 import {isEmpty, split} from 'gmp/utils/string';
 import {map} from 'gmp/utils/array';
 
-import {parseFloat, parseSeverity} from 'gmp/parser';
+import {
+  parseDate,
+  parseFloat,
+  parseSeverity,
+  parseText,
+  parseYesNo,
+  YES_VALUE,
+} from 'gmp/parser';
 
 import Info from './info';
 
@@ -34,7 +40,8 @@ const parseTags = tags => {
     const splitted = tags.split('|');
     for (const t of splitted) {
       const [key, value] = split(t, '=', 1);
-      newTags[key] = value;
+      const newValue = isEmpty(value) ? undefined : value;
+      newTags[key] = newValue;
     }
   }
 
@@ -136,20 +143,30 @@ class Nvt extends Info {
       getFilteredRefs(refs, 'cert-bund'),
     );
 
-    if (isDefined(ret.solution)) {
-      ret.solution = {
-        type: ret.solution._type,
-        description: ret.solution.__text,
-        method: ret.solution._method,
-      };
-    }
-
     ret.xrefs = getFilteredUrlRefs(refs, 'url').concat(getOtherRefs(refs));
 
     delete ret.refs;
 
-    ret.severity = parseSeverity(ret.cvss_base);
+    if (isDefined(ret?.severities?.severity)) {
+      const {severity} = ret.severities;
+      ret.severity = parseSeverity(severity.score);
+      ret.severityOrigin = parseText(severity.origin);
+      ret.severityDate = parseDate(severity.date);
+    } else {
+      ret.severity = parseSeverity(ret.cvss_base);
+    }
     delete ret.cvss_base;
+
+    if (isDefined(ret.solution)) {
+      const solutionType = ret.solution._type;
+      const solutionText = ret.solution.__text;
+      const solutionMethod = ret.solution._method;
+      ret.solution = {
+        type: isEmpty(solutionType) ? undefined : solutionType,
+        description: isEmpty(solutionText) ? undefined : solutionText,
+        method: isEmpty(solutionMethod) ? undefined : solutionMethod,
+      };
+    }
 
     if (isDefined(ret.preferences)) {
       ret.preferences = map(ret.preferences.preference, preference => {
@@ -187,6 +204,10 @@ class Nvt extends Info {
     }
 
     return ret;
+  }
+
+  isDeprecated() {
+    return parseYesNo(this.tags.deprecated) === YES_VALUE;
   }
 }
 

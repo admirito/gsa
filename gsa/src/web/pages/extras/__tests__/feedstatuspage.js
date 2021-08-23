@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -17,7 +17,7 @@
  */
 import React from 'react';
 
-import {rendererWith, wait} from 'web/utils/testing';
+import {rendererWith, waitFor} from 'web/utils/testing';
 
 import FeedStatus from '../feedstatuspage';
 import {Feed} from 'gmp/commands/feedstatus';
@@ -81,7 +81,7 @@ describe('Feed status page tests', () => {
     const {render} = rendererWith({gmp, router: true});
     const {element, getAllByTestId} = render(<FeedStatus />);
 
-    await wait();
+    await waitFor(() => element.querySelectorAll('table'));
 
     // Should render all icons
     const icons = getAllByTestId('svg-icon');

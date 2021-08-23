@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -21,6 +21,7 @@
 import Nvt, {getRefs, hasRefType, getFilteredRefIds} from 'gmp/models/nvt';
 import Info from 'gmp/models/info';
 import {testModelFromElement, testModelMethods} from 'gmp/models/testing';
+import date from 'gmp/models/date';
 
 describe('nvt Model tests', () => {
   testModelFromElement(Nvt, 'nvt');
@@ -65,6 +66,7 @@ describe('nvt Model tests', () => {
     const nvt1 = Nvt.fromElement({tags: 'bv=/A:P|st=vf'});
     const nvt2 = Nvt.fromElement({});
     const nvt3 = Nvt.fromElement({nvt: {tags: 'bv=/A:P|st=vf'}});
+    const nvt4 = Nvt.fromElement({nvt: {tags: 'bv='}});
     const res = {
       bv: '/A:P',
       st: 'vf',
@@ -73,6 +75,7 @@ describe('nvt Model tests', () => {
     expect(nvt1.tags).toEqual(res);
     expect(nvt2.tags).toEqual({});
     expect(nvt3.tags).toEqual(res);
+    expect(nvt4.tags.bv).toBeUndefined();
   });
 
   test('should parse refs', () => {
@@ -141,7 +144,7 @@ describe('nvt Model tests', () => {
     expect(nvt3.xrefs).toEqual([{ref: 'customId', type: 'custom-type'}]);
   });
 
-  test('should parse severity', () => {
+  test('should parse severity from cvss_base', () => {
     const nvt1 = Nvt.fromElement({cvss_base: '8.5'});
     const nvt2 = Nvt.fromElement({cvss_base: ''});
     const nvt3 = Nvt.fromElement({nvt: {cvss_base: '9.5'}});
@@ -152,6 +155,62 @@ describe('nvt Model tests', () => {
     expect(nvt2.cvss_base).toBeUndefined();
     expect(nvt3.cvss_base).toBeUndefined();
     expect(nvt3.severity).toEqual(9.5);
+  });
+
+  test('should parse severity and origin from severities', () => {
+    const nvt1 = Nvt.fromElement({
+      severities: {
+        severity: {
+          score: 9.4,
+          origin: 'Vendor',
+          date: '2021-03-10T06:40:13Z',
+        },
+      },
+      score: '6.6',
+    });
+    const nvt2 = Nvt.fromElement({
+      severities: {
+        severity: {
+          score: 7.4,
+          origin: 'Greenbone',
+          date: '2020-03-10T06:40:13Z',
+        },
+      },
+      score: '',
+    });
+    const nvt3 = Nvt.fromElement({
+      severities: {
+        severity: {
+          score: 1.0,
+          origin: '',
+        },
+      },
+    });
+
+    expect(nvt1.severity).toEqual(9.4);
+    expect(nvt1.severityOrigin).toEqual('Vendor');
+    expect(nvt1.severityDate).toEqual(date('2021-03-10T06:40:13Z'));
+    expect(nvt1.cvss_base).toBeUndefined();
+    expect(nvt2.severity).toEqual(7.4);
+    expect(nvt2.cvss_base).toBeUndefined();
+    expect(nvt2.severityOrigin).toEqual('Greenbone');
+    expect(nvt2.severityDate).toEqual(date('2020-03-10T06:40:13Z'));
+    expect(nvt3.cvss_base).toBeUndefined();
+    expect(nvt3.severity).toEqual(1.0);
+    expect(nvt3.severityOrigin).toEqual('');
+    expect(nvt3.severityDate).toBeUndefined();
+  });
+
+  test('should fall back to cvss_base when <severity> is missing from <severities>', () => {
+    const nvt = Nvt.fromElement({
+      cvss_base: '10.0',
+      severities: {},
+    });
+
+    expect(nvt.severity).toEqual(10.0);
+    expect(nvt.severityOrigin).toBeUndefined();
+    expect(nvt.severityDate).toBeUndefined();
+    expect(nvt.cvss_base).toBeUndefined();
   });
 
   test('should parse preferences', () => {
@@ -272,6 +331,75 @@ describe('nvt Model tests', () => {
     expect(nvt.solution.method).toEqual('bar');
     expect(nvt.solution.description).toEqual('Some description');
     expect(nvt.solution.lorem).toBeUndefined();
+  });
+
+  test('should set correct solution information for log NVTs', () => {
+    const nvt1 = Nvt.fromElement({
+      solution: {
+        _type: 'foo',
+      },
+      severities: {
+        severity: {
+          score: 0,
+        },
+      },
+    });
+    const res1 = {
+      type: 'foo',
+      description: undefined,
+      method: undefined,
+    };
+    const nvt2 = Nvt.fromElement({
+      solution: {
+        __text: 'bar',
+      },
+      severities: {
+        severity: {
+          score: 0,
+        },
+      },
+    });
+    const res2 = {
+      type: undefined,
+      description: 'bar',
+      method: undefined,
+    };
+    const nvt3 = Nvt.fromElement({
+      solution: {
+        _method: 'baz',
+      },
+      severities: {
+        severity: {
+          score: 0,
+        },
+      },
+    });
+    const res3 = {
+      type: undefined,
+      description: undefined,
+      method: 'baz',
+    };
+    const nvt4 = Nvt.fromElement({
+      solution: {
+        _type: '',
+        __text: 'foo',
+      },
+      severities: {
+        severity: {
+          score: 0,
+        },
+      },
+    });
+    const res4 = {
+      type: undefined,
+      description: 'foo',
+      method: undefined,
+    };
+
+    expect(nvt1.solution).toEqual(res1);
+    expect(nvt2.solution).toEqual(res2);
+    expect(nvt3.solution).toEqual(res3);
+    expect(nvt4.solution).toEqual(res4);
   });
 });
 
@@ -423,5 +551,25 @@ describe('getFilteredRefIds tests', () => {
 
     expect(refs.length).toEqual(2);
     expect(refs).toEqual(['2', '4']);
+  });
+
+  describe('NVT model method tests', () => {
+    test('isDeprecated() returns correct true/false', () => {
+      const nvt1 = Nvt.fromElement({
+        tags: 'summary=foo|deprecated=1',
+      });
+      const nvt2 = Nvt.fromElement({
+        tags: 'summary=bar',
+      });
+      const nvt3 = Nvt.fromElement({
+        tags: 'summary=lorem|deprecated=0',
+      });
+      expect(nvt1.tags.summary).toEqual('foo');
+      expect(nvt1.isDeprecated()).toEqual(true);
+      expect(nvt2.tags.summary).toEqual('bar');
+      expect(nvt2.isDeprecated()).toEqual(false);
+      expect(nvt3.tags.summary).toEqual('lorem');
+      expect(nvt3.isDeprecated()).toEqual(false);
+    });
   });
 });

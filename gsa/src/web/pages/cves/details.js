@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
 
 import React from 'react';
 
@@ -43,6 +42,11 @@ const CVSS_PROPS = {
   cvssAccessVector: _l('Access Vector'),
   cvssAccessComplexity: _l('Access Complexity'),
   cvssAuthentication: _l('Authentication'),
+  cvssAttackVector: _l('Attack Vector'),
+  cvssAttackComplexity: _l('Attack Complexity'),
+  cvssPrivilegesRequired: _l('Privileges Required'),
+  cvssUserInteraction: _l('User Interaction'),
+  cvssScope: _l('Scope'),
   cvssConfidentialityImpact: _l('Confidentiality Impact'),
   cvssIntegrityImpact: _l('Integrity Impact'),
   cvssAvailabilityImpact: _l('Availability Impact'),

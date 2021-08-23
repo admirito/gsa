@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,18 +20,20 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
+import {YES_VALUE} from 'gmp/parser';
+
 import {first} from 'gmp/utils/array';
 import {isDefined} from 'gmp/utils/identity';
 
-import PropTypes from '../../utils/proptypes.js';
-import withGmp from '../../utils/withGmp';
-import {UNSET_VALUE} from '../../utils/render.js';
+import EntityComponent from 'web/entity/component.js';
 
-import EntityComponent from '../../entity/component.js';
+import CredentialsDialog from 'web/pages/credentials/dialog.js';
 
-import CredentialsDialog from '../credentials/dialog.js';
+import PortListDialog from 'web/pages/portlists/dialog.js';
 
-import PortListDialog from '../portlists/dialog.js';
+import PropTypes from 'web/utils/proptypes.js';
+import withGmp from 'web/utils/withGmp';
+import {UNSET_VALUE} from 'web/utils/render.js';
 
 import TargetDialog from './dialog.js';
 
@@ -67,6 +69,9 @@ class TargetComponent extends React.Component {
       this,
     );
     this.handleSshCredentialChange = this.handleSshCredentialChange.bind(this);
+    this.handleSshElevateCredentialChange = this.handleSshElevateCredentialChange.bind(
+      this,
+    );
     this.handleSmbCredentialChange = this.handleSmbCredentialChange.bind(this);
     this.handleSnmpCredentialChange = this.handleSnmpCredentialChange.bind(
       this,
@@ -99,6 +104,7 @@ class TargetComponent extends React.Component {
       this.setState({
         targetDialogVisible: true,
         id: entity.id,
+        allowSimultaneousIPs: entity.allowSimultaneousIPs,
         alive_tests: entity.alive_tests,
         comment: entity.comment,
         esxi_credential_id: id_or__(entity.esxi_credential),
@@ -125,6 +131,7 @@ class TargetComponent extends React.Component {
           smb_credential_id: id_or__(entity.smb_credential),
           snmp_credential_id: id_or__(entity.snmp_credential),
           ssh_credential_id: id_or__(entity.ssh_credential),
+          ssh_elevate_credential_id: id_or__(entity.ssh_elevate_credential),
         });
       });
     } else {
@@ -136,6 +143,7 @@ class TargetComponent extends React.Component {
 
       this.setState({
         targetDialogVisible: true,
+        allowSimultaneousIPs: YES_VALUE,
         alive_tests: undefined,
         comment: undefined,
         esxi_credential_id: undefined,
@@ -150,6 +158,7 @@ class TargetComponent extends React.Component {
         smb_credential_id: undefined,
         snmp_credential_id: undefined,
         ssh_credential_id: undefined,
+        ssh_elevate_credential_id: undefined,
         target_source: undefined,
         target_exclude_source: undefined,
         target_title: _('New Target'),
@@ -263,6 +272,14 @@ class TargetComponent extends React.Component {
 
   handleSshCredentialChange(ssh_credential_id) {
     this.setState({ssh_credential_id});
+
+    if (ssh_credential_id === UNSET_VALUE) {
+      this.setState({ssh_elevate_credential_id: UNSET_VALUE}); // if ssh_credential_id is changed to UNSET_VALUE, elevate privileges option will not be rendered anymore. If we don't reset ssh_elevate_credential_id, then the previously set ssh_elevate_credential_id will never be available for the SSH dropdown again because it will still be set in the dialog state. ssh_elevate_credential_id should be available again if we ever unset ssh_credential_id
+    }
+  }
+
+  handleSshElevateCredentialChange(ssh_elevate_credential_id) {
+    this.setState({ssh_elevate_credential_id});
   }
 
   handleSnmpCredentialChange(snmp_credential_id) {
@@ -317,11 +334,13 @@ class TargetComponent extends React.Component {
       port_list_id,
       port_lists,
       port_lists_title,
+      allowSimultaneousIPs,
       reverse_lookup_only,
       reverse_lookup_unify,
       smb_credential_id,
       snmp_credential_id,
       ssh_credential_id,
+      ssh_elevate_credential_id,
       target_source,
       target_exclude_source,
       target_title,
@@ -352,6 +371,7 @@ class TargetComponent extends React.Component {
             {targetDialogVisible && (
               <TargetDialog
                 alive_tests={alive_tests}
+                allowSimultaneousIPs={allowSimultaneousIPs}
                 comment={comment}
                 credential={credential}
                 credentials={credentials}
@@ -371,6 +391,7 @@ class TargetComponent extends React.Component {
                 smb_credential_id={smb_credential_id}
                 snmp_credential_id={snmp_credential_id}
                 ssh_credential_id={ssh_credential_id}
+                ssh_elevate_credential_id={ssh_elevate_credential_id}
                 target_source={target_source}
                 target_exclude_source={target_exclude_source}
                 title={target_title}
@@ -382,6 +403,9 @@ class TargetComponent extends React.Component {
                 onSshCredentialChange={this.handleSshCredentialChange}
                 onEsxiCredentialChange={this.handleEsxiCredentialChange}
                 onSmbCredentialChange={this.handleSmbCredentialChange}
+                onSshElevateCredentialChange={
+                  this.handleSshElevateCredentialChange
+                }
                 onSave={d => {
                   this.handleInteraction();
                   return save(d).then(() => this.closeTargetDialog());

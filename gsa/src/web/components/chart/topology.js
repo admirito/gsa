@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -68,7 +68,7 @@ const Circle = styled.circle`
 `;
 
 const severityColorsGradientScale = type => {
-  const severity_levels = getSeverityLevels(type);
+  const severity_levels = getSeverityLevels();
   return scaleLinear()
     .domain([
       FALSE_POSITIVE_VALUE,

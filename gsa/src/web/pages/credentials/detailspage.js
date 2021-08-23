@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -79,7 +79,7 @@ import CredentialDetails from './details';
 import CredentialComponent from './component';
 import CredentialDownloadIcon from './downloadicon';
 
-const ToolBarIcons = ({
+export const ToolBarIcons = ({
   entity,
   onCredentialCloneClick,
   onCredentialCreateClick,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,7 +19,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {HOSTS_FILTER_FILTER} from 'gmp/models/filter';
+import Filter, {HOSTS_FILTER_FILTER} from 'gmp/models/filter';
 
 import IconDivider from 'web/components/layout/icondivider';
 import PageTitle from 'web/components/layout/pagetitle';
@@ -49,18 +49,20 @@ import HostComponent from './component';
 
 import HostsDashboard, {HOSTS_DASHBOARD_ID} from './dashboard';
 
-const ToolBarIcons = withCapabilities(({capabilities, onHostCreateClick}) => (
-  <IconDivider>
-    <ManualIcon
-      page="managing-assets"
-      anchor="managing-hosts"
-      title={_('Help: Hosts')}
-    />
-    {capabilities.mayCreate('host') && (
-      <NewIcon title={_('New Host')} onClick={onHostCreateClick} />
-    )}
-  </IconDivider>
-));
+export const ToolBarIcons = withCapabilities(
+  ({capabilities, onHostCreateClick}) => (
+    <IconDivider>
+      <ManualIcon
+        page="managing-assets"
+        anchor="managing-hosts"
+        title={_('Help: Hosts')}
+      />
+      {capabilities.mayCreate('host') && (
+        <NewIcon title={_('New Host')} onClick={onHostCreateClick} />
+      )}
+    </IconDivider>
+  ),
+);
 
 ToolBarIcons.propTypes = {
   capabilities: PropTypes.capabilities.isRequired,
@@ -146,7 +148,12 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
+const FALLBACK_HOSTS_LIST_FILTER = Filter.fromString(
+  'sort-reverse=severity first=1',
+);
+
 export default withEntitiesContainer('host', {
+  fallbackFilter: FALLBACK_HOSTS_LIST_FILTER,
   entitiesSelector,
   loadEntities,
 })(Page);

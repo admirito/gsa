@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -30,10 +30,9 @@ describe('DfnCertAdv model tests', () => {
   });
 
   test('should parse severity correctly', () => {
-    const dfnCertAdv = DfnCertAdv.fromElement({max_cvss: '5.0'});
-    const dfnCertAdv2 = DfnCertAdv.fromElement({max_cvss: '10'});
+    const dfnCertAdv = DfnCertAdv.fromElement({severity: '5.0'});
+    const dfnCertAdv2 = DfnCertAdv.fromElement({severity: '10.0'});
 
-    expect(dfnCertAdv.max_cvss).toBeUndefined();
     expect(dfnCertAdv.severity).toEqual(5.0);
     expect(dfnCertAdv2.severity).toEqual(10);
   });

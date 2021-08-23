@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
 
 import React from 'react';
 import styled from 'styled-components';
@@ -93,7 +92,7 @@ const GeneralPart = ({
   reportExportFileName,
   autoCacheRebuild,
   shouldWarn,
-  validityStatus,
+  errors,
   onChange,
 }) => {
   return (
@@ -155,8 +154,8 @@ const GeneralPart = ({
       <FormGroup title={_('Rows Per Page')} titleSize="3">
         <TextField
           name="rowsPerPage"
-          hasError={shouldWarn && !validityStatus.rowsPerPage.isValid}
-          errorContent={validityStatus.rowsPerPage.error}
+          hasError={shouldWarn && !!errors.rowsPerPage}
+          errorContent={errors.rowsPerPage}
           value={rowsPerPage}
           size="19"
           onChange={onChange}
@@ -203,6 +202,7 @@ GeneralPart.propTypes = {
   autoCacheRebuild: PropTypes.number,
   confPassword: PropTypes.string,
   detailsExportFileName: PropTypes.string,
+  errors: PropTypes.object.isRequired,
   listExportFileName: PropTypes.string,
   maxRowsPerPage: PropTypes.number,
   newPassword: PropTypes.string,
@@ -212,7 +212,6 @@ GeneralPart.propTypes = {
   shouldWarn: PropTypes.bool.isRequired,
   timezone: PropTypes.string,
   userInterfaceLanguage: PropTypes.string,
-  validityStatus: PropTypes.object.isRequired,
   onChange: PropTypes.func,
 };
 

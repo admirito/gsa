@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -35,6 +35,11 @@ describe('HorizontalSep tests', () => {
 
   test('should render with spacing', () => {
     const {element} = render(<HorizontalSep separator="|" spacing="10px" />);
+    expect(element).toMatchSnapshot();
+  });
+
+  test('should allow to wrap', () => {
+    const {element} = render(<HorizontalSep wrap />);
     expect(element).toMatchSnapshot();
   });
 });

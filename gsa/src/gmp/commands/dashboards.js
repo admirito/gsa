@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -17,12 +17,12 @@
  */
 import {v4 as uuid} from 'uuid';
 
-import {isArray, isDefined} from '../utils/identity';
+import {isArray, isDefined} from 'gmp/utils/identity';
 
-import logger from '../log';
+import logger from 'gmp/log';
 
 import GmpCommand from './gmp';
-import registerCommand from '../command';
+import registerCommand from 'gmp/command';
 
 const log = logger.getLogger('gmp.commands.dashboards');
 

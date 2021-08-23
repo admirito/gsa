@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -25,12 +25,7 @@ import {isDefined} from 'gmp/utils/identity';
 import {shorten} from 'gmp/utils/string';
 import {hasId} from 'gmp/utils/id';
 
-import {GMP_SCANNER_TYPE} from 'gmp/models/scanner';
-
-import {
-  CLIENT_CERTIFICATE_CREDENTIAL_TYPE,
-  USERNAME_PASSWORD_CREDENTIAL_TYPE,
-} from 'gmp/models/credential';
+import {CLIENT_CERTIFICATE_CREDENTIAL_TYPE} from 'gmp/models/credential';
 
 import {renewSessionTimeout} from 'web/store/usersettings/actions';
 import {loadUserSettingDefaults} from 'web/store/usersettings/defaults/actions';
@@ -122,7 +117,7 @@ class ScannerComponent extends React.Component {
           scanner: undefined,
           scannerDialogVisible: true,
           title: undefined,
-          type: GMP_SCANNER_TYPE,
+          type: undefined,
           which_cert: undefined,
         }),
       );
@@ -138,18 +133,13 @@ class ScannerComponent extends React.Component {
     this.handleInteraction();
   }
 
-  openCredentialsDialog(type) {
-    const base =
-      type === GMP_SCANNER_TYPE
-        ? USERNAME_PASSWORD_CREDENTIAL_TYPE
-        : CLIENT_CERTIFICATE_CREDENTIAL_TYPE;
-
+  openCredentialsDialog() {
     this.handleInteraction();
 
     this.setState({
-      base,
+      base: CLIENT_CERTIFICATE_CREDENTIAL_TYPE,
       credentialDialogVisible: true,
-      credentialTypes: [base],
+      credentialTypes: [CLIENT_CERTIFICATE_CREDENTIAL_TYPE],
     });
   }
 
@@ -420,10 +410,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProps, mapDispatchToProps),
 )(ScannerComponent);
 
 // vim: set ts=2 sw=2 tw=80:

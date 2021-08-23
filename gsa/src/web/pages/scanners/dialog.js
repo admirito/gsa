@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -24,7 +24,7 @@ import _ from 'gmp/locale';
 import {longDate} from 'gmp/locale/date';
 
 import {filter, map} from 'gmp/utils/array';
-import {isDefined} from 'gmp/utils/identity';
+import {hasValue, isDefined} from 'gmp/utils/identity';
 import {selectSaveId} from 'gmp/utils/id';
 
 import {parseInt} from 'gmp/parser';
@@ -54,36 +54,19 @@ import {getTimezone} from 'web/store/usersettings/selectors';
 
 import {
   OSP_SCANNER_TYPE,
-  GMP_SCANNER_TYPE,
   GREENBONE_SENSOR_SCANNER_TYPE,
   scannerTypeName,
 } from 'gmp/models/scanner';
 
-import {
-  CLIENT_CERTIFICATE_CREDENTIAL_TYPE,
-  USERNAME_PASSWORD_CREDENTIAL_TYPE,
-} from 'gmp/models/credential';
+import {CLIENT_CERTIFICATE_CREDENTIAL_TYPE} from 'gmp/models/credential';
 
 const AVAILABLE_SCANNER_TYPES = [
   OSP_SCANNER_TYPE,
-  GMP_SCANNER_TYPE,
   GREENBONE_SENSOR_SCANNER_TYPE,
 ];
 
 const client_cert_credentials_filter = credential => {
   return credential.credential_type === CLIENT_CERTIFICATE_CREDENTIAL_TYPE;
-};
-
-const username_password_credentials_filter = credential => {
-  return credential.credential_type === USERNAME_PASSWORD_CREDENTIAL_TYPE;
-};
-
-const filter_credentials = (credentials, type) => {
-  const cred_filter =
-    type === GMP_SCANNER_TYPE
-      ? username_password_credentials_filter
-      : client_cert_credentials_filter;
-  return filter(credentials, cred_filter);
 };
 
 const render_certificate_info = (info, tz) => {
@@ -133,9 +116,9 @@ const ScannerDialog = ({
   host = 'localhost',
   id,
   name = _('Unnamed'),
-  port = '9391',
+  port = '22',
   title = _('New Scanner'),
-  type = OSP_SCANNER_TYPE,
+  type,
   which_cert,
   onClose,
   onCredentialChange,
@@ -148,7 +131,10 @@ const ScannerDialog = ({
   const handleTypeChange = (value, name) => {
     if (onScannerTypeChange) {
       value = parseInt(value);
-      const scan_credentials = filter_credentials(credentials, value);
+      const scan_credentials = filter(
+        credentials,
+        client_cert_credentials_filter,
+      );
 
       onScannerTypeChange(value, name);
       onScannerTypeChange(
@@ -173,13 +159,11 @@ const ScannerDialog = ({
   const {gmp} = props;
 
   if (gmp.settings.enableGreenboneSensor) {
-    SCANNER_TYPES = [
-      GMP_SCANNER_TYPE,
-      OSP_SCANNER_TYPE,
-      GREENBONE_SENSOR_SCANNER_TYPE,
-    ];
+    type = hasValue(type) ? type : GREENBONE_SENSOR_SCANNER_TYPE;
+    SCANNER_TYPES = [GREENBONE_SENSOR_SCANNER_TYPE, OSP_SCANNER_TYPE];
   } else {
-    SCANNER_TYPES = [GMP_SCANNER_TYPE, OSP_SCANNER_TYPE];
+    type = hasValue(type) ? type : OSP_SCANNER_TYPE;
+    SCANNER_TYPES = [OSP_SCANNER_TYPE];
   }
 
   let {credential_id} = props;
@@ -189,7 +173,10 @@ const ScannerDialog = ({
     value: scannerType,
   }));
 
-  const scanner_credentials = filter_credentials(credentials, type);
+  const scanner_credentials = filter(
+    credentials,
+    client_cert_credentials_filter,
+  );
   const is_edit = isDefined(scanner);
   const isInUse = isDefined(scanner) && scanner.isInUse();
   const show_cred_info =

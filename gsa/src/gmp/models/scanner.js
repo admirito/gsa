@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,22 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import {_} from '../locale/lang';
+import {_} from 'gmp/locale/lang';
 
-import {isDefined, isString} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {map} from '../utils/array';
+import {isDefined, isString} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
 
-import {parseInt, parseYesNo, parseDate} from '../parser';
+import {parseInt, parseYesNo, parseDate} from 'gmp/parser';
 
-import Model, {parseModelFromElement} from '../model';
+import Model, {parseModelFromElement} from 'gmp/model';
 
 import Credential from './credential';
 
 export const OSP_SCANNER_TYPE = 1;
 export const OPENVAS_SCANNER_TYPE = 2;
 export const CVE_SCANNER_TYPE = 3;
-export const GMP_SCANNER_TYPE = 4;
 export const GREENBONE_SENSOR_SCANNER_TYPE = 5;
 
 export const OPENVAS_DEFAULT_SCANNER_ID =
@@ -53,8 +52,6 @@ export function scannerTypeName(scannerType) {
     return _('OpenVAS Scanner');
   } else if (scannerType === CVE_SCANNER_TYPE) {
     return _('CVE Scanner');
-  } else if (scannerType === GMP_SCANNER_TYPE) {
-    return _('GMP Scanner');
   } else if (scannerType === GREENBONE_SENSOR_SCANNER_TYPE) {
     return _('Greenbone Sensor');
   }

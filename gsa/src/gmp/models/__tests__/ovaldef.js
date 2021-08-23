@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -29,10 +29,9 @@ testModel(Ovaldef, 'ovaldef');
 
 describe('Ovaldef model tests', () => {
   test('should parse severity', () => {
-    const ovaldef = Ovaldef.fromElement({max_cvss: '8.5'});
+    const ovaldef = Ovaldef.fromElement({severity: '8.5'});
 
     expect(ovaldef.severity).toEqual(8.5);
-    expect(ovaldef.max_cvss).toBeUndefined();
   });
 
   test('should parse deprecated', () => {

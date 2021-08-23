@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -43,7 +43,7 @@ import CpesTable from './table';
 
 import CpesDashboard, {CPES_DASHBOARD_ID} from './dashboard';
 
-const ToolBarIcons = props => (
+export const ToolBarIcons = props => (
   <ManualIcon page="managing-secinfo" anchor="cpe" title={_('Help: CPEs')} />
 );
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,15 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/set';
 
-import registerCommand from '../command';
+import registerCommand from 'gmp/command';
 
-import logger from '../log';
+import logger from 'gmp/log';
 
-import {isArray} from '../utils/identity';
+import {isArray} from 'gmp/utils/identity';
 
-import Role from '../models/role';
+import Role from 'gmp/models/role';
 
 import EntitiesCommand from './entities';
 import EntityCommand from './entity';

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/string/starts-with';
 
 import {format} from 'd3-format';
 
@@ -104,6 +103,21 @@ export const renderYesNo = value => {
       return _('No');
     default:
       return _('Unknown');
+  }
+};
+
+export const getTranslatableSeverityOrigin = origin => {
+  switch (origin) {
+    case 'Third Party':
+      return _('Third Party');
+    case 'Vendor':
+      return _('Vendor');
+    case 'Greenbone':
+      return _('Greenbone');
+    case 'NVD':
+      return _('NVD');
+    default:
+      return origin;
   }
 };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,7 +20,6 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import _ from 'gmp/locale';
-import {dateTimeWithTimeZone} from 'gmp/locale/date';
 
 import {isDefined} from 'gmp/utils/identity';
 
@@ -44,6 +43,8 @@ import PropTypes from 'web/utils/proptypes';
 import compose from 'web/utils/compose';
 import withGmp from 'web/utils/withGmp';
 import {renderYesNo} from 'web/utils/render';
+
+import DateTime from 'web/components/date/datetime';
 
 import HorizontalSep from 'web/components/layout/horizontalsep';
 import Layout from 'web/components/layout/layout';
@@ -268,7 +269,11 @@ class TaskDetails extends React.Component {
                   <TableRow>
                     <TableData>{_('Next')}</TableData>
                     <TableData>
-                      {dateTimeWithTimeZone(schedule.event.nextDate)}
+                      {isDefined(schedule.event.nextDate) ? (
+                        <DateTime date={schedule.event.nextDate} />
+                      ) : (
+                        _('N/A')
+                      )}
                     </TableData>
                   </TableRow>
                 )}
@@ -350,10 +355,7 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
 
 export default compose(
   withGmp,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  ),
+  connect(mapStateToProps, mapDispatchToProps),
 )(TaskDetails);
 
 // vim: set ts=2 sw=2 tw=80:

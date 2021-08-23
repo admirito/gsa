@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -127,7 +127,7 @@ const FilterProvider = ({
   }
 
   if (!returnedFilter.has('rows') && isDefined(rowsPerPage)) {
-    returnedFilter.set('rows', rowsPerPage);
+    returnedFilter = returnedFilter.copy().set('rows', rowsPerPage);
   }
 
   const showChildren =

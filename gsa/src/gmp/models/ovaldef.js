@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
 
 import {map} from 'gmp/utils/array';
 import {isDefined} from 'gmp/utils/identity';
 import {isEmpty} from 'gmp/utils/string';
 
-import {parseSeverity, parseYesNo, YES_VALUE, parseDate} from '../parser';
+import {parseSeverity, parseYesNo, YES_VALUE, parseDate} from 'gmp/parser';
 
 import Info from './info';
 
@@ -75,8 +74,7 @@ class Ovaldef extends Info {
   static parseElement(element) {
     const ret = super.parseElement(element, 'ovaldef');
 
-    ret.severity = parseSeverity(ret.max_cvss);
-    delete ret.max_cvss;
+    ret.severity = parseSeverity(ret.severity);
 
     const {raw_data} = ret;
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -47,7 +47,7 @@ import OverrideComponent from './component';
 
 import OverridesDashboard, {OVERRIDES_DASHBOARD_ID} from './dashboard';
 
-const ToolBarIcons = withCapabilities(
+export const ToolBarIcons = withCapabilities(
   ({capabilities, onOverrideCreateClick}) => (
     <IconDivider>
       <ManualIcon

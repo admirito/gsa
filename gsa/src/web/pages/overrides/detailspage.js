@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -81,7 +81,7 @@ import {renderYesNo} from 'web/utils/render';
 import OverrideDetails from './details';
 import OverrideComponent from './component';
 
-const ToolBarIcons = ({
+export const ToolBarIcons = ({
   entity,
   onOverrideCloneClick,
   onOverrideCreateClick,

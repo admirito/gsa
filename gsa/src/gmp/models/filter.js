@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,19 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/array/find-index';
-import 'core-js/features/array/includes';
 
-import {isDefined, isString, isArray, hasValue} from '../utils/identity';
-import {forEach, map} from '../utils/array';
+import {isDefined, isString, isArray, hasValue} from 'gmp/utils/identity';
+import {forEach, map} from 'gmp/utils/array';
 
-import Model, {parseModelFromElement} from '../model.js';
+import Model, {parseModelFromElement} from 'gmp/model';
 
-import {setProperties} from '../parser';
+import {setProperties} from 'gmp/parser';
 
-import convert from './filter/convert.js';
-import FilterTerm, {AND} from './filter/filterterm.js';
-import {EXTRA_KEYWORDS} from './filter/keywords.js';
+import convert from './filter/convert';
+import FilterTerm, {AND} from './filter/filterterm';
+import {EXTRA_KEYWORDS} from './filter/keywords';
 
 export const UNKNOWN_FILTER_ID = '0';
 

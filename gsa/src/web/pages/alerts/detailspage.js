@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -67,7 +67,7 @@ import PropTypes from 'web/utils/proptypes';
 import AlertComponent from './component';
 import AlertDetails from './details';
 
-const ToolBarIcons = ({
+export const ToolBarIcons = ({
   entity,
   onAlertCloneClick,
   onAlertCreateClick,

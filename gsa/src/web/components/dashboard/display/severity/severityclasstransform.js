@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -43,7 +43,6 @@ export const severityClassDataRow = row => [row.label, row.value];
 
 const transformSeverityData = (
   data = {},
-  {severityClass: severityClassType},
 ) => {
   const {groups = []} = data;
 
@@ -57,7 +56,7 @@ const transformSeverityData = (
       value = NA_VALUE;
     }
 
-    const riskFactor = resultSeverityRiskFactor(value, severityClassType);
+    const riskFactor = resultSeverityRiskFactor(value);
     const severityClass = allSeverityClasses[riskFactor] || {};
 
     let {count = 0} = severityClass;
@@ -71,7 +70,7 @@ const transformSeverityData = (
     return allSeverityClasses;
   }, {});
 
-  const {high, medium, low} = getSeverityLevels(severityClassType);
+  const {high, medium, low} = getSeverityLevels();
 
   const tdata = Object.values(severityClasses).map(severityClass => {
     const {count, riskFactor} = severityClass;

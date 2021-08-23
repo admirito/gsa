@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2018 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -587,8 +587,7 @@ handle_system_report (http_connection_t *connection, const char *method,
   if (slave_id && gvm_validate (http_validator, "slave_id", slave_id))
     {
       credentials_free (credentials);
-      g_warning ("%s: failed to validate slave_id, dropping request",
-                 __func__);
+      g_warning ("%s: failed to validate slave_id, dropping request", __func__);
       return MHD_NO;
     }
 
@@ -671,7 +670,7 @@ handle_index (http_connection_t *connection, const char *method,
   cmd_response_data_t *response_data;
 
   response_data = cmd_response_data_new ();
-  cmd_response_data_set_allow_caching (response_data, 1);
+  cmd_response_data_set_allow_caching (response_data, FALSE);
 
   response =
     file_content_response (connection, url, "index.html", response_data);

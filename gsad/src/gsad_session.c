@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -193,8 +193,8 @@ session_remove_other_sessions (const gchar *id, user_t *user)
 
       if (str_equal (itemname, username) && !str_equal (id, itemtoken))
         {
-          g_debug ("%s: logging out user '%s', token '%s'", __func__,
-                   itemname, itemtoken);
+          g_debug ("%s: logging out user '%s', token '%s'", __func__, itemname,
+                   itemtoken);
           g_ptr_array_remove (users, (gpointer) item);
 
           user_free (item);

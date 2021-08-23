@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,7 +19,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {VULNS_FILTER_FILTER} from 'gmp/models/filter';
+import Filter, {VULNS_FILTER_FILTER} from 'gmp/models/filter';
 
 import EntitiesPage from 'web/entities/page';
 import withEntitiesContainer from 'web/entities/withEntitiesContainer';
@@ -92,7 +92,12 @@ Page.propTypes = {
   onInteraction: PropTypes.func.isRequired,
 };
 
+const FALLBACK_VULNS_LIST_FILTER = Filter.fromString(
+  'sort-reverse=severity first=1',
+);
+
 export default withEntitiesContainer('vulnerability', {
+  fallbackFilter: FALLBACK_VULNS_LIST_FILTER,
   entitiesSelector,
   loadEntities,
 })(Page);

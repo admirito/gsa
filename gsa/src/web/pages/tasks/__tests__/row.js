@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -22,7 +22,7 @@ import Capabilities from 'gmp/capabilities/capabilities';
 import {setLocale} from 'gmp/locale/lang';
 
 import Task, {TASK_STATUS} from 'gmp/models/task';
-import {GMP_SCANNER_TYPE} from 'gmp/models/scanner';
+import {GREENBONE_SENSOR_SCANNER_TYPE} from 'gmp/models/scanner';
 
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
 
@@ -172,7 +172,11 @@ describe('Task Row tests', () => {
       last_report: lastReport,
       permissions: {permission: [{name: 'everything'}]},
       target: {_id: 'id', name: 'target'},
-      scanner: {_id: 'id', name: 'scanner', type: GMP_SCANNER_TYPE},
+      scanner: {
+        _id: 'id',
+        name: 'scanner',
+        type: GREENBONE_SENSOR_SCANNER_TYPE,
+      },
       observers: {
         __text: 'anon nymous',
         role: [{name: 'lorem'}],

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -45,18 +45,20 @@ import {
 import AlertComponent from './component.js';
 import AlertTable, {SORT_FIELDS} from './table.js';
 
-const ToolBarIcons = withCapabilities(({capabilities, onAlertCreateClick}) => (
-  <IconDivider>
-    <ManualIcon
-      page="scanning"
-      anchor="managing-alerts"
-      title={_('Help: Alerts')}
-    />
-    {capabilities.mayCreate('alert') && (
-      <NewIcon title={_('New Alert')} onClick={onAlertCreateClick} />
-    )}
-  </IconDivider>
-));
+export const ToolBarIcons = withCapabilities(
+  ({capabilities, onAlertCreateClick}) => (
+    <IconDivider>
+      <ManualIcon
+        page="scanning"
+        anchor="managing-alerts"
+        title={_('Help: Alerts')}
+      />
+      {capabilities.mayCreate('alert') && (
+        <NewIcon title={_('New Alert')} onClick={onAlertCreateClick} />
+      )}
+    </IconDivider>
+  ),
+);
 
 ToolBarIcons.propTypes = {
   onAlertCreateClick: PropTypes.func.isRequired,

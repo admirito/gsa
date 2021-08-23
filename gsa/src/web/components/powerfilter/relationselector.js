@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -23,18 +23,22 @@ import _ from 'gmp/locale';
 
 import Select from 'web/components/form/select';
 import PropTypes from 'web/utils/proptypes.js';
+import {UNSET_LABEL, UNSET_VALUE} from 'web/utils/render';
 
-const RelationSelector = ({relation, onChange}) => (
-  <Select
-    value={relation}
-    onChange={onChange}
-    items={[
-      {label: _('is equal to'), value: '='},
-      {label: _('is greater than'), value: '>'},
-      {label: _('is less than'), value: '<'},
-    ]}
-  />
-);
+const RelationSelector = ({relation, onChange}) => {
+  return (
+    <Select
+      value={relation}
+      onChange={onChange}
+      items={[
+        {label: UNSET_LABEL, value: UNSET_VALUE},
+        {label: _('is equal to'), value: '='},
+        {label: _('is greater than'), value: '>'},
+        {label: _('is less than'), value: '<'},
+      ]}
+    />
+  );
+};
 
 RelationSelector.propTypes = {
   relation: PropTypes.string,

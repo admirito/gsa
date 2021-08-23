@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -27,9 +27,7 @@ class DfnCertAdv extends Info {
 
   static parseElement(element) {
     const ret = super.parseElement(element, 'dfn_cert_adv');
-
-    ret.severity = parseSeverity(ret.max_cvss);
-    delete ret.max_cvss;
+    ret.severity = parseSeverity(ret.severity);
 
     const {raw_data} = ret;
 

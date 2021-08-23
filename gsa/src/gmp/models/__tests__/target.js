@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -85,6 +85,14 @@ describe('Target model tests', () => {
     const target = Target.fromElement({max_hosts: '42'});
 
     expect(target.max_hosts).toEqual(42);
+  });
+
+  test('should parse allow_simultaneous_ips', () => {
+    const target = Target.fromElement({allow_simultaneous_ips: '1'});
+    const target2 = Target.fromElement({allow_simultaneous_ips: '0'});
+
+    expect(target.allowSimultaneousIPs).toEqual(1);
+    expect(target2.allowSimultaneousIPs).toEqual(0);
   });
 
   test('should parse reverse_lookup_only', () => {

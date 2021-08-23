@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,39 +19,43 @@ import React from 'react';
 
 import styled from 'styled-components';
 
+import {Button, Input} from '@greenbone/ui-components';
+
 import _ from 'gmp/locale';
 
 import {KeyCode} from 'gmp/utils/event';
 import {isDefined} from 'gmp/utils/identity';
 
-import PasswordField from 'web/components/form/passwordfield';
-import Button from 'web/components/form/button';
-import TextField from 'web/components/form/textfield';
-import FormGroup from 'web/components/form/formgroup';
-
+import ErrorContainer from 'web/components/error/errorcontainer';
+import useFormValues from 'web/components/form/useFormValues';
 import ProductImage from 'web/components/img/product';
-
+import PoweredByGreenbone from 'web/components/img/powered';
+import Divider from 'web/components/layout/divider';
 import Layout from 'web/components/layout/layout';
 
 import PropTypes from 'web/utils/proptypes';
 import Theme from 'web/utils/theme';
 
+const Paper = styled(Layout)`
+  background: ${Theme.white};
+  box-shadow: 0px 14px 22px ${Theme.mediumGray};
+  border-radius: 3px;
+  padding: 4rem;
+  width: 30rem;
+  z-index: ${Theme.Layers.higher};
+`;
+
 const Panel = styled.div`
   margin: 5px auto;
   padding-bottom: 10px;
   font-size: 9pt;
-  border: 1px solid ${Theme.lightGray};
   padding: 10px;
   margin-bottom: 10px;
 `;
 
-const LoginPanel = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  border: 1px solid ${Theme.lightGray};
-  padding: 10px;
-  margin-bottom: 10px;
+const StyledLayout = styled(Layout)`
+  min-height: 12rem;
+  justify-content: space-evenly;
 `;
 
 const Error = styled.p`
@@ -61,67 +65,61 @@ const Error = styled.p`
   margin: 10px;
 `;
 
-const StyledDivRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+const StyledErrorContainer = styled(ErrorContainer)`
+  margin: 0 0 0 0;
+  font-size: 15px;
+  border-radius: 4px;
 `;
 
-const StyledDivColumn = styled.div`
-  display: flex;
-  flex-direction: column;
+const StyledButton = styled(Button)`
+  margin-top: 2rem;
+  width: 100%;
 `;
 
-class LoginForm extends React.Component {
-  constructor(props) {
-    super(props);
+const StyledPanel = styled(Panel)`
+  margin-top: 20px;
+`;
 
-    this.state = {
-      username: '',
-      password: '',
-    };
+const H1 = styled.h1`
+  display: flex;
+  flex-grow: 1;
+`;
 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-  }
+const LoginForm = ({
+  error,
+  showGuestLogin = false,
+  showLogin = true,
+  showProtocolInsecure = false,
+  isIE11 = false,
+  onGuestLoginClick,
+  onSubmit,
+}) => {
+  const [{username, password}, handleValueChange] = useFormValues({
+    username: '',
+    password: '',
+  });
 
-  handleSubmit() {
-    const {onSubmit} = this.props;
-
-    if (!isDefined(onSubmit)) {
-      return;
+  const handleSubmit = () => {
+    if (isDefined(onSubmit)) {
+      onSubmit(username, password);
     }
+  };
 
-    const {username, password} = this.state;
-    onSubmit(username, password);
-  }
-
-  handleValueChange(value, name) {
-    this.setState({[name]: value});
-  }
-
-  handleKeyDown(event) {
+  const handleKeyDown = event => {
     if (event.keyCode === KeyCode.ENTER) {
-      this.handleSubmit(event);
+      handleSubmit();
     }
-  }
+  };
 
-  render() {
-    const {
-      error,
-      showGuestLogin = false,
-      showLogin = true,
-      showProtocolInsecure = false,
-      isIE11 = false,
-      onGuestLoginClick,
-    } = this.props;
-    const {username, password} = this.state;
-    return (
-      <React.Fragment>
-        <Layout>
+  return (
+    <Paper>
+      <Divider flex="column" margin="10px" grow="1">
+        <Layout align={'center'}>
+          <ProductImage />
+        </Layout>
+        <Layout flex={'column'}>
           {showProtocolInsecure && (
-            <Panel data-testid="protocol-insecure">
+            <StyledPanel data-testid="protocol-insecure">
               <Error>{_('Warning: Connection unencrypted')}</Error>
               <p>
                 {_(
@@ -135,7 +133,7 @@ class LoginForm extends React.Component {
                     'or ask your administrator to do so as soon as possible.',
                 )}
               </p>
-            </Panel>
+            </StyledPanel>
           )}
         </Layout>
 
@@ -145,73 +143,70 @@ class LoginForm extends React.Component {
               <Error>{_('Warning: You are using IE11')}</Error>
               <p>
                 {_(
-                  'You are using Internet Explorer 11. You might encounter appearance and performance issues.',
+                  'You are using Internet Explorer 11. This browser is not supported anymore. Please use an up-to-date alternative or contact your system administrator.',
                 )}
               </p>
             </Panel>
           )}
         </Layout>
 
-        <LoginPanel>
-          <StyledDivColumn>
-            <StyledDivRow>
-              <ProductImage />
-              {showLogin && (
-                <Layout flex="column">
-                  <FormGroup title={_('Username')} titleSize="4">
-                    <TextField
-                      autoComplete="username"
-                      name="username"
-                      grow="1"
-                      placeholder={_('Username')}
-                      value={username}
-                      autoFocus="autofocus"
-                      tabIndex="1"
-                      onChange={this.handleValueChange}
-                    />
-                  </FormGroup>
-                  <FormGroup title={_('Password')} titleSize="4">
-                    <PasswordField
-                      autoComplete="current-password"
-                      name="password"
-                      grow="1"
-                      placeholder={_('Password')}
-                      value={password}
-                      onKeyDown={this.handleKeyDown}
-                      onChange={this.handleValueChange}
-                    />
-                  </FormGroup>
-                  <FormGroup size="4" offset="4">
-                    <Layout grow="1">
-                      <Button
-                        data-testid="login-button"
-                        title={_('Login')}
-                        onClick={this.handleSubmit}
-                      />
-                    </Layout>
-                  </FormGroup>
-                </Layout>
-              )}
-            </StyledDivRow>
-            {isDefined(error) && <Error data-testid="error">{error}</Error>}
-          </StyledDivColumn>
-        </LoginPanel>
+        <>
+          {isDefined(error) && (
+            <StyledErrorContainer data-testid="error">
+              {error}
+            </StyledErrorContainer>
+          )}
+
+          {showLogin && !isIE11 && (
+            <StyledLayout flex={'column'}>
+              <H1>{_('Sign in to your account')}</H1>
+              <Input
+                margin={'normal'}
+                type={'text'}
+                autoComplete="username"
+                name="username"
+                grow="1"
+                label={_('Username')}
+                value={username}
+                autoFocus="autofocus"
+                tabIndex="1"
+                onChange={e => handleValueChange(e.target.value, e.target.name)}
+              />
+              <Input
+                margin={'normal'}
+                type={'password'}
+                autoComplete="current-password"
+                name="password"
+                grow="1"
+                label={_('Password')}
+                value={password}
+                onKeyDown={handleKeyDown}
+                onChange={e => handleValueChange(e.target.value, e.target.name)}
+              />
+              <StyledButton data-testid="login-button" onClick={handleSubmit}>
+                {_('Sign In')}
+              </StyledButton>
+            </StyledLayout>
+          )}
+        </>
 
         {showGuestLogin && (
-          <LoginPanel data-testid="guest-login">
-            <Layout align={['center', 'center']}>
-              <Button
-                data-testid="guest-login-button"
-                title={_('Login as Guest')}
-                onClick={onGuestLoginClick}
-              />
-            </Layout>
-          </LoginPanel>
+          <div data-testid="guest-login">
+            <StyledButton
+              data-testid="guest-login-button"
+              onClick={onGuestLoginClick}
+            >
+              {_('Sign In as Guest')}
+            </StyledButton>
+          </div>
         )}
-      </React.Fragment>
-    );
-  }
-}
+        <Layout align={'center'}>
+          <PoweredByGreenbone />
+        </Layout>
+      </Divider>
+    </Paper>
+  );
+};
 
 LoginForm.propTypes = {
   error: PropTypes.string,

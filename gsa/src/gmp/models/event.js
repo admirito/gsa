@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,8 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
-import 'core-js/features/object/values';
 
 import ical from 'ical.js';
 
@@ -44,7 +42,7 @@ const convertIcalDate = (idate, timezone) => {
 
 const setEventDuration = (event, duration) => {
   // setting the duration of an event directly isn't possible in
-  // ical.js 1.2.2 yet. Therefore add same logic from ical.js master here
+  // ical 1.2.2 yet. Therefore add same logic from ical master here
   if (event.component.hasProperty('dtend')) {
     event.component.removeProperty('dtend');
   }
@@ -363,8 +361,8 @@ class Event {
           }
           retries = 0;
         } catch (err) {
-          // ical.js raises an exception if the same date occurs twice
-          // See https://github.com/mozilla-comm/ical.js/blob/master/lib/ical/recur_iterator.js#L373
+          // ical raises an exception if the same date occurs twice
+          // See https://github.com/mozilla-comm/ical/blob/master/lib/ical/recur_iterator#L373
           // But this may be valid e.g. when last day of month and the 31 of a
           // month are set in the rrule. Therefore ignore error and retry to get
           // a new date. Fail after 5 unsuccessful attempts

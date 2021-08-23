@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,14 +20,15 @@ import {forEach, map} from 'gmp/utils/array';
 import {isDefined, isString} from 'gmp/utils/identity';
 import {isEmpty} from 'gmp/utils/string';
 
-import Model, {parseModelFromElement} from '../model';
-import {parseSeverity, parseQod} from '../parser';
+import Model, {parseModelFromElement} from 'gmp/model';
+import {parseSeverity, parseQod} from 'gmp/parser';
 
 import Nvt from './nvt';
 
 import Note from './note';
 
 import Override from './override';
+import Cve from './cve';
 
 export class Delta {
   static TYPE_NEW = 'new';
@@ -58,7 +59,7 @@ class Result extends Model {
       host = {},
       name,
       notes,
-      nvt = {},
+      nvt: information = {},
       original_severity,
       overrides,
       report,
@@ -86,7 +87,14 @@ class Result extends Model {
       };
     }
 
-    copy.nvt = Nvt.fromElement(nvt);
+    if (information.type === 'nvt') {
+      copy.information = Nvt.fromElement(information);
+    } else {
+      copy.information = Cve.fromResultElement(information);
+      copy.name = isDefined(copy.name) ? copy.name : information.name;
+    }
+
+    delete copy.nvt;
 
     if (isDefined(description)) {
       copy.description = description;
@@ -96,7 +104,7 @@ class Result extends Model {
       copy.severity = parseSeverity(severity);
     }
 
-    copy.vulnerability = isDefined(name) ? name : nvt._oid;
+    copy.vulnerability = isDefined(name) ? name : information._oid;
 
     if (isDefined(report)) {
       copy.report = parseModelFromElement(report, 'report');

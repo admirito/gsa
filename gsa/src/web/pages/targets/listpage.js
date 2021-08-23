@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -43,18 +43,20 @@ import TargetsFilterDialog from './filterdialog';
 import TargetsTable from './table';
 import TargetComponent from './component';
 
-const ToolBarIcons = withCapabilities(({capabilities, onTargetCreateClick}) => (
-  <IconDivider>
-    <ManualIcon
-      page="scanning"
-      anchor="managing-targets"
-      title={_('Help: Targets')}
-    />
-    {capabilities.mayCreate('target') && (
-      <NewIcon title={_('New Target')} onClick={onTargetCreateClick} />
-    )}
-  </IconDivider>
-));
+export const ToolBarIcons = withCapabilities(
+  ({capabilities, onTargetCreateClick}) => (
+    <IconDivider>
+      <ManualIcon
+        page="scanning"
+        anchor="managing-targets"
+        title={_('Help: Targets')}
+      />
+      {capabilities.mayCreate('target') && (
+        <NewIcon title={_('New Target')} onClick={onTargetCreateClick} />
+      )}
+    </IconDivider>
+  ),
+);
 
 ToolBarIcons.propTypes = {
   onTargetCreateClick: PropTypes.func.isRequired,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -18,6 +18,8 @@
 import React from 'react';
 
 import _ from 'gmp/locale';
+
+import {isDefined} from 'gmp/utils/identity';
 
 import DetailsBlock from 'web/entity/block';
 
@@ -94,6 +96,9 @@ const References = ({nvt, links = true}) => {
                       textOnly={!links || xref.type !== 'url'}
                       to={xref.ref}
                     >
+                      {isDefined(xref.type) &&
+                        xref.type !== 'url' &&
+                        xref.type + ': '}
                       {xref.ref}
                     </ExternalLink>
                   </span>

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2020 Greenbone Networks GmbH
+/* Copyright (C) 2018-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -21,7 +21,7 @@ import styled from 'styled-components';
 
 import {Draggable} from 'react-beautiful-dnd';
 
-import PropTypes from '../../utils/proptypes.js';
+import PropTypes from 'web/utils/proptypes';
 
 export const GRID_ITEM_MARGIN = {
   top: 5,

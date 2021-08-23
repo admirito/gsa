@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -73,7 +73,7 @@ import NvtComponent from './component';
 import NvtDetails from './details';
 import Preferences from './preferences';
 
-let ToolBarIcons = ({
+export let ToolBarIcons = ({
   capabilities,
   entity,
   onNoteCreateClick,

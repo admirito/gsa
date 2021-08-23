@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {isDefined} from '../utils/identity';
-import {isEmpty} from '../utils/string';
-import {map} from '../utils/array';
+import {isDefined} from 'gmp/utils/identity';
+import {isEmpty} from 'gmp/utils/string';
+import {map} from 'gmp/utils/array';
 
-import Model, {parseModelFromElement} from '../model.js';
-import {parseCsv} from '../parser';
+import Model, {parseModelFromElement} from 'gmp/model';
+import {parseCsv} from 'gmp/parser';
 
 export const AUTH_METHOD_PASSWORD = 'password';
 export const AUTH_METHOD_NEW_PASSWORD = 'newpassword';

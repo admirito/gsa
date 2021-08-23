@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -32,7 +32,7 @@ import {entitiesLoadingActions} from 'web/store/entities/audits';
 import {loadingActions} from 'web/store/usersettings/defaults/actions';
 import {defaultFilterLoadingActions} from 'web/store/usersettings/defaultfilters/actions';
 
-import {rendererWith, waitForElement, fireEvent} from 'web/utils/testing';
+import {rendererWith, waitFor, fireEvent} from 'web/utils/testing';
 
 import AuditPage, {ToolBarIcons} from '../listpage';
 
@@ -152,7 +152,7 @@ describe('AuditPage tests', () => {
 
     const {baseElement} = render(<AuditPage />);
 
-    await waitForElement(() => baseElement.querySelectorAll('table'));
+    await waitFor(() => baseElement.querySelectorAll('table'));
 
     expect(baseElement).toMatchSnapshot();
   });
@@ -214,7 +214,7 @@ describe('AuditPage tests', () => {
 
     const {baseElement, getAllByTestId} = render(<AuditPage />);
 
-    await waitForElement(() => baseElement.querySelectorAll('table'));
+    await waitFor(() => baseElement.querySelectorAll('table'));
 
     const icons = getAllByTestId('svg-icon');
 

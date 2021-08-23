@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -59,7 +59,7 @@ const Row = ({
   ...props
 }) => {
   const {host} = entity;
-  let shownName = isDefined(entity.name) ? entity.name : entity.nvt.oid;
+  let shownName = isDefined(entity.name) ? entity.name : entity.information.id;
   if (!isDefined(shownName)) {
     shownName = entity.id;
   }
@@ -94,8 +94,8 @@ const Row = ({
         </Layout>
       </TableData>
       <TableData>
-        {isDefined(entity?.nvt?.solution) && (
-          <SolutionTypeIcon type={entity.nvt.solution.type} />
+        {isDefined(entity?.information?.solution) && (
+          <SolutionTypeIcon type={entity.information.solution.type} />
         )}
       </TableData>
       <TableData>

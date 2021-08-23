@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2018 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -109,10 +109,10 @@ set_http_only (int state)
 char *
 ctime_r_strip_newline (time_t *time, char *string)
 {
-  struct tm *tm;
+  struct tm tm;
 
-  tm = localtime (time);
-  if (tm == NULL || (strftime (string, 199, "%c %Z", tm) == 0))
+  if (localtime_r (time, &tm) == NULL
+      || (strftime (string, 199, "%c %Z", &tm) == 0))
     {
       string[0] = '\0';
       return string;

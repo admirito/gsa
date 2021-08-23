@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -78,7 +78,7 @@ import PropTypes from 'web/utils/proptypes';
 import NoteDetails from './details';
 import NoteComponent from './component';
 
-const ToolBarIcons = ({
+export const ToolBarIcons = ({
   entity,
   onNoteCloneClick,
   onNoteCreateClick,

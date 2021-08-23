@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,13 +19,13 @@ import React from 'react';
 
 import Logger from 'gmp/log';
 
-import {rendererWith, fireEvent, waitForElement} from 'web/utils/testing';
+import {rendererWith, fireEvent, screen} from 'web/utils/testing';
 
 import LoginPage from '../loginpage';
 
 Logger.setDefaultLevel('silent');
 
-describe('LoginPagetests', () => {
+describe('LoginPage tests', () => {
   test('should render Loginpage', () => {
     const isLoggedIn = jest.fn().mockReturnValue(false);
     const clearToken = jest.fn();
@@ -33,9 +33,7 @@ describe('LoginPagetests', () => {
 
     const {render} = rendererWith({gmp, router: true, store: true});
 
-    const {baseElement} = render(<LoginPage />);
-
-    expect(baseElement).toMatchSnapshot();
+    render(<LoginPage />);
   });
 
   test('should allow to login with username and password', () => {
@@ -146,7 +144,7 @@ describe('LoginPagetests', () => {
     fireEvent.click(button);
     expect(login).toBeCalledWith('foo', 'bar');
 
-    const error = await waitForElement(() => getByTestId('error'));
+    const error = await screen.findByTestId('error');
     expect(error).toHaveTextContent('Just a test');
   });
 

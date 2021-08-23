@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,7 +19,7 @@ import React from 'react';
 
 import {_, _l} from 'gmp/locale/lang';
 
-import {NO_VALUE} from 'gmp/parser';
+import {NO_VALUE, YES_VALUE} from 'gmp/parser';
 
 import PropTypes from 'web/utils/proptypes';
 import withCapabilities from 'web/utils/withCapabilities';
@@ -34,6 +34,7 @@ import Select from 'web/components/form/select';
 import TextField from 'web/components/form/textfield';
 import YesNoRadio from 'web/components/form/yesnoradio';
 
+import InfoIcon from 'web/components/icon/infoicon';
 import NewIcon from 'web/components/icon/newicon';
 
 import Divider from 'web/components/layout/divider';
@@ -47,6 +48,7 @@ import {
   SNMP_CREDENTIAL_TYPES,
   SSH_CREDENTIAL_TYPES,
   USERNAME_PASSWORD_CREDENTIAL_TYPE,
+  SSH_ELEVATE_CREDENTIAL_TYPES,
 } from 'gmp/models/credential';
 
 const DEFAULT_PORT = 22;
@@ -89,6 +91,12 @@ const NEW_SSH = {
   title: _l('Create new SSH credential'),
 };
 
+const NEW_SSH_ELEVATE = {
+  id_field: 'ssh_elevate_credential_id',
+  types: SSH_ELEVATE_CREDENTIAL_TYPES,
+  title: _l('Create new SSH elevate credential'),
+};
+
 const NEW_SMB = {
   id_field: 'smb_credential_id',
   title: _l('Create new SMB credential'),
@@ -109,6 +117,7 @@ const NEW_SNMP = {
 
 const TargetDialog = ({
   alive_tests = ALIVE_TESTS_DEFAULT,
+  allowSimultaneousIPs = YES_VALUE,
   capabilities,
   comment = '',
   credentials = [],
@@ -126,6 +135,7 @@ const TargetDialog = ({
   smb_credential_id = UNSET_VALUE,
   snmp_credential_id = UNSET_VALUE,
   ssh_credential_id = UNSET_VALUE,
+  ssh_elevate_credential_id = UNSET_VALUE,
   target_source = 'manual',
   target_exclude_source = 'manual',
   title = _('New Target'),
@@ -138,11 +148,18 @@ const TargetDialog = ({
   onSmbCredentialChange,
   onEsxiCredentialChange,
   onSnmpCredentialChange,
+  onSshElevateCredentialChange,
   ...initial
 }) => {
-  const ssh_credentials = credentials.filter(ssh_credential_filter);
+  const ssh_credentials = credentials.filter(
+    value =>
+      ssh_credential_filter(value) && value.id !== ssh_elevate_credential_id,
+  ); // filter out ssh_elevate_credential_id. If ssh_elevate_credential_id is UNSET_VALUE, this is ok. Because the Select will add back the UNSET_VALUE
   const up_credentials = credentials.filter(
     value => value.credential_type === USERNAME_PASSWORD_CREDENTIAL_TYPE,
+  );
+  const elevateUpCredentials = up_credentials.filter(
+    value => value.id !== ssh_credential_id,
   );
   const snmp_credentials = credentials.filter(snmp_credential_filter);
 
@@ -160,6 +177,7 @@ const TargetDialog = ({
     reverse_lookup_unify,
     target_source,
     target_exclude_source,
+    allowSimultaneousIPs,
   };
 
   const controlledValues = {
@@ -168,6 +186,7 @@ const TargetDialog = ({
     smb_credential_id,
     snmp_credential_id,
     ssh_credential_id,
+    ssh_elevate_credential_id,
   };
 
   return (
@@ -293,6 +312,17 @@ const TargetDialog = ({
               </Divider>
             </FormGroup>
 
+            <FormGroup
+              title={_('Allow simultaneous scanning via multiple IPs')}
+              flex="column"
+            >
+              <YesNoRadio
+                name="allowSimultaneousIPs"
+                value={state.allowSimultaneousIPs}
+                onChange={onValueChange}
+              />
+            </FormGroup>
+
             {capabilities.mayOp('get_port_lists') && (
               <FormGroup title={_('Port List')}>
                 <Divider>
@@ -329,34 +359,72 @@ const TargetDialog = ({
             )}
 
             {capabilities.mayOp('get_credentials') && (
-              <FormGroup title={_('SSH')}>
-                <Divider>
-                  <Select
-                    name="ssh_credential_id"
-                    disabled={in_use}
-                    items={renderSelectItems(ssh_credentials, UNSET_VALUE)}
-                    value={state.ssh_credential_id}
-                    onChange={onSshCredentialChange}
-                  />
-                  <Layout>{_('on port')}</Layout>
-                  <TextField
-                    size="6"
-                    name="port"
-                    disabled={in_use}
-                    value={state.port}
-                    onChange={onValueChange}
-                  />
-                  {!in_use && (
-                    <Layout>
-                      <NewIcon
-                        title={_('Create a new credential')}
-                        value={NEW_SSH}
-                        onClick={onNewCredentialsClick}
+              <React.Fragment>
+                <FormGroup title={_('SSH')}>
+                  <Divider>
+                    <Select
+                      name="ssh_credential_id"
+                      disabled={in_use}
+                      items={renderSelectItems(ssh_credentials, UNSET_VALUE)}
+                      value={state.ssh_credential_id}
+                      onChange={onSshCredentialChange}
+                    />
+                    <Layout>{_('on port')}</Layout>
+                    <TextField
+                      size="6"
+                      name="port"
+                      disabled={in_use}
+                      value={state.port}
+                      onChange={onValueChange}
+                    />
+                    {!in_use && (
+                      <Layout>
+                        <NewIcon
+                          title={_('Create a new credential')}
+                          value={NEW_SSH}
+                          onClick={onNewCredentialsClick}
+                        />
+                      </Layout>
+                    )}
+                  </Divider>
+                </FormGroup>
+                {state.ssh_credential_id !== UNSET_VALUE && (
+                  <FormGroup title={' '}>
+                    <Divider>
+                      <Layout>
+                        <Divider>
+                          <InfoIcon
+                            title={_(
+                              'This feature is experimental and may ' +
+                                'not work reliable under all circumstances.',
+                            )}
+                          />
+                          <span>{_('Elevate privileges')}</span>
+                        </Divider>
+                      </Layout>
+                      <Select
+                        name="ssh_elevate_credential_id"
+                        disabled={in_use}
+                        items={renderSelectItems(
+                          elevateUpCredentials,
+                          UNSET_VALUE,
+                        )}
+                        value={state.ssh_elevate_credential_id}
+                        onChange={onSshElevateCredentialChange}
                       />
-                    </Layout>
-                  )}
-                </Divider>
-              </FormGroup>
+                      {!in_use && (
+                        <Layout>
+                          <NewIcon
+                            title={_('Create a new credential')}
+                            value={NEW_SSH_ELEVATE}
+                            onClick={onNewCredentialsClick}
+                          />
+                        </Layout>
+                      )}
+                    </Divider>
+                  </FormGroup>
+                )}
+              </React.Fragment>
             )}
 
             {capabilities.mayOp('get_credentials') && (
@@ -454,6 +522,7 @@ const TargetDialog = ({
 
 TargetDialog.propTypes = {
   alive_tests: PropTypes.oneOf([ALIVE_TESTS_DEFAULT, ...ALIVE_TESTS]),
+  allowSimultaneousIPs: PropTypes.yesno,
   capabilities: PropTypes.capabilities.isRequired,
   comment: PropTypes.string,
   credentials: PropTypes.array,
@@ -471,6 +540,7 @@ TargetDialog.propTypes = {
   smb_credential_id: PropTypes.idOrZero,
   snmp_credential_id: PropTypes.idOrZero,
   ssh_credential_id: PropTypes.idOrZero,
+  ssh_elevate_credential_id: PropTypes.idOrZero,
   target_exclude_source: PropTypes.oneOf(['manual', 'file']),
   target_source: PropTypes.oneOf(['manual', 'file', 'asset_hosts']),
   title: PropTypes.string,
@@ -483,6 +553,7 @@ TargetDialog.propTypes = {
   onSmbCredentialChange: PropTypes.func.isRequired,
   onSnmpCredentialChange: PropTypes.func.isRequired,
   onSshCredentialChange: PropTypes.func.isRequired,
+  onSshElevateCredentialChange: PropTypes.func.isRequired,
 };
 
 export default withCapabilities(TargetDialog);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2020 Greenbone Networks GmbH
+/* Copyright (C) 2019-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import {parseInt} from 'gmp/parser.js';
+import {parseInt} from 'gmp/parser';
 
-import {map} from 'gmp/utils/array.js';
+import {map} from 'gmp/utils/array';
 
-import GmpCommand from './gmp.js';
+import GmpCommand from './gmp';
 
-import registerCommand from '../command.js';
+import registerCommand from 'gmp/command';
 
 export class NvtFamiliesCommand extends GmpCommand {
   constructor(http) {

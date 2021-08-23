@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import Asset from './asset';
-import {parseSeverity} from '../parser';
+import {parseSeverity} from 'gmp/parser';
 
 class OperatingSystem extends Asset {
   static entityType = 'operatingsystem';

@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -20,13 +20,23 @@ cmake_minimum_required (VERSION 3.0)
 
 message ("-- Configuring gsad")
 
-project (gsad VERSION 20.8.1 LANGUAGES C)
+project (gsad VERSION 21.4.2 LANGUAGES C)
 
-if (NOT DEFINED PROJECT_VERSION_STRING)
-   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-   include (ProjectVersion)
-endif()
 
+# Set dev version if this is a development version and not a full release,
+# unset (put value 0 or delete line) before a full release and reset after.
+set (PROJECT_DEV_VERSION 0)
+
+# If PROJECT_DEV_VERSION is set, the version string will be set to:
+#   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
+# If PROJECT_DEV_VERSION is NOT set, the version string will be set to:
+#   "major.minor.patch${GIT_REVISION}"
+# For CMAKE_BUILD_TYPE "Release" the git revision will be empty.
+if (PROJECT_DEV_VERSION)
+  set (PROJECT_VERSION_SUFFIX "~dev${PROJECT_DEV_VERSION}")
+endif (PROJECT_DEV_VERSION)
+
+set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
 set (GSAD_VERSION "${PROJECT_VERSION_STRING}")
 
 message (STATUS "Building gsad version ${GSAD_VERSION}")
@@ -51,7 +61,7 @@ else (CLANG_FORMAT)
 endif (CLANG_FORMAT)
 
 if (NOT SYSCONFDIR)
-  set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
+  set (SYSCONFDIR "/etc")
 endif (NOT SYSCONFDIR)
 
 if (NOT EXEC_PREFIX)
@@ -71,7 +81,7 @@ if (NOT LIBDIR)
 endif (NOT LIBDIR)
 
 if (NOT LOCALSTATEDIR)
-  set (LOCALSTATEDIR "${CMAKE_INSTALL_PREFIX}/var")
+  set (LOCALSTATEDIR "/var")
 endif (NOT LOCALSTATEDIR)
 
 if (NOT INCLUDEDIR)
@@ -85,13 +95,14 @@ endif (NOT DATADIR)
 set (GSAD_DATA_DIR "${DATADIR}/gvm/gsad")
 set (GSAD_CONFIG_DIR "${SYSCONFDIR}/gvm/")
 
+if (NOT GVM_RUN_DIR)
+  set (GVM_RUN_DIR  "/run/gvm")
+endif (NOT GVM_RUN_DIR)
+
 if (NOT GSAD_PID_DIR)
-  set (GSAD_PID_DIR "${LOCALSTATEDIR}/run")
+  set (GSAD_PID_DIR "${GVM_RUN_DIR}")
 endif (NOT GSAD_PID_DIR)
 
-if (NOT GVM_RUN_DIR)
-  set (GVM_RUN_DIR  "${LOCALSTATEDIR}/run")
-endif (NOT GVM_RUN_DIR)
 
 if (NOT GVM_STATE_DIR)
   set (GVM_STATE_DIR "${LOCALSTATEDIR}/lib/gvm")

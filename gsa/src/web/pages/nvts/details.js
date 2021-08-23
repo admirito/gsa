@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -25,6 +25,8 @@ import {TAG_NA} from 'gmp/models/nvt';
 
 import PropTypes from 'web/utils/proptypes';
 
+import {na, getTranslatableSeverityOrigin} from 'web/utils/render';
+
 import DetailsBlock from 'web/entity/block';
 
 import Severitybar from 'web/components/bar/severitybar';
@@ -33,6 +35,7 @@ import Layout from 'web/components/layout/layout';
 
 import Link from 'web/components/link/link';
 
+import DateTime from 'web/components/date/datetime';
 import InfoTable from 'web/components/table/infotable';
 import TableBody from 'web/components/table/body';
 import TableData from 'web/components/table/data';
@@ -43,9 +46,18 @@ import Solution from './solution';
 import Pre from './preformatted';
 
 const NvtDetails = ({entity, links = true}) => {
-  const {tags = {}, severity, qod, family, solution} = entity;
+  const {
+    tags = {},
+    severity,
+    qod,
+    family,
+    solution,
+    severityOrigin,
+    severityDate,
+  } = entity;
   return (
     <Layout flex="column" grow="1">
+      {entity.isDeprecated() && <div>{_('This NVT is deprecated.')}</div>}
       {isDefined(tags.summary) && (
         <DetailsBlock title={_('Summary')}>
           <Pre>{tags.summary}</Pre>
@@ -76,6 +88,22 @@ const NvtDetails = ({entity, links = true}) => {
                   </TableData>
                 </TableRow>
               )}
+            <TableRow>
+              <TableData>{_('CVSS Origin')}</TableData>
+              <TableData>
+                {na(getTranslatableSeverityOrigin(severityOrigin))}
+              </TableData>
+            </TableRow>
+            <TableRow>
+              <TableData>{_('CVSS Date')}</TableData>
+              <TableData>
+                {isDefined(severityDate) ? (
+                  <DateTime date={severityDate} />
+                ) : (
+                  _('N/A')
+                )}
+              </TableData>
+            </TableRow>
           </TableBody>
         </InfoTable>
       </DetailsBlock>

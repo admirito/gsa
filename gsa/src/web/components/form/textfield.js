@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -29,7 +29,7 @@ const TextField = ({hasError = false, errorContent, title, ...props}) => {
       <Field
         {...props}
         hasError={hasError}
-        title={hasError ? errorContent : title}
+        title={hasError ? `${errorContent}` : title}
         type="text"
       />
       <Marker isVisible={hasError}>×</Marker>
@@ -38,7 +38,7 @@ const TextField = ({hasError = false, errorContent, title, ...props}) => {
 };
 
 TextField.propTypes = {
-  errorContent: PropTypes.string,
+  errorContent: PropTypes.toString,
   hasError: PropTypes.bool,
   title: PropTypes.string,
 };

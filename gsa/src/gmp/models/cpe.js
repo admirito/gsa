@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -29,9 +29,7 @@ class Cpe extends Info {
 
   static parseElement(element) {
     const ret = super.parseElement(element, 'cpe');
-
-    ret.severity = parseSeverity(ret.max_cvss);
-    delete ret.max_cvss;
+    ret.severity = parseSeverity(ret.severity);
 
     if (isDefined(ret.cves) && isDefined(ret.cves.cve)) {
       ret.cves = map(ret.cves.cve, cve => ({
@@ -46,11 +44,21 @@ class Cpe extends Info {
       delete ret.status;
     }
 
+    if (isDefined(ret.nvd_id)) {
+      ret.nvdId = ret.nvd_id;
+    }
+
     if (isDefined(ret.update_time)) {
       ret.updateTime = parseDate(ret.update_time);
       delete ret.update_time;
     }
 
+    if (isDefined(ret.raw_data) && isDefined(ret.raw_data['cpe-item'])) {
+      const cpeItem = ret.raw_data['cpe-item'];
+      if (isDefined(cpeItem._deprecated_by)) {
+        ret.deprecatedBy = cpeItem._deprecated_by;
+      }
+    }
     return ret;
   }
 }

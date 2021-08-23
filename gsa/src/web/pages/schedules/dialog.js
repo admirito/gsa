@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -328,7 +328,10 @@ class ScheduleDialog extends React.Component {
         interval: isPreDefined ? 1 : interval,
         monthdays: setMonthydays ? monthdays : undefined,
         weekdays: setWeekdays ? weekdays : undefined,
-        summary: name,
+        // convert name to string explicitly to not run into:
+        // `TypeError: e.replace is not a function`
+        // when name is just numbers.
+        summary: `${name}`,
         startDate,
       },
       timezone,

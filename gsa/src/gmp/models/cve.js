@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2020 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -15,40 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'core-js/features/object/entries';
 
 import {isArray, isDefined} from 'gmp/utils/identity';
 import {isEmpty} from 'gmp/utils/string';
 import {map} from 'gmp/utils/array';
 
+import {parseSeverity, parseDate, setProperties} from 'gmp/parser';
+
 import {
-  parseSeverity,
-  parseCvssBaseVector,
-  parseDate,
-  setProperties,
-} from 'gmp/parser';
-
+  parseCvssV2BaseFromVector,
+  parseCvssV3BaseFromVector,
+} from 'gmp/parser/cvss';
 import Info from './info';
-
-const delete_empty = (obj, props) => {
-  for (const prop of props) {
-    if (isEmpty(obj[prop])) {
-      delete obj[prop];
-    }
-  }
-};
-
-const rename_props = (obj, rename = {}) => {
-  for (const [oldname, newname] of Object.entries(rename)) {
-    if (isDefined(obj[oldname])) {
-      obj[newname] = obj[oldname];
-      delete obj[oldname];
-    }
-  }
-};
 
 class Cve extends Info {
   static entityType = 'cve';
+
+  static fromResultElement(element) {
+    const ret = {};
+
+    ret.name = element.name;
+    ret.id = element.name;
+
+    return ret;
+  }
 
   static parseElement(element) {
     const ret = super.parseElement(element, 'cve');
@@ -57,9 +47,7 @@ class Cve extends Info {
       ret.updateTime = parseDate(ret.update_time);
       delete ret.update_time;
     }
-
-    ret.severity = parseSeverity(ret.cvss);
-    delete ret.cvss;
+    ret.severity = parseSeverity(ret.severity);
 
     if (isDefined(ret.nvts)) {
       ret.nvts = map(ret.nvts.nvt, nvt => {
@@ -84,41 +72,47 @@ class Cve extends Info {
     } else {
       ret.certs = [];
     }
-
-    delete_empty(ret, [
-      'vector',
-      'complexity',
-      'authentication',
-      'confidentiality_impact',
-      'integrity_impact',
-      'availability_impact',
-      'cert',
-    ]);
-
-    ret.cvssBaseVector = parseCvssBaseVector({
-      accessComplexity: ret.complexity,
-      accessVector: ret.vector,
-      authentication: ret.authentication,
-      availabilityImpact: ret.availability_impact,
-      confidentialityImpact: ret.confidentiality_impact,
-      integrityImpact: ret.integrity_impact,
-    });
-
-    // use consistent names for cvss values
-    rename_props(ret, {
-      vector: 'cvssAccessVector',
-      complexity: 'cvssAccessComplexity',
-      authentication: 'cvssAuthentication',
-      confidentiality_impact: 'cvssConfidentialityImpact',
-      integrity_impact: 'cvssIntegrityImpact',
-      availability_impact: 'cvssAvailabilityImpact',
-    });
-
-    if (isEmpty(ret.products)) {
-      ret.products = [];
-    } else {
-      ret.products = ret.products.split(' ');
+    if (isEmpty(ret.cvss_vector)) {
+      ret.cvss_vector = '';
     }
+    if (ret.cvss_vector.includes('CVSS:3')) {
+      const {
+        attackVector,
+        attackComplexity,
+        privilegesRequired,
+        userInteraction,
+        scope,
+        confidentialityImpact,
+        integrityImpact,
+        availabilityImpact,
+      } = parseCvssV3BaseFromVector(ret.cvss_vector);
+      ret.cvssAttackVector = attackVector;
+      ret.cvssAttackComplexity = attackComplexity;
+      ret.cvssPrivilegesRequired = privilegesRequired;
+      ret.cvssUserInteraction = userInteraction;
+      ret.cvssScope = scope;
+      ret.cvssConfidentialityImpact = confidentialityImpact;
+      ret.cvssIntegrityImpact = integrityImpact;
+      ret.cvssAvailabilityImpact = availabilityImpact;
+    } else {
+      const {
+        accessVector,
+        accessComplexity,
+        authentication,
+        confidentialityImpact,
+        integrityImpact,
+        availabilityImpact,
+      } = parseCvssV2BaseFromVector(ret.cvss_vector);
+      ret.cvssAccessVector = accessVector;
+      ret.cvssAccessComplexity = accessComplexity;
+      ret.cvssAuthentication = authentication;
+      ret.cvssConfidentialityImpact = confidentialityImpact;
+      ret.cvssIntegrityImpact = integrityImpact;
+      ret.cvssAvailabilityImpact = availabilityImpact;
+    }
+
+    ret.cvssBaseVector = ret.cvss_vector;
+    ret.products = isEmpty(ret.products) ? [] : ret.products.split(' ');
 
     if (isDefined(ret.raw_data) && isDefined(ret.raw_data.entry)) {
       const {entry} = ret.raw_data;

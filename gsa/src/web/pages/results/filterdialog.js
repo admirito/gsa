@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2020 Greenbone Networks GmbH
+/* Copyright (C) 2016-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -37,7 +37,6 @@ import SeverityLevelsGroup from 'web/components/powerfilter/severitylevelsgroup'
 import SolutionTypeGroup from 'web/components/powerfilter/solutiontypegroup';
 import withFilterDialog from 'web/components/powerfilter/withFilterDialog';
 import FilterDialogPropTypes from 'web/components/powerfilter/dialogproptypes';
-import AutoFpGroup from 'web/components/powerfilter/autofpgroup';
 import SeverityValuesGroup from 'web/components/powerfilter/severityvaluesgroup';
 import FilterSearchGroup from 'web/components/powerfilter/filtersearchgroup';
 
@@ -113,8 +112,6 @@ const ResultsFilterDialogComponent = ({
         onChange={onFilterValueChange}
       />
 
-      <AutoFpGroup filter={filter} onChange={onFilterValueChange} />
-
       <SeverityLevelsGroup
         filter={filter}
         onChange={onFilterValueChange}
@@ -122,7 +119,7 @@ const ResultsFilterDialogComponent = ({
       />
 
       <SeverityValuesGroup
-        name="cvss_base"
+        name="severity"
         filter={filter}
         title={_('Severity')}
         onChange={onFilterValueChange}
