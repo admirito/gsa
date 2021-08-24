@@ -1,26 +1,15 @@
---- a/gsad/config/gsad.default
-+++ b/gsad/config/gsad.default
-@@ -21,4 +21,4 @@
- #
- # Additional options
- #
--GSAD_OPTIONS=""
-+GSAD_OPTIONS=" --no-redirect"
 --- a/gsad/config/gsad.service.in
 +++ b/gsad/config/gsad.service.in
-@@ -6,13 +6,27 @@
- 
- [Service]
+@@ -9,10 +9,24 @@
  Type=forking
--User=$GSAD_USER
--Group=$GSAD_GROUP
--PIDFile=${GVM_RUN_DIR}/gsad.pid
-+User=gvm
-+Group=gvm
+ User=gvm
+ Group=gvm
+-PIDFile=${GVM_PID_DIR}/gsad.pid
+-ExecStart=${SBINDIR}/gsad --listen 127.0.0.1 --port 9392 --http-only
 +PIDFile=/var/run/gvm/gsad.pid
 +RuntimeDirectory=gvm
- EnvironmentFile=${DEFAULT_CONFIG_DIR}/gsad
- ExecStart=${SBINDIR}/gsad --listen $GSAD_ADDRESS --port $GSAD_PORT $GSAD_OPTIONS
++ExecStart=${SBINDIR}/gsad --listen $GSAD_ADDRESS --port $GSAD_PORT $GSAD_OPTIONS
++EnvironmentFile=${DEFAULT_CONFIG_DIR}/gsad
  Restart=always
  TimeoutStopSec=10
 +# gsad service requires serverkey.pem created by gvmd
@@ -35,7 +24,6 @@
 +# make more time for systemd service to wait for gvmd to
 +# configure.
 +RestartSec=3s
-+
  
  [Install]
  WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+#
+# The address the Greenbone Security Assistant daemon will listen on.
+#
+GSAD_ADDRESS=127.0.0.1
+
+#
+# The port the Greenbone Security Assistant daemon will listen on.
+#
+GSAD_PORT=9392
+
+#
+# Additional options
+#
+GSAD_OPTIONS=" --http-only"
