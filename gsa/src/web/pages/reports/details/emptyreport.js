@@ -19,7 +19,7 @@ import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {isActive} from 'gmp/models/task';
+import {isActive, TASK_STATUS} from 'gmp/models/task';
 
 import TaskIcon from 'web/components/icon/taskicon';
 import RefreshIcon from 'web/components/icon/refreshicon';
@@ -53,12 +53,28 @@ const EmptyReport = ({
       />
       <Divider wrap>
         {!isActiveReport && (
-          <ReportPanel
-            icon={props => <TaskIcon {...props} />}
-            title={_('The scan did not collect any results')}
-          >
-            {_('If the scan got interrupted you can try to re-start the task.')}
-          </ReportPanel>
+          <React.Fragment>
+            <ReportPanel
+              icon={props => <TaskIcon {...props} />}
+              title={_('The scan did not collect any results')}
+            >
+              {_(
+                'If the scan got interrupted you can try to re-start the task.',
+              )}
+            </ReportPanel>
+            <ReportPanel
+              icon={props => <TargetIcon {...props} />}
+              title={_('The target hosts could be regarded dead')}
+              onClick={may_edit_target ? onTargetEditClick : undefined}
+            >
+              {_(
+                'You should change the Alive Test Method of the ' +
+                  'target for the next scan. However, if the target hosts ' +
+                  'are indeed dead, the scan duration might increase ' +
+                  'significantly.',
+              )}
+            </ReportPanel>
+          </React.Fragment>
         )}
         {isActiveReport && progress === 1 && (
           <ReportPanel
@@ -78,7 +94,7 @@ const EmptyReport = ({
             {_('Just wait for results to arrive.')}
           </ReportPanel>
         )}
-        {progress < 1 && hasTarget && (
+        {progress < 1 && hasTarget && status !== TASK_STATUS.interrupted && (
           <ReportPanel
             icon={props => <TargetIcon {...props} />}
             title={_('The target hosts could be regarded dead')}

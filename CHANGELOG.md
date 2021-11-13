@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [21.4.3] 2021-10-12
+### Added
+- Add new handler for single performance report [#3149](https://github.com/greenbone/gsa/pull/3149)
+
+### Changed
+- Changed conditions for enabling CreateTicketIcon on results detailspage [#3154](https://github.com/greenbone/gsa/pull/3154)
+
+### Deprecated
+
+### Removed
+
+### Fixed
+- Don't crash target table when port_list is undefined [#3120](https://github.com/greenbone/gsa/pull/3120)
+
+[21.4.3]: https://github.com/greenbone/gsa/compare/v21.4.3...v21.4.2
+
 ## [21.4.2] 2021-08-03
 ### Added
 - Added new InfoIcon and use it in TargetDialog for information about the elevate credential feature [#3091](https://github.com/greenbone/gsa/pull/3091)
@@ -24,7 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initialize severity value with 0 in powerfilter SeverityValuesGroup [#3031](https://github.com/greenbone/gsa/pull/3031)
 - Make SSH elevate credential optional in gsad [#3085](https://github.com/greenbone/gsa/pull/3085)
 
-[Unreleased]: https://github.com/greenbone/gsa/compare/v21.4.2...v21.4.1
+[21.4.2]: https://github.com/greenbone/gsa/compare/v21.4.1...v21.4.2
 
 ## [21.4.1] - 2021-06-25
 
@@ -99,7 +115,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/gsa/compare/gsa-20.08...v21.4.0
 
-## [20.8.3] (unreleased)
+## [20.8.4] (unreleased)
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- Show dead hosts as possible reason in empty report when scan finishes [#3124](https://github.com/greenbone/gsa/pull/3124), [#3157](https://github.com/greenbone/gsa/pull/3157)
+- Fixed setting/displaying timeout in EditNvtDetailsDialog [#3057](https://github.com/greenbone/gsa/pull/3057)
+
+ [Unreleased]: https://github.com/greenbone/gsa/compare/v20.8.3...gsa-20.08
+
+### Fixed
+- Show dead hosts as possible reason in empty report when scan finishes [#3124](https://github.com/greenbone/gsa/pull/3124)
+
+## [20.8.3] 2021-08-03
 ### Added
 ### Changed
 * Changed default Content-Security-Policy (CSP) Header to
@@ -113,7 +143,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fixed setting/displaying timeout in EditNvtDetailsDialog [#3057](https://github.com/greenbone/gsa/pull/3057)
 
- [Unreleased]: https://github.com/greenbone/gsa/compare/v20.8.2...gsa-20.08
+ [20.8.3]: https://github.com/greenbone/gsa/compare/v20.8.2...v20.8.3
 
 ## [20.8.2] - 2021-06-25
 
@@ -218,6 +248,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Deleting a single entity now removes its ID from store [#1839](https://github.com/greenbone/gsa/pull/1839)
 
 ### Fixed
+- Fixed formatting of Detection Method in Results [#2793](https://github.com/greenbone/gsa/pull/2793), backport: [#3178](https://github.com/greenbone/gsa/pull/3178)
 - Fixed empty subsections on oval def details page [#2396](https://github.com/greenbone/gsa/pull/2396)
 - Fixed missing NVT solution [#2388](https://github.com/greenbone/gsa/pull/2388)
 - EmptyResultsReport uses the same counts as the results tab title in normal reports, when filtering for nonexistent results
