@@ -1,14 +1,12 @@
 --- a/gsad/config/gsad.service.in
 +++ b/gsad/config/gsad.service.in
-@@ -9,10 +9,24 @@
- Type=forking
+@@ -9,9 +9,23 @@
  User=gvm
  Group=gvm
--PIDFile=${GVM_PID_DIR}/gsad.pid
+ PIDFile=${GSAD_PID_DIR}/gsad.pid
 -ExecStart=${SBINDIR}/gsad --listen 127.0.0.1 --port 9392 --http-only
-+PIDFile=/var/run/gvm/gsad.pid
-+RuntimeDirectory=gvm
 +ExecStart=${SBINDIR}/gsad --listen $GSAD_ADDRESS --port $GSAD_PORT $GSAD_OPTIONS
++RuntimeDirectory=gvm
 +EnvironmentFile=${DEFAULT_CONFIG_DIR}/gsad
  Restart=always
  TimeoutStopSec=10
