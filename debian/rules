@@ -4,22 +4,26 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-.PHONY: override_dh_auto_configure override_dh_installchangelogs override_dh_installinit
+.PHONY: override_dh_auto_configure override_dh_installchangelogs override_dh_auto_install
 
 override_dh_auto_clean:
-	rm -rf gsa/build
-	rm -rf gsa/node_modules
+	rm -rf build
+	rm -rf node_modules
 	dh_auto_clean
 
 override_dh_auto_configure:
 	extract-yarn-offline-cache || true
-	dh_auto_configure -- -DLOCALSTATEDIR=/var -DGVM_RUN_DIR=/run/gvm -DSYSCONFDIR=/etc -DDEFAULT_CONFIG_DIR=/etc/default -DSYSTEMD_SERVICE_DIR=/lib/systemd/system -DLOGROTATE_DIR=/etc/logrotate.d -DYARN_OFFLINE=1 -DCMAKE_BUILD_TYPE=Release
+
+override_dh_auto_install:
+	yarnpkg --offline
+	yarnpkg --offline build
+	mkdir -p debian/gsa/usr/share/gvm/gsad/
+	rm -rf debian/gsa/usr/share/gvm/gsad/web
+	mv build debian/gsa/usr/share/gvm/gsad/web
+	dh_auto_install
 
 override_dh_installchangelogs:
 	dh_installchangelogs -k CHANGELOG.md
-
-override_dh_installinit:
-	dh_installinit --name=gsad
 
 %:
 	dh $@
