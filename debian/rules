@@ -12,7 +12,13 @@ override_dh_auto_clean:
 	dh_auto_clean
 
 override_dh_auto_configure:
-	extract-yarn-offline-cache || true
+#	# extract-yarn-offline-cache uses "yarnpkg cache dir" which in
+#	# ubuntu PPA will be executed with sbuild user (uid=2001) and
+#	# the cache dir will be "/tmp/.yarn-cache-2001/v6" which will
+#	# be different from the cache for "yarnpkg --offline" which is
+#	# "/tmp/.yarn-cache-0/v6". Using fakeroot (uid=0) this problem
+#	# whill be solved in launchpad.
+	fakeroot extract-yarn-offline-cache || true
 
 override_dh_auto_install:
 	yarnpkg --offline
