@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -82,7 +82,6 @@ const ENTITY_TYPES = {
   host: _l('Host'),
   info: _l('Info'),
   operatingsystem: _l('Operating System'),
-  ovaldef: _l('OVAL Definition'),
   override: _l('Override'),
   note: _l('Note'),
   nvt: _l('NVT'),

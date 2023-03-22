@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -42,8 +42,6 @@ import EntityCommand from './entity';
 
 const log = logger.getLogger('gmp.commands.users');
 
-const BUSINESS_PROCESS_MAPS_SETTING_ID = '3ce2d136-bb52-448a-93f0-20069566f877';
-
 const REPORT_COMPOSER_DEFAULTS_SETTING_ID =
   'b6b449ee-5d90-4ff0-af20-7e838c389d39';
 
@@ -61,7 +59,6 @@ export const DEFAULT_FILTER_SETTINGS = {
   group: 'f722e5a4-88d8-475f-95b9-e4dcafbc075b',
   host: '37562dfe-1f7e-4cae-a7c0-fa95e6f194c5',
   operatingsystem: 'f608c3ec-ce73-4ff6-8e04-7532749783af',
-  ovaldef: 'adb6ffc8-e50e-4aab-9c31-13c741eb8a16',
   override: 'eaaaebf1-01ef-4c49-b7bb-955461c78e0a',
   note: '96abcd5a-9b6d-456c-80b8-c3221bfa499d',
   nvt: 'bef08b33-075c-4f8c-84f5-51f6137e40a3',
@@ -181,12 +178,10 @@ export class UserCommand extends EntityCommand {
 
   create({
     access_hosts,
-    access_ifaces,
     auth_method,
     comment,
     group_ids,
     hosts_allow,
-    ifaces_allow,
     name,
     password,
     role_ids,
@@ -201,12 +196,10 @@ export class UserCommand extends EntityCommand {
     const data = {
       cmd: 'create_user',
       access_hosts,
-      access_ifaces,
       auth_method,
       comment,
       'group_ids:': group_ids,
       hosts_allow,
-      ifaces_allow,
       login: name,
       password,
       'role_ids:': role_ids,
@@ -218,12 +211,10 @@ export class UserCommand extends EntityCommand {
   save({
     id,
     access_hosts = '',
-    access_ifaces = '',
     auth_method,
     comment = '',
     group_ids,
     hosts_allow,
-    ifaces_allow,
     name,
     old_name,
     password = '', // needs to be included in httpPost, should be optional in gsad
@@ -241,12 +232,10 @@ export class UserCommand extends EntityCommand {
     const data = {
       cmd: 'save_user',
       access_hosts,
-      access_ifaces,
       comment,
       'group_ids:': group_ids,
       hosts_allow,
       id,
-      ifaces_allow,
       login: name,
       modify_password: auth_method,
       old_login: old_name,
@@ -333,7 +322,6 @@ export class UserCommand extends EntityCommand {
       [saveDefaultFilterSettingId('cpe')]: data.cpeFilter,
       [saveDefaultFilterSettingId('cve')]: data.cveFilter,
       [saveDefaultFilterSettingId('nvt')]: data.nvtFilter,
-      [saveDefaultFilterSettingId('ovaldef')]: data.ovalFilter,
       [saveDefaultFilterSettingId('certbund')]: data.certBundFilter,
       [saveDefaultFilterSettingId('dfncert')]: data.dfnCertFilter,
       auto_cache_rebuild: data.autoCacheRebuild,
@@ -371,39 +359,6 @@ export class UserCommand extends EntityCommand {
       cmd: 'save_setting',
       setting_id: REPORT_COMPOSER_DEFAULTS_SETTING_ID,
       setting_value: JSON.stringify(defaults),
-    });
-  }
-
-  getBusinessProcessMaps() {
-    return this.httpGet({
-      cmd: 'get_setting',
-      setting_id: BUSINESS_PROCESS_MAPS_SETTING_ID,
-    }).then(response => {
-      const {data} = response;
-      const {setting = {}} = data.get_settings.get_settings_response;
-      const {value} = setting;
-      let processMaps;
-
-      try {
-        processMaps = JSON.parse(value);
-      } catch (e) {
-        log.warn(
-          'Could not parse saved business process map. Returning empty object.',
-        );
-        processMaps = {};
-      }
-
-      return response.setData(processMaps);
-    });
-  }
-
-  saveBusinessProcessMaps(processMaps = {}) {
-    log.debug('Saving business process maps', processMaps);
-
-    return this.action({
-      cmd: 'save_setting',
-      setting_id: BUSINESS_PROCESS_MAPS_SETTING_ID,
-      setting_value: JSON.stringify(processMaps),
     });
   }
 

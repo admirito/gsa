@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -28,7 +28,7 @@ import CollectionCounts from 'gmp/collection/collectioncounts';
 import Filter from 'gmp/models/filter';
 import Task, {TASK_STATUS} from 'gmp/models/task';
 import Schedule from 'gmp/models/schedule';
-import ScanConfig, {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
+import ScanConfig from 'gmp/models/scanconfig';
 
 import {entityLoadingActions} from 'web/store/entities/tasks';
 import {setTimezone, setUsername} from 'web/store/usersettings/actions';
@@ -49,7 +49,6 @@ const config = ScanConfig.fromElement({
   name: 'foo',
   comment: 'bar',
   scanner: {name: 'scanner1', type: '0'},
-  type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
     task: [
       {id: '12345', name: 'foo'},

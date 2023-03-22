@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -22,12 +22,8 @@ import {connect} from 'react-redux';
 import _ from 'gmp/locale';
 
 import {ALL_FILTER} from 'gmp/models/filter';
-import {
-  filterEmptyScanConfig,
-  openVasScanConfigsFilter,
-  ospScanConfigsFilter,
-} from 'gmp/models/scanconfig';
-import {openVasScannersFilter, ospScannersFilter} from 'gmp/models/scanner';
+import {filterEmptyScanConfig} from 'gmp/models/scanconfig';
+import {openVasScannersFilter} from 'gmp/models/scanner';
 
 import {YES_VALUE, parseYesNo} from 'gmp/parser';
 
@@ -295,8 +291,6 @@ class UserSettings extends React.Component {
       defaultSeverity = {},
       defaultAlert = {},
       defaultEsxiCredential = {},
-      defaultOspScanConfig = {},
-      defaultOspScanner = {},
       defaultOpenvasScanConfig = {},
       defaultOpenvasScanner = {},
       defaultPortList = {},
@@ -332,7 +326,6 @@ class UserSettings extends React.Component {
       cpeFilter,
       cveFilter,
       nvtFilter,
-      ovalFilter,
       certBundFilter,
       dfnCertFilter,
       autoCacheRebuild = {},
@@ -373,14 +366,10 @@ class UserSettings extends React.Component {
     cpeFilter = hasValue(cpeFilter) ? cpeFilter : {};
     cveFilter = hasValue(cveFilter) ? cveFilter : {};
     nvtFilter = hasValue(nvtFilter) ? nvtFilter : {};
-    ovalFilter = hasValue(ovalFilter) ? ovalFilter : {};
     certBundFilter = hasValue(certBundFilter) ? certBundFilter : {};
     dfnCertFilter = hasValue(dfnCertFilter) ? dfnCertFilter : {};
 
-    const openVasScanConfigs = scanconfigs.filter(openVasScanConfigsFilter);
-    const ospScanConfigs = scanconfigs.filter(ospScanConfigsFilter);
     const openVasScanners = scanners.filter(openVasScannersFilter);
-    const ospScanners = scanners.filter(ospScannersFilter);
 
     return (
       <React.Fragment>
@@ -507,20 +496,6 @@ class UserSettings extends React.Component {
                             setting={defaultEsxiCredential}
                             title={_('Default ESXi Credential')}
                             type="credential"
-                          />
-                        )}
-                        {capabilities.mayAccess('scanconfig') && (
-                          <SettingTableRow
-                            setting={defaultOspScanConfig}
-                            title={_('Default OSP Scan Config')}
-                            type="scanconfig"
-                          />
-                        )}
-                        {capabilities.mayAccess('scanner') && (
-                          <SettingTableRow
-                            setting={defaultOspScanner}
-                            title={_('Default OSP Scanner')}
-                            type="scanner"
                           />
                         )}
                         {capabilities.mayAccess('scanconfig') && (
@@ -724,11 +699,6 @@ class UserSettings extends React.Component {
                             type="filter"
                           />
                           <SettingTableRow
-                            setting={ovalFilter}
-                            title={_('OVAL Definitions Filter')}
-                            type="filter"
-                          />
-                          <SettingTableRow
                             setting={certBundFilter}
                             title={_('CERT-Bund Advisories Filter')}
                             type="filter"
@@ -751,10 +721,8 @@ class UserSettings extends React.Component {
               alerts={alerts}
               filters={filters}
               credentials={credentials}
-              openVasScanConfigs={openVasScanConfigs}
-              ospScanConfigs={ospScanConfigs}
+              openVasScanConfigs={scanconfigs}
               openVasScanners={openVasScanners}
-              ospScanners={ospScanners}
               portLists={portlists}
               schedules={schedules}
               targets={targets}
@@ -770,8 +738,6 @@ class UserSettings extends React.Component {
               defaultSeverity={defaultSeverity.value}
               defaultAlert={defaultAlert.id}
               defaultEsxiCredential={defaultEsxiCredential.id}
-              defaultOspScanConfig={defaultOspScanConfig.id}
-              defaultOspScanner={defaultOspScanner.id}
               defaultOpenvasScanConfig={defaultOpenvasScanConfig.id}
               defaultOpenvasScanner={defaultOpenvasScanner.id}
               defaultPortList={defaultPortList.id}
@@ -807,7 +773,6 @@ class UserSettings extends React.Component {
               cpeFilter={cpeFilter.id}
               cveFilter={cveFilter.id}
               nvtFilter={nvtFilter.id}
-              ovalFilter={ovalFilter.id}
               certBundFilter={certBundFilter.id}
               dfnCertFilter={dfnCertFilter.id}
               onClose={this.handleCloseDialog}
@@ -836,8 +801,6 @@ UserSettings.propTypes = {
   defaultEsxiCredential: PropTypes.object,
   defaultOpenvasScanConfig: PropTypes.object,
   defaultOpenvasScanner: PropTypes.object,
-  defaultOspScanConfig: PropTypes.object,
-  defaultOspScanner: PropTypes.object,
   defaultPortList: PropTypes.object,
   defaultSchedule: PropTypes.object,
   defaultSeverity: PropTypes.object,
@@ -869,7 +832,6 @@ UserSettings.propTypes = {
   notesFilter: PropTypes.object,
   nvtFilter: PropTypes.object,
   operatingSystemsFilter: PropTypes.object,
-  ovalFilter: PropTypes.object,
   overridesFilter: PropTypes.object,
   permissionsFilter: PropTypes.object,
   portListsFilter: PropTypes.object,
@@ -926,11 +888,7 @@ const mapStateToProps = rootState => {
   const defaultEsxiCredentialId = userDefaultsSelector.getValueByName(
     'defaultesxicredential',
   );
-  const defaultOspScanConfigId = userDefaultsSelector.getValueByName(
-    'defaultospscanconfig',
-  );
-  const defaultOspScannerId =
-    userDefaultsSelector.getValueByName('defaultospscanner');
+
   const defaultOpenvasScanConfigId = userDefaultsSelector.getValueByName(
     'defaultopenvasscanconfig',
   );
@@ -940,6 +898,7 @@ const mapStateToProps = rootState => {
 
   const defaultPortListId =
     userDefaultsSelector.getValueByName('defaultportlist');
+
   const defaultSmbCredentialId = userDefaultsSelector.getValueByName(
     'defaultsmbcredential',
   );
@@ -967,8 +926,6 @@ const mapStateToProps = rootState => {
   const defaultEsxiCredential = credentialsSel.getEntity(
     defaultEsxiCredentialId,
   );
-  const defaultOspScanConfig = scanConfigsSel.getEntity(defaultOspScanConfigId);
-  const defaultOspScanner = scannersSel.getEntity(defaultOspScannerId);
   const defaultOpenvasScanConfig = scanConfigsSel.getEntity(
     defaultOpenvasScanConfigId,
   );
@@ -1014,7 +971,6 @@ const mapStateToProps = rootState => {
   const certBundFilter = userDefaultFilterSelector.getFilter('certbund');
   const dfnCertFilter = userDefaultFilterSelector.getFilter('dfncert');
   const nvtFilter = userDefaultFilterSelector.getFilter('nvt');
-  const ovalFilter = userDefaultFilterSelector.getFilter('ovaldef');
 
   let scanconfigs = scanConfigsSel.getEntities(ALL_FILTER);
   if (isDefined(scanconfigs)) {
@@ -1042,8 +998,6 @@ const mapStateToProps = rootState => {
     isLoading: userDefaultsSelector.isLoading(),
     defaultAlert,
     defaultEsxiCredential,
-    defaultOspScanConfig,
-    defaultOspScanner,
     defaultOpenvasScanConfig,
     defaultOpenvasScanner,
     defaultPortList,
@@ -1081,7 +1035,6 @@ const mapStateToProps = rootState => {
     certBundFilter,
     dfnCertFilter,
     nvtFilter,
-    ovalFilter,
     autoCacheRebuild,
   };
 };
@@ -1121,7 +1074,6 @@ const mapDispatchToProps = (dispatch, {gmp}) => ({
       dispatch(loadUserSettingsDefaultFilter(gmp)('certbund')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('dfncert')),
       dispatch(loadUserSettingsDefaultFilter(gmp)('nvt')),
-      dispatch(loadUserSettingsDefaultFilter(gmp)('ovaldef')),
     ]),
   loadPortLists: () => dispatch(loadPortLists(gmp)(ALL_FILTER)),
   loadScanConfigs: () => dispatch(loadScanConfigs(gmp)(ALL_FILTER)),

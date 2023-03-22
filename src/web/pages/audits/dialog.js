@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -125,7 +125,6 @@ const AuditDialog = ({
   scheduleId = UNSET_VALUE,
   schedulePeriods = NO_VALUE,
   schedules = [],
-  sourceIface = '',
   targetId,
   targets,
   audit,
@@ -170,7 +169,6 @@ const AuditDialog = ({
     name,
     scannerId,
     scannerType,
-    sourceIface,
     audit,
   };
 
@@ -330,13 +328,6 @@ const AuditDialog = ({
                   onChange={onChange}
                 />
               </FormGroup>
-              <FormGroup titleSize="4" title={_('Network Source Interface')}>
-                <TextField
-                  name="sourceIface"
-                  value={state.sourceIface}
-                  onChange={onValueChange}
-                />
-              </FormGroup>
               <FormGroup titleSize="4" title={_('Order for target hosts')}>
                 <Select
                   name="hostsOrdering"
@@ -416,7 +407,6 @@ AuditDialog.propTypes = {
   scheduleId: PropTypes.idOrZero,
   schedulePeriods: PropTypes.yesno,
   schedules: PropTypes.array,
-  sourceIface: PropTypes.string,
   targetId: PropTypes.idOrZero,
   targets: PropTypes.array,
   title: PropTypes.string,

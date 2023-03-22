@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -71,14 +71,7 @@ export const convert_allow = ({addresses, allow}) => {
 };
 
 const UserDetails = ({entity, links = true}) => {
-  const {
-    auth_method,
-    comment,
-    groups = [],
-    hosts = {},
-    ifaces = [],
-    roles = [],
-  } = entity;
+  const {auth_method, comment, groups = [], hosts = {}, roles = []} = entity;
   return (
     <Layout grow flex="column">
       <InfoTable>
@@ -132,11 +125,6 @@ const UserDetails = ({entity, links = true}) => {
             <TableData>
               {convert_allow(hosts).replace(/&#x2F;/g, '/')}
             </TableData>
-          </TableRow>
-
-          <TableRow>
-            <TableData>{_('Interface Access')}</TableData>
-            <TableData>{convert_allow(ifaces)}</TableData>
           </TableRow>
 
           <TableRow>

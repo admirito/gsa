@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -82,10 +82,6 @@ const SecinfoEventPart = ({
         {
           value: 'dfn_cert_adv',
           label: _('DFN-CERT Advisories'),
-        },
-        {
-          value: 'ovaldef',
-          label: _('OVAL Definition'),
         },
       ]}
       value={secinfoType}

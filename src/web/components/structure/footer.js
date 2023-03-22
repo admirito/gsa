@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -46,7 +46,7 @@ const Footer = styled.footer`
 const GreenboneFooter = () => {
   return (
     <Footer>
-      Greenbone Security Assistant (GSA) Copyright (C) 2009-2021 by Greenbone
+      Greenbone Security Assistant (GSA) Copyright (C) 2009-2022 by Greenbone
       Networks GmbH,&nbsp;
       <Link
         target="_blank"

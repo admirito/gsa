@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -38,7 +38,7 @@ describe('Dialog Button tests', () => {
 
     expect(element).toMatchSnapshot();
 
-    expect(element).toHaveStyleRule('background', Theme.lightGreen);
+    expect(element).toHaveStyleRule('background', Theme.green);
   });
 
   test('should render button when loading', () => {
@@ -47,7 +47,7 @@ describe('Dialog Button tests', () => {
     expect(element).toMatchSnapshot();
     expect(element).toHaveStyleRule(
       'background',
-      `${Theme.lightGreen} url(/img/loading.gif) center center no-repeat`,
+      `${Theme.green} url(/img/loading.gif) center center no-repeat`,
     );
   });
 });

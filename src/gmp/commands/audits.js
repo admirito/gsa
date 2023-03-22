@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -102,7 +102,6 @@ export class AuditCommand extends EntityCommand {
       scannerId,
       scheduleId,
       schedulePeriods,
-      sourceIface,
       tagId,
       targetId,
     } = args;
@@ -127,7 +126,6 @@ export class AuditCommand extends EntityCommand {
       scanner_type: scannerType,
       schedule_id: scheduleId,
       schedule_periods: schedulePeriods,
-      source_iface: sourceIface,
       tag_id: tagId,
       target_id: targetId,
       usage_type: 'audit',
@@ -157,7 +155,6 @@ export class AuditCommand extends EntityCommand {
       scheduleId = NO_VALUE,
       schedulePeriods,
       targetId = NO_VALUE,
-      sourceIface,
     } = args;
     const data = {
       alterable,
@@ -178,7 +175,6 @@ export class AuditCommand extends EntityCommand {
       scanner_type: scannerType,
       schedule_id: scheduleId,
       schedule_periods: schedulePeriods,
-      source_iface: sourceIface,
       target_id: targetId,
       task_id: id,
       usage_type: 'audit',

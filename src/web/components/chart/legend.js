@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -37,8 +37,7 @@ const StyledLegend = styled.div`
   display: flex;
   flex-direction: column;
   user-select: none;
-  background-color: ${Theme.mediumGray};
-  color: ${Theme.white};
+  color: ${Theme.black};
   opacity: 0.75;
 `;
 

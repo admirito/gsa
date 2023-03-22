@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -24,7 +24,6 @@ import _ from 'gmp/locale';
 import {isDefined} from 'gmp/utils/identity';
 
 import {duration} from 'gmp/models/date';
-import {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 import {scannerTypeName} from 'gmp/models/scanner';
 
 import {
@@ -81,14 +80,12 @@ class AuditDetails extends React.Component {
       hosts_ordering,
       in_assets,
       last_report,
-      preferences,
       scanner,
       schedule_periods,
       target,
       max_checks,
       max_hosts,
     } = entity;
-    const {iface = {}} = preferences;
 
     let dur;
     const hasDuration =
@@ -169,40 +166,28 @@ class AuditDetails extends React.Component {
                     </TableData>
                   </TableRow>
                 )}
-                {isDefined(policy) &&
-                  policy.policy_type === OPENVAS_SCAN_CONFIG_TYPE && (
-                    <TableRow>
-                      <TableData>{_('Order for target hosts')}</TableData>
-                      <TableData>{hosts_ordering}</TableData>
-                    </TableRow>
-                  )}
-                {isDefined(policy) &&
-                  policy.policy_type === OPENVAS_SCAN_CONFIG_TYPE && (
-                    <TableRow>
-                      <TableData>{_('Network Source Interface')}</TableData>
-                      <TableData>{iface.value}</TableData>
-                    </TableRow>
-                  )}
-                {isDefined(policy) &&
-                  policy.policy_type === OPENVAS_SCAN_CONFIG_TYPE &&
-                  isDefined(max_checks) && (
-                    <TableRow>
-                      <TableData>
-                        {_('Maximum concurrently executed NVTs per host')}
-                      </TableData>
-                      <TableData>{max_checks}</TableData>
-                    </TableRow>
-                  )}
-                {isDefined(policy) &&
-                  policy.policy_type === OPENVAS_SCAN_CONFIG_TYPE &&
-                  isDefined(max_hosts) && (
-                    <TableRow>
-                      <TableData>
-                        {_('Maximum concurrently scanned hosts')}
-                      </TableData>
-                      <TableData>{max_hosts}</TableData>
-                    </TableRow>
-                  )}
+                {isDefined(policy) && (
+                  <TableRow>
+                    <TableData>{_('Order for target hosts')}</TableData>
+                    <TableData>{hosts_ordering}</TableData>
+                  </TableRow>
+                )}
+                {isDefined(policy) && isDefined(max_checks) && (
+                  <TableRow>
+                    <TableData>
+                      {_('Maximum concurrently executed NVTs per host')}
+                    </TableData>
+                    <TableData>{max_checks}</TableData>
+                  </TableRow>
+                )}
+                {isDefined(policy) && isDefined(max_hosts) && (
+                  <TableRow>
+                    <TableData>
+                      {_('Maximum concurrently scanned hosts')}
+                    </TableData>
+                    <TableData>{max_hosts}</TableData>
+                  </TableRow>
+                )}
               </TableBody>
             </DetailsTable>
           </DetailsBlock>

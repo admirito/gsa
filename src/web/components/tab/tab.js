@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -45,9 +45,7 @@ const StyledDiv = styled.div`
     props.active ? '1px solid ' + Theme.dialogGray : undefined};
   margin-bottom: ${props => (props.active ? '-2px' : undefined)};
   border-top: ${props =>
-    props.active
-      ? '2px solid ' + Theme.lightGreen
-      : '2px solid ' + Theme.white};
+    props.active ? '2px solid ' + Theme.green : '2px solid ' + Theme.white};
   :hover {
     border-top: ${props =>
       props.active ? undefined : '2px solid ' + Theme.lightGray};

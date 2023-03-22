@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -60,7 +60,7 @@ const log = logger.getLogger('web.login');
 const StyledLayout = styled(Layout)`
   background: radial-gradient(
     51.84% 102.52% at 58.54% 44.97%,
-    #baed81 0%,
+    #a1ddba 0%,
     ${Theme.green} 67.26%
   );
   flex-direction: column;

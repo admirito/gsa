@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -50,9 +50,6 @@ class LegacyOmpPage extends React.Component {
         break;
       case 'cpe':
         history.replace('/cpe/' + id);
-        break;
-      case 'ovaldef':
-        history.replace('/ovaldef/' + id);
         break;
       case 'cert_bund_adv':
         history.replace('/certbund/' + id);

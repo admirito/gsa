@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -208,7 +208,6 @@ class AuditComponent extends React.Component {
     scannerType = OPENVAS_SCANNER_TYPE,
     scheduleId,
     schedulePeriods,
-    sourceIface,
     targetId,
     audit,
   }) {
@@ -252,7 +251,6 @@ class AuditComponent extends React.Component {
           scheduleId,
           schedulePeriods,
           targetId,
-          sourceIface,
         })
         .then(onSaved, onSaveError)
         .then(() => this.closeAuditDialog());
@@ -279,7 +277,6 @@ class AuditComponent extends React.Component {
         scannerId,
         scheduleId,
         schedulePeriods,
-        sourceIface,
         tagId,
         targetId: targetId,
       })
@@ -332,7 +329,6 @@ class AuditComponent extends React.Component {
         scannerId: hasId(audit.scanner) ? audit.scanner.id : undefined,
         scheduleId,
         schedulePeriods,
-        sourceIface: audit.source_iface,
         targetId: hasId(audit.target) ? audit.target.id : undefined,
         audit,
         title: _('Edit Audit {{name}}', audit),
@@ -369,7 +365,6 @@ class AuditComponent extends React.Component {
         scanner_type: defaultScannerType,
         scheduleId: defaultScheduleId,
         schedulePeriods: undefined,
-        sourceIface: undefined,
         targetId: defaultTargetId,
         audit: undefined,
         title: _('New Audit'),
@@ -464,7 +459,6 @@ class AuditComponent extends React.Component {
       scannerId,
       scheduleId,
       schedulePeriods,
-      sourceIface,
       targetId,
       audit,
       auditDialogVisible,
@@ -535,7 +529,6 @@ class AuditComponent extends React.Component {
                               scheduleId={scheduleId}
                               schedulePeriods={schedulePeriods}
                               schedules={schedules}
-                              sourceIface={sourceIface}
                               targetId={targetId}
                               targets={targets}
                               audit={audit}

@@ -3,11 +3,11 @@
 # Greenbone Security Assistant <!-- omit in toc -->
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/gsa.svg)](https://github.com/greenbone/gsa/releases)
-[![code test coverage](https://codecov.io/gh/greenbone/gsa/branch/stable/graph/badge.svg)](https://codecov.io/gh/greenbone/gsa)
-[![Build and test JS](https://github.com/greenbone/gsa/actions/workflows/ci-js.yml/badge.svg?branch=stable)](https://github.com/greenbone/gsa/actions/workflows/ci-js.yml?query=branch%3Astable++)
+[![code test coverage](https://codecov.io/gh/greenbone/gsa/branch/main/graph/badge.svg)](https://codecov.io/gh/greenbone/gsa)
+[![Build and test JS](https://github.com/greenbone/gsa/actions/workflows/ci-js.yml/badge.svg?branch=main)](https://github.com/greenbone/gsa/actions/workflows/ci-js.yml?query=branch%3Amain++)
 
 The Greenbone Security Assistant is the web interface developed for the
-[Greenbone Security Manager appliances](https://www.greenbone.net/en/product-comparison/)
+[Greenbone Enterprise appliances](https://www.greenbone.net/en/product-comparison/)
 written in [React](https://reactjs.org/).
 
 - [Releases](#releases)
@@ -28,8 +28,22 @@ and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 ## Installation
 
 Prerequisites for GSA:
-* node.js >= 10.0
+* node.js >= 14.0
 * yarn >= 1.0
+
+To install nodejs 14 the following commands can be used
+
+```bash
+export VERSION=node_14.x
+export KEYRING=/usr/share/keyrings/nodesource.gpg
+export DISTRIBUTION="$(lsb_release -s -c)"
+
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee "$KEYRING" >/dev/null
+gpg --no-default-keyring --keyring "$KEYRING" --list-keys
+
+echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRIBUTION main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+echo "deb-src [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRIBUTION main" | sudo tee -a /etc/apt/sources.list.d/nodesource.list
+```
 
 Change into the gsa source directory and delete the possible existing build output
 directory.
@@ -57,6 +71,7 @@ chosen `CMAKE_INSTALL_PREFIX` directory when building `gsad`. Normally this is
 set to `/usr` or `/usr/local`.
 
 ```bash
+mkdir -p $INSTALL_PREFIX/share/gvm/gsad/web/
 cp -r build/* $INSTALL_PREFIX/share/gvm/gsad/web/
 ```
 
@@ -108,7 +123,7 @@ manually.
 ## Support
 
 For any question on the usage of `gsa` please use the [Greenbone Community
-Portal](https://community.greenbone.net/c/gse). If you found a problem with the
+Portal](https://community.greenbone.net/). If you found a problem with the
 software, please [create an issue](https://github.com/greenbone/gsa/issues) on
 GitHub. If you are a Greenbone customer you may alternatively or additionally
 forward your issue to the Greenbone Support Portal.
@@ -127,6 +142,6 @@ github](https://github.com/greenbone/gsa/issues) first.
 
 ## License
 
-Copyright (C) 2009-2021 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2022 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU Affero General Public License v3.0 or later](LICENSE).

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,14 +20,12 @@ import {combineReducers} from 'redux';
 import dashboardData from './dashboard/data/reducers';
 import dashboardSettings from './dashboard/settings/reducers';
 import userSettings from './usersettings/reducers';
-import {businessProcessMaps} from './businessprocessmaps/reducers';
 import pages from './pages/reducers';
 
 import entities from './entities/reducers';
 import {CLEAR_STORE} from 'web/store/actions';
 
 const rootReducer = combineReducers({
-  businessProcessMaps,
   dashboardData,
   dashboardSettings,
   entities,

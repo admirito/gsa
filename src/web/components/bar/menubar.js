@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -119,11 +119,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
     false,
   );
 
-  const mayOpBpm = ['hosts', 'tags'].reduce(
-    (sum, cur) => sum || capabilities.mayAccess(cur),
-    false,
-  );
-
   return (
     <React.Fragment>
       <MenuBarPlaceholder />
@@ -185,14 +180,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
                   <MenuEntry title={_('Compliance Audits')} to="audits" />
                 )}
               </MenuSection>
-              {mayOpBpm && (
-                <MenuSection>
-                  <MenuEntry
-                    title={_('Business Process Map')}
-                    to="processmaps"
-                  />
-                </MenuSection>
-              )}
             </Menu>
           )}
           {capabilities.mayAccess('info') && (
@@ -200,7 +187,6 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
               <MenuEntry title={_('NVTs')} to="nvts" />
               <MenuEntry title={_('CVEs')} to="cves" />
               <MenuEntry title={_('CPEs')} to="cpes" />
-              <MenuEntry title={_('OVAL Definitions')} to="ovaldefs" />
               <MenuEntry title={_('CERT-Bund Advisories')} to="certbunds" />
               <MenuEntry title={_('DFN-CERT Advisories')} to="dfncerts" />
             </Menu>
@@ -285,6 +271,11 @@ const MenuBar = ({isLoggedIn, capabilities}) => {
                 {capabilities.mayOp('modify_auth') && (
                   <MenuEntry title={_('RADIUS')} to="radius" />
                 )}
+              </MenuSection>
+            )}
+            {capabilities.mayOp('get_license') && (
+              <MenuSection>
+                <MenuEntry title={_('License')} to="license" />
               </MenuSection>
             )}
           </Menu>

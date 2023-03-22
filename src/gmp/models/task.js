@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -246,9 +246,6 @@ class Task extends Model {
           case 'max_hosts':
           case 'max_checks':
             copy[pref.scanner_name] = parseInt(pref.value);
-            break;
-          case 'source_iface':
-            copy.source_iface = pref.value;
             break;
           default:
             prefs[pref.scanner_name] = {value: pref.value, name: pref.name};

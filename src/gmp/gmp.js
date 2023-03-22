@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -35,11 +35,11 @@ import 'gmp/commands/feedstatus';
 import 'gmp/commands/filters';
 import 'gmp/commands/groups';
 import 'gmp/commands/hosts';
+import 'gmp/commands/license';
 import 'gmp/commands/notes';
 import 'gmp/commands/nvt';
 import 'gmp/commands/nvtfamilies';
 import 'gmp/commands/os';
-import 'gmp/commands/ovaldefs';
 import 'gmp/commands/overrides';
 import 'gmp/commands/performance';
 import 'gmp/commands/permissions';

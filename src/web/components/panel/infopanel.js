@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,23 +20,33 @@ import React from 'react';
 
 import styled from 'styled-components';
 
+import {isDefined} from 'gmp/utils/identity';
+
+import DeleteIcon from 'web/components/icon/deleteicon';
+
 import PropTypes from 'web/utils/proptypes';
 
 import Theme from 'web/utils/theme';
 
 import Layout from 'web/components/layout/layout';
 
+import Button from './button';
+
 const Panel = styled(Layout)`
   background-color: ${Theme.white};
-  border: 1px solid ${Theme.lightBlue};
-  margin-top: 5px;
+  border: 1px solid
+    ${props => (props.isWarning ? Theme.darkRed : Theme.lightBlue)};
+  margin-top: ${props => (props.noMargin ? '0px' : '5px')};
 `;
 
 const Heading = styled.div`
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 15px;
   min-height: 35px;
-  background-color: ${Theme.lightBlue};
+  background-color: ${props =>
+    props.isWarning ? Theme.mediumLightRed : Theme.lightBlue};
   border-color: ${Theme.mediumBlue};
 `;
 
@@ -54,10 +64,31 @@ const Body = styled.div`
   flex-grow: 1;
 `;
 
-const InfoPanel = ({heading, footer, children, ...props}) => {
+const InfoPanel = ({
+  heading,
+  footer,
+  isWarning = false,
+  children,
+  onCloseClick,
+  ...props
+}) => {
   return (
-    <Panel {...props} align={['start', 'stretch']} flex="column">
-      {heading && <Heading>{heading}</Heading>}
+    <Panel
+      isWarning={isWarning}
+      {...props}
+      align={['start', 'stretch']}
+      flex="column"
+    >
+      {heading && (
+        <Heading data-testid="infopanel-heading" isWarning={isWarning}>
+          {heading}
+          {isDefined(onCloseClick) && (
+            <Button onClick={onCloseClick}>
+              <DeleteIcon />
+            </Button>
+          )}
+        </Heading>
+      )}
       {children && <Body>{children}</Body>}
       {footer && <Footer>{footer}</Footer>}
     </Panel>
@@ -67,6 +98,8 @@ const InfoPanel = ({heading, footer, children, ...props}) => {
 InfoPanel.propTypes = {
   footer: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
   heading: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
+  isWarning: PropTypes.bool,
+  onCloseClick: PropTypes.func,
 };
 
 export default InfoPanel;

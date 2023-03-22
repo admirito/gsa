@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -46,7 +46,6 @@ describe('entities reducer tests', () => {
       note: initState,
       nvt: initState,
       operatingsystem: initState,
-      ovaldef: initState,
       override: initState,
       permission: initState,
       policy: initState,

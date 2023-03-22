@@ -4,23 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4.3] 2021-10-12
+## [22.4] - Unreleased
+
+### Added
+- Added new license page [#3138](https://github.com/greenbone/gsa/pull/3138), [#3160](https://github.com/greenbone/gsa/pull/3160)
+- Added command for getting appliance license information [#3137](https://github.com/greenbone/gsa/pull/3137)
+### Changed
+- Require node.js >= 14 [#3164](https://github.com/greenbone/gsa/pull/3164)
+### Fixed
+### Removed
+- Removed interface access from users in GSA and gsad [#3123](https://github.com/greenbone/gsa/pull/3123)
+- Removed bid and bugtraq_id handling [#3122](https://github.com/greenbone/gsa/pull/3122)
+- Removed OSP scanner and scan config handling [#3094](https://github.com/greenbone/gsa/pull/3094)
+- Removed business process map feature [#3051](https://github.com/greenbone/gsa/pull/3051), [#3058] (https://github.com/greenbone/gsa/pull/3058)
+- Removed OVAL Definitions [#2918](https://github.com/greenbone/gsa/pull/2918), [#2921](https://github.com/greenbone/gsa/pull/2921), [#2923](https://github.com/greenbone/gsa/pull/2923)
+- Removed Network Source Interface from GSA for Tasks and Audits [#2902](https://github.com/greenbone/gsa/pull/2902) [#2942](https://github.com/greenbone/gsa/pull/2942)
+
+[Unreleased]: https://github.com/greenbone/gsa/compare/stable...main
+
+
+## [21.4.3] (unreleased)
+
 ### Added
 - Add new handler for single performance report [#3149](https://github.com/greenbone/gsa/pull/3149)
-
 ### Changed
 - Changed conditions for enabling CreateTicketIcon on results detailspage [#3154](https://github.com/greenbone/gsa/pull/3154)
-
 ### Deprecated
-
-### Removed
-
 ### Fixed
 - Don't crash target table when port_list is undefined [#3120](https://github.com/greenbone/gsa/pull/3120)
+### Removed
 
-[21.4.3]: https://github.com/greenbone/gsa/compare/v21.4.2...v21.4.3
+[Unreleased]: https://github.com/greenbone/gsa/compare/v21.4.2...stable
 
-## [21.4.2] 2021-08-03
+## [21.4.2] (2021-08-03)
+
 ### Added
 - Added new InfoIcon and use it in TargetDialog for information about the elevate credential feature [#3091](https://github.com/greenbone/gsa/pull/3091)
 ### Changed
@@ -40,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initialize severity value with 0 in powerfilter SeverityValuesGroup [#3031](https://github.com/greenbone/gsa/pull/3031)
 - Make SSH elevate credential optional in gsad [#3085](https://github.com/greenbone/gsa/pull/3085)
 
-[21.4.2]: https://github.com/greenbone/gsa/compare/v21.4.1...v21.4.2
+[Unreleased]: https://github.com/greenbone/gsa/compare/v21.4.1...stable
 
 ## [21.4.1] - 2021-06-25
 
@@ -48,7 +65,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added SSH Elevate credential to target row [#2996](https://github.com/greenbone/gsa/pull/2996)
 - Added isDeprecated() method to NVT model and use it in details [#2960](https://github.com/greenbone/gsa/pull/2960)
 - Added @testing-library/user-event as a dev-dependency [#2891](https://github.com/greenbone/gsa/pull/2891)
-- Set SameSite=strict for the session cookie to avoid CSRF [#2948](https://github.com/greenbone/gsa/pull/2948)
 
 ### Changed
 - Disallow using the same credential for ssh and elevate credential in targets [#2994](https://github.com/greenbone/gsa/pull/2994)
@@ -60,11 +76,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Removed a CMake dependency in the CMakeLists, so GSA can be build again. [#3028](https://github.com/greenbone/gsa/pull/3028)
 - Fall back to cvss_base when severity subelement is missing from NVT severities [#2944](https://github.com/greenbone/gsa/pull/2944)
 - Fix loading NVT information in result details [#2934](https://github.com/greenbone/gsa/pull/2934)
-- Fixed setting whether to include related resources for new permissions [#2931](https://github.com/greenbone/gsa/pull/2931)
 - Fixed number-only names within schedules/dialog [#2914](https://github.com/greenbone/gsa/pull/2914)
 - Fixed changing Trend and Select for NVT-families and whole selection only [#2905](https://github.com/greenbone/gsa/pull/2905)
 - Fixed missing name for CVE results on result detailspage [#2892](https://github.com/greenbone/gsa/pull/2892)
-- Fixed setting secret key in RADIUS dialog, backport from [#2891](https://github.com/greenbone/gsa/pull/2891), [#2915](https://github.com/greenbone/gsa/pull/2915)
 - Fixed setting result UUID in notes dialog [#2889](https://github.com/greenbone/gsa/pull/2889)
 
 [21.4.1]: https://github.com/greenbone/gsa/compare/v21.4.0...v21.4.1
@@ -75,13 +89,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow to add ssh elevate credential to target dialog and display elevate credential in details [#2954](https://github.com/greenbone/gsa/pull/2954)
 - Allow to set unix socket permissions for gsad [#2816](https://github.com/greenbone/gsa/pull/2816)
 - Added CVSS date to NVT details [#2802](https://github.com/greenbone/gsa/pull/2802)
-- Added option to allow to scan simultaneous IPs to targets
+- Add option to allow to scan simultaneous IPs to targets
   [#2779](https://github.com/greenbone/gsa/pull/2779),
   [#2813](https://github.com/greenbone/gsa/pull/2813)
 - Added CVSS origin to NVT details [#2588](https://github.com/greenbone/gsa/pull/2588)
 - Added the CVSS v3.1 BaseScore calculator to the `/cvsscalculator` page in the Help section. [#2536](https://github.com/greenbone/gsa/pull/2536)
 
 ### Changed
+- Properly space and linebreak roles and groups in users table row [#2949](https://github.com/greenbone/gsa/pull/2949)
+- Make HorizontalSep component wrappable [#2949](https://github.com/greenbone/gsa/pull/2949)
 - Don't show word cloud as default in result dashboard [#2883](https://github.com/greenbone/gsa/pull/2883)
 - Sort host, os and vulns listpage by descending severity [#2880](https://github.com/greenbone/gsa/pull/2880)
 - Revert the changes from integer `score` to a float `severity` [#2854](https://github.com/greenbone/gsa/pull/2854)
@@ -99,7 +115,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The CVSS v2 BaseScore calculator calculates the score on the client side now. [#2536](https://github.com/greenbone/gsa/pull/2536)
 
 ### Fixed
-- Fixed dynamic severity checkbox not being checked upon clicking [#2882](https://github.com/greenbone/gsa/pull/2882)
+- Fix dynamic severity checkbox not being checked upon clicking [#2882](https://github.com/greenbone/gsa/pull/2882)
 - Fixed result CVE parsing for result listpage and CVE reports [#2869](https://github.com/greenbone/gsa/pull/2869)
 - Fixed setting comments of business process nodes [#2781](https://github.com/greenbone/gsa/pull/2781)
 - Added the deprecatedBy field to CPEs [#2751](https://github.com/greenbone/gsa/pull/2751)
@@ -116,20 +132,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [21.4.0]: https://github.com/greenbone/gsa/compare/oldstable...v21.4.0
 
 ## [20.8.4] (unreleased)
+
 ### Added
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 - Show dead hosts as possible reason in empty report when scan finishes [#3124](https://github.com/greenbone/gsa/pull/3124), [#3157](https://github.com/greenbone/gsa/pull/3157)
-- Fixed setting/displaying timeout in EditNvtDetailsDialog [#3057](https://github.com/greenbone/gsa/pull/3057)
 
 [Unreleased]: https://github.com/greenbone/gsa/compare/v20.8.3...oldstable
 
-### Fixed
-- Show dead hosts as possible reason in empty report when scan finishes [#3124](https://github.com/greenbone/gsa/pull/3124)
-
 ## [20.8.3] 2021-08-03
+
 ### Added
 ### Changed
 * Changed default Content-Security-Policy (CSP) Header to
@@ -141,9 +155,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
+- Show dead hosts as possible reason in empty report when scan finishes [#3124](https://github.com/greenbone/gsa/pull/3124)
 - Fixed setting/displaying timeout in EditNvtDetailsDialog [#3057](https://github.com/greenbone/gsa/pull/3057)
 
- [20.8.3]: https://github.com/greenbone/gsa/compare/v20.8.2...v20.8.3
+[20.8.3]: https://github.com/greenbone/gsa/compare/v20.8.2...oldstable
 
 ## [20.8.2] - 2021-06-25
 
@@ -163,20 +178,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed setting whether to include related resources for new permissions [#2931](https://github.com/greenbone/gsa/pull/2891)
 - Fixed setting secret key in RADIUS dialog, backport from [#2891](https://github.com/greenbone/gsa/pull/2891), [#2915](https://github.com/greenbone/gsa/pull/2915)
 
-### Removed
-
 [20.8.2]: https://github.com/greenbone/gsa/compare/v20.8.1...v20.8.2
 
 ## [20.8.1] - 2021-02-02
 
 ### Added
+- Show type of xrefs in NVT details [#2980](https://github.com/greenbone/gsa/pull/2980)
 - Added icon to host detailspage to link to TLS certificates [#2624](https://github.com/greenbone/gsa/pull/2624)
 - Added form validation for user setting "rows per page"
   [#2478](https://github.com/greenbone/gsa/pull/2478), [#2505](https://github.com/greenbone/gsa/pull/2505)
 - Added option for "Start Task" event upon "New SecInfo arrived" condition in alerts dialog [#2418](https://github.com/greenbone/gsa/pull/2418)
 
 ### Changed
-- Show type of xrefs in NVT details [#2980](https://github.com/greenbone/gsa/pull/2980)
 - Ensure superadmins can edit themselves [#2633](https://github.com/greenbone/gsa/pull/2633)
 - Disable clone icon for superadmins [#2634](https://github.com/greenbone/gsa/pull/2634)
 - Allow äüöÄÜÖß in form validation rule for "name" [#2586](https://github.com/greenbone/gsa/pull/2586)

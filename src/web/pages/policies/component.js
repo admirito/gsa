@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -32,7 +32,6 @@ import {selectSaveId} from 'gmp/utils/id';
 import {YES_VALUE, NO_VALUE} from 'gmp/parser';
 
 import {
-  ospScannersFilter,
   OPENVAS_DEFAULT_SCANNER_ID,
   OPENVAS_SCANNER_TYPE,
   GREENBONE_SENSOR_SCANNER_TYPE,
@@ -103,29 +102,23 @@ class PolicyComponent extends React.Component {
     this.handleSavePolicyFamily = this.handleSavePolicyFamily.bind(this);
     this.handleSavePolicyNvt = this.handleSavePolicyNvt.bind(this);
     this.openCreatePolicyDialog = this.openCreatePolicyDialog.bind(this);
-    this.handleCloseCreatePolicyDialog = this.handleCloseCreatePolicyDialog.bind(
-      this,
-    );
+    this.handleCloseCreatePolicyDialog =
+      this.handleCloseCreatePolicyDialog.bind(this);
     this.openEditPolicyDialog = this.openEditPolicyDialog.bind(this);
-    this.handleCloseEditPolicyDialog = this.handleCloseEditPolicyDialog.bind(
-      this,
-    );
-    this.openEditPolicyFamilyDialog = this.openEditPolicyFamilyDialog.bind(
-      this,
-    );
-    this.handleCloseEditPolicyFamilyDialog = this.handleCloseEditPolicyFamilyDialog.bind(
-      this,
-    );
+    this.handleCloseEditPolicyDialog =
+      this.handleCloseEditPolicyDialog.bind(this);
+    this.openEditPolicyFamilyDialog =
+      this.openEditPolicyFamilyDialog.bind(this);
+    this.handleCloseEditPolicyFamilyDialog =
+      this.handleCloseEditPolicyFamilyDialog.bind(this);
     this.openEditNvtDetailsDialog = this.openEditNvtDetailsDialog.bind(this);
-    this.handleCloseEditNvtDetailsDialog = this.handleCloseEditNvtDetailsDialog.bind(
-      this,
-    );
+    this.handleCloseEditNvtDetailsDialog =
+      this.handleCloseEditNvtDetailsDialog.bind(this);
     this.openImportDialog = this.openImportDialog.bind(this);
     this.handleCloseImportDialog = this.handleCloseImportDialog.bind(this);
     this.openCreateAuditDialog = this.openCreateAuditDialog.bind(this);
-    this.handleCloseCreateAuditDialog = this.handleCloseCreateAuditDialog.bind(
-      this,
-    );
+    this.handleCloseCreateAuditDialog =
+      this.handleCloseCreateAuditDialog.bind(this);
     this.handleSaveAudit = this.handleSaveAudit.bind(this);
     this.handleAlertCreated = this.handleAlertCreated.bind(this);
     this.handleScheduleCreated = this.handleScheduleCreated.bind(this);
@@ -265,7 +258,6 @@ class PolicyComponent extends React.Component {
       name: undefined,
       scheduleId: defaultScheduleId,
       schedulePeriods: undefined,
-      sourceIface: undefined,
       targetId: defaultTargetId,
       title: _('New Audit'),
     });
@@ -297,7 +289,6 @@ class PolicyComponent extends React.Component {
     scannerType = OPENVAS_SCANNER_TYPE,
     scheduleId,
     schedulePeriods,
-    sourceIface,
     targetId,
   }) {
     const {gmp} = this.props;
@@ -332,7 +323,6 @@ class PolicyComponent extends React.Component {
         scannerId,
         scheduleId,
         schedulePeriods,
-        sourceIface,
         tagId,
         targetId,
       })
@@ -535,8 +525,7 @@ class PolicyComponent extends React.Component {
     return gmp.scanners
       .getAll()
       .then(response => {
-        let {data: scanners} = response;
-        scanners = scanners.filter(ospScannersFilter);
+        const {data: scanners} = response;
         return {
           scanners,
           scannerId: selectSaveId(scanners),
@@ -659,7 +648,6 @@ class PolicyComponent extends React.Component {
       scanners,
       scheduleId,
       schedulePeriods,
-      sourceIface,
       targetId,
       title,
     } = this.state;
@@ -727,7 +715,6 @@ class PolicyComponent extends React.Component {
                               scheduleId={scheduleId}
                               schedulePeriods={schedulePeriods}
                               schedules={schedules}
-                              sourceIface={sourceIface}
                               targetId={targetId}
                               targets={targets}
                               title={title}
@@ -761,7 +748,6 @@ class PolicyComponent extends React.Component {
                   configFamilies={policy.families}
                   configId={policy.id}
                   configIsInUse={policy.isInUse()}
-                  configType={policy.policy_type}
                   editNvtDetailsTitle={_('Edit Policy NVT Details')}
                   editNvtFamiliesTitle={_('Edit Policy Family')}
                   families={families}

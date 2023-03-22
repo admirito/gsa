@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -44,15 +44,6 @@ const Header = ({
           sortBy={sort ? 'name' : false}
           onSortChange={onSortChange}
           title={_('Name')}
-        />
-        <TableHead
-          width="5%"
-          rowSpan="2"
-          currentSortDir={currentSortDir}
-          currentSortBy={currentSortBy}
-          sortBy={sort ? 'type' : false}
-          onSortChange={onSortChange}
-          title={_('Type')}
         />
         <TableHead width="10%" colSpan="2">
           {_('Family')}

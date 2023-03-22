@@ -37,7 +37,7 @@ exports[`Scan Config table tests should render 1`] = `
   align-items: center;
 }
 
-.c17 {
+.c16 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -258,7 +258,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 .c8 svg path {
-  fill: #aaaaaa;
+  fill: #bfbfbf;
 }
 
 .c3 {
@@ -309,7 +309,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 .c27 {
-  border: 1px solid #aaaaaa;
+  border: 1px solid #bfbfbf;
   border-radius: 2px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -345,7 +345,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 .c32 {
-  color: #a94442;
+  color: #c12c30;
   font-weight: bold;
   font-size: 19px;
   padding-bottom: 1px;
@@ -395,7 +395,7 @@ exports[`Scan Config table tests should render 1`] = `
 .c12 {
   background-color: #fff;
   color: #000;
-  border-top: 1px solid #c8d3d9;
+  border-top: 1px solid #e5e5e5;
   font-weight: bold;
   width: 72%;
 }
@@ -403,25 +403,25 @@ exports[`Scan Config table tests should render 1`] = `
 .c14 {
   background-color: #fff;
   color: #000;
-  border-top: 1px solid #c8d3d9;
+  border-top: 1px solid #e5e5e5;
   font-weight: bold;
-  width: 5%;
+  width: 10%;
 }
 
 .c15 {
   background-color: #fff;
   color: #000;
-  border-top: 1px solid #c8d3d9;
-  font-weight: bold;
-  width: 10%;
-}
-
-.c16 {
-  background-color: #fff;
-  color: #000;
-  border-top: 1px solid #c8d3d9;
+  border-top: 1px solid #e5e5e5;
   font-weight: bold;
   width: 8%;
+}
+
+.c17 {
+  background-color: #fff;
+  color: #000;
+  border-top: 1px solid #e5e5e5;
+  font-weight: bold;
+  width: 5%;
 }
 
 .c33 {
@@ -441,7 +441,7 @@ exports[`Scan Config table tests should render 1`] = `
   -ms-flex-align: center;
   align-items: center;
   font-size: 10px;
-  color: #787878;
+  color: #7F7F7F;
   text-align: left;
 }
 
@@ -481,7 +481,7 @@ exports[`Scan Config table tests should render 1`] = `
 .c10 th,
 .c10 td {
   padding: 4px 10px;
-  border-bottom: 1px solid #c8d3d9;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .c10 tfoot tr {
@@ -489,7 +489,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 .c10 tfoot tr td {
-  border-bottom: 1px solid #c8d3d9;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .c4 {
@@ -524,13 +524,13 @@ exports[`Scan Config table tests should render 1`] = `
   cursor: pointer;
   -webkit-text-decoration: none;
   text-decoration: none;
-  color: #0000ff;
+  color: #0a53b8;
 }
 
 .c20:hover {
   -webkit-text-decoration: underline;
   text-decoration: underline;
-  color: #0000ff;
+  color: #0a53b8;
 }
 
 @media print {
@@ -580,7 +580,7 @@ exports[`Scan Config table tests should render 1`] = `
 }
 
 @media print {
-  .c16 {
+  .c17 {
     color: #000;
     font-size: 1.2em;
     background-color: none;
@@ -603,12 +603,12 @@ exports[`Scan Config table tests should render 1`] = `
 @media screen {
   .c10 > tbody:nth-of-type(even),
   .c10 > tbody:only-of-type > tr:nth-of-type(even) {
-    background: #eeeeee;
+    background: #f3f3f3;
   }
 
   .c10 > tbody:not(:only-of-type):hover,
   .c10 > tbody:only-of-type > tr:hover {
-    background: #c8d3d9;
+    background: #e5e5e5;
   }
 }
 
@@ -731,16 +731,6 @@ exports[`Scan Config table tests should render 1`] = `
             </th>
             <th
               class="c14"
-              rowspan="2"
-            >
-              <div
-                class="c13"
-              >
-                Type
-              </div>
-            </th>
-            <th
-              class="c15"
               colspan="2"
             >
               <div
@@ -750,7 +740,7 @@ exports[`Scan Config table tests should render 1`] = `
               </div>
             </th>
             <th
-              class="c15"
+              class="c14"
               colspan="2"
             >
               <div
@@ -760,11 +750,11 @@ exports[`Scan Config table tests should render 1`] = `
               </div>
             </th>
             <th
-              class="c16"
+              class="c15"
               rowspan="2"
             >
               <div
-                class="c17"
+                class="c16"
               >
                 Actions
               </div>
@@ -772,7 +762,7 @@ exports[`Scan Config table tests should render 1`] = `
           </tr>
           <tr>
             <th
-              class="c14"
+              class="c17"
             >
               <div
                 class="c13"
@@ -781,7 +771,7 @@ exports[`Scan Config table tests should render 1`] = `
               </div>
             </th>
             <th
-              class="c14"
+              class="c17"
             >
               <div
                 class="c13"
@@ -790,7 +780,7 @@ exports[`Scan Config table tests should render 1`] = `
               </div>
             </th>
             <th
-              class="c14"
+              class="c17"
             >
               <div
                 class="c13"
@@ -799,7 +789,7 @@ exports[`Scan Config table tests should render 1`] = `
               </div>
             </th>
             <th
-              class="c14"
+              class="c17"
             >
               <div
                 class="c13"
@@ -840,13 +830,6 @@ exports[`Scan Config table tests should render 1`] = `
                   bar
                   )
                 </div>
-              </div>
-            </td>
-            <td>
-              <div
-                class="c18"
-              >
-                OpenVAS
               </div>
             </td>
             <td>
@@ -993,13 +976,6 @@ exports[`Scan Config table tests should render 1`] = `
               <div
                 class="c18"
               >
-                OpenVAS
-              </div>
-            </td>
-            <td>
-              <div
-                class="c18"
-              >
                 3
               </div>
             </td>
@@ -1140,13 +1116,6 @@ exports[`Scan Config table tests should render 1`] = `
               <div
                 class="c18"
               >
-                OpenVAS
-              </div>
-            </td>
-            <td>
-              <div
-                class="c18"
-              >
                 1
               </div>
             </td>
@@ -1257,7 +1226,7 @@ exports[`Scan Config table tests should render 1`] = `
         <tfoot>
           <tr>
             <td
-              colspan="7"
+              colspan="6"
             >
               <div
                 class="c24"

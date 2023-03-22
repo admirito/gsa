@@ -1,4 +1,4 @@
-/* Copyright (C) 2021 Greenbone Networks GmbH
+/* Copyright (C) 2021-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,6 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-const VERSION = '21.4.3';
+const getMajorMinorVersion = () => {
+  // eslint-disable-next-line no-unused-vars
+  let [major, minor, ...rest] = VERSION.split('.');
+  minor = parseInt(minor);
+  if (minor < 10) {
+    // add a leading zero for the links
+    minor = `0${minor}`;
+  }
+  return `${major}.${minor}`;
+};
+
+export const VERSION = '22.4.0';
+
+export const RELEASE_VERSION = getMajorMinorVersion();
 
 export default VERSION;

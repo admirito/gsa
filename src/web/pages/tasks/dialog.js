@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 
 import _ from 'gmp/locale';
 
-import {forEach, first} from 'gmp/utils/array';
-import {isDefined, isArray} from 'gmp/utils/identity';
+import {first} from 'gmp/utils/array';
+import {isDefined} from 'gmp/utils/identity';
 import {selectSaveId} from 'gmp/utils/id';
 
 import {NO_VALUE, YES_VALUE} from 'gmp/parser';
@@ -37,17 +37,9 @@ import {
 
 import {
   OPENVAS_SCANNER_TYPE,
-  OSP_SCANNER_TYPE,
   OPENVAS_DEFAULT_SCANNER_ID,
   GREENBONE_SENSOR_SCANNER_TYPE,
 } from 'gmp/models/scanner';
-
-import {
-  FULL_AND_FAST_SCAN_CONFIG_ID,
-  OPENVAS_SCAN_CONFIG_TYPE,
-  OSP_SCAN_CONFIG_TYPE,
-  filterEmptyScanConfig,
-} from 'gmp/models/scanconfig';
 
 import PropTypes from 'web/utils/proptypes';
 import withCapabilities from 'web/utils/withCapabilities';
@@ -70,24 +62,6 @@ import Layout from 'web/components/layout/layout';
 
 import AddResultsToAssetsGroup from './addresultstoassetsgroup';
 import AutoDeleteReportsGroup from './autodeletereportsgroup';
-
-const sort_scan_configs = (scan_configs = []) => {
-  const sorted_scan_configs = {
-    [OPENVAS_SCAN_CONFIG_TYPE]: [],
-    [OSP_SCAN_CONFIG_TYPE]: [],
-  };
-
-  scan_configs = scan_configs.filter(filterEmptyScanConfig);
-
-  forEach(scan_configs, config => {
-    const type = config.scan_config_type;
-    if (!isArray(sorted_scan_configs[type])) {
-      sorted_scan_configs[type] = [];
-    }
-    sorted_scan_configs[type].push(config);
-  });
-  return sorted_scan_configs;
-};
 
 const get_scanner = (scanners, scanner_id) => {
   if (!isDefined(scanners)) {
@@ -121,7 +95,6 @@ ScannerSelect.propTypes = {
   isLoading: PropTypes.bool,
   scanConfigs: PropTypes.shape({
     [OPENVAS_SCANNER_TYPE]: PropTypes.array,
-    [OSP_SCANNER_TYPE]: PropTypes.array,
   }),
   scannerId: PropTypes.id.isRequired,
   scanners: PropTypes.array.isRequired,
@@ -162,7 +135,6 @@ const TaskDialog = ({
   schedule_id = UNSET_VALUE,
   schedule_periods = NO_VALUE,
   schedules = [],
-  source_iface = '',
   tags = [],
   target_id,
   targets,
@@ -183,68 +155,13 @@ const TaskDialog = ({
   const scanner = get_scanner(scanners, scanner_id);
   const scanner_type = isDefined(scanner) ? scanner.scannerType : undefined;
 
-  const [configType, setConfigType] = useState('openvas');
-  const [prevConfigType, setPrevConfigType] = useState('openvas');
-
-  // eslint-disable-next-line no-shadow
-  const handleScannerChange = (value, name) => {
-    // eslint-disable-next-line no-shadow
-    const scanner = get_scanner(scanners, value);
-    // eslint-disable-next-line no-shadow
-    const scanner_type = isDefined(scanner) ? scanner.scannerType : undefined;
-
-    if (
-      scanner_type === OPENVAS_SCANNER_TYPE ||
-      scanner_type === GREENBONE_SENSOR_SCANNER_TYPE
-    ) {
-      setConfigType('openvas');
-    } else if (scanner_type === OSP_SCANNER_TYPE) {
-      setConfigType('osp');
-    } else {
-      setConfigType('other');
-    }
-
-    if (isDefined(onScannerChange)) {
-      onScannerChange(value);
-    }
-
-    if (configType !== prevConfigType && isDefined(onScanConfigChange)) {
-      if (
-        scanner_type === OPENVAS_SCANNER_TYPE ||
-        scanner_type === GREENBONE_SENSOR_SCANNER_TYPE
-      ) {
-        onScanConfigChange(
-          selectSaveId(
-            sorted_scan_configs[OPENVAS_SCAN_CONFIG_TYPE],
-            FULL_AND_FAST_SCAN_CONFIG_ID,
-          ),
-        );
-      } else if (scanner_type === OSP_SCANNER_TYPE) {
-        onScanConfigChange(
-          selectSaveId(sorted_scan_configs[OSP_SCAN_CONFIG_TYPE], UNSET_VALUE),
-        );
-      } else {
-        onScanConfigChange(UNSET_VALUE);
-      }
-    }
-    setPrevConfigType(configType);
-  };
-
   const tag_items = renderSelectItems(tags);
 
   const target_items = renderSelectItems(targets);
 
   const schedule_items = renderSelectItems(schedules, UNSET_VALUE);
 
-  const sorted_scan_configs = sort_scan_configs(scan_configs);
-
-  const osp_scan_config_items = renderSelectItems(
-    sorted_scan_configs[OSP_SCAN_CONFIG_TYPE],
-  );
-
-  const openvas_scan_config_items = renderSelectItems(
-    sorted_scan_configs[OPENVAS_SCAN_CONFIG_TYPE],
-  );
+  const openvas_scan_config_items = renderSelectItems(scan_configs);
 
   const alert_items = renderSelectItems(alerts);
 
@@ -275,7 +192,6 @@ const TaskDialog = ({
     scanner_type,
     scanner_id,
     schedule_periods,
-    source_iface,
     tag_id,
     tags,
     task,
@@ -299,16 +215,7 @@ const TaskDialog = ({
       values={controlledData}
     >
       {({values: state, onValueChange}) => {
-        const osp_config_id = selectSaveId(
-          sorted_scan_configs[OSP_SCAN_CONFIG_TYPE],
-          state.config_id,
-        );
-        const openvas_config_id = selectSaveId(
-          sorted_scan_configs[OPENVAS_SCAN_CONFIG_TYPE],
-          state.config_id,
-        );
-
-        const is_osp_scanner = state.scanner_type === OSP_SCANNER_TYPE;
+        const openvas_config_id = selectSaveId(scan_configs, state.config_id);
 
         const use_openvas_scan_config =
           state.scanner_type === OPENVAS_SCANNER_TYPE ||
@@ -476,7 +383,7 @@ const TaskDialog = ({
                 scannerId={state.scanner_id}
                 changeTask={change_task}
                 isLoading={isLoadingScanners}
-                onChange={handleScannerChange}
+                onChange={onScannerChange}
               />
             </div>
             {use_openvas_scan_config && (
@@ -499,17 +406,9 @@ const TaskDialog = ({
                       value={openvas_config_id}
                       onChange={value => {
                         onScanConfigChange(value);
-                        setPrevConfigType(configType);
                       }}
                     />
                   </div>
-                </FormGroup>
-                <FormGroup titleSize="4" title={_('Network Source Interface')}>
-                  <TextField
-                    name="source_iface"
-                    value={state.source_iface}
-                    onChange={onValueChange}
-                  />
                 </FormGroup>
                 <FormGroup titleSize="4" title={_('Order for target hosts')}>
                   <Select
@@ -560,20 +459,6 @@ const TaskDialog = ({
                   />
                 </FormGroup>
               </Layout>
-            )}
-
-            {is_osp_scanner && (
-              <FormGroup titleSize="2" title={_('Scan Config')}>
-                <Select
-                  name="config_id"
-                  items={osp_scan_config_items}
-                  value={osp_config_id}
-                  onChange={value => {
-                    onScanConfigChange(value);
-                    setPrevConfigType(configType);
-                  }}
-                />
-              </FormGroup>
             )}
 
             {capabilities.mayAccess('tags') &&
@@ -638,7 +523,6 @@ TaskDialog.propTypes = {
   schedule_id: PropTypes.idOrZero,
   schedule_periods: PropTypes.yesno,
   schedules: PropTypes.array,
-  source_iface: PropTypes.string,
   tag_id: PropTypes.id,
   tags: PropTypes.array,
   target_id: PropTypes.idOrZero,

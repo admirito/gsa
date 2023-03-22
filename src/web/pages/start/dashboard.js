@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -34,7 +34,6 @@ import {VULNS_DISPLAYS} from '../vulns/dashboard';
 import {HOSTS_DISPLAYS} from '../hosts/dashboard';
 import {OS_DISPLAYS} from '../operatingsystems/dashboard';
 import {NVTS_DISPLAYS} from '../nvts/dashboard';
-import {OVALDEF_DISPLAYS} from '../ovaldefs/dashboard';
 import {CERTBUND_DISPLAYS} from '../certbund/dashboard';
 import {CVES_DISPLAYS} from '../cves/dashboard';
 import {CPES_DISPLAYS} from '../cpes/dashboard';
@@ -53,7 +52,6 @@ const ALL_DISPLAYS = [
   ...HOSTS_DISPLAYS,
   ...OS_DISPLAYS,
   ...NVTS_DISPLAYS,
-  ...OVALDEF_DISPLAYS,
   ...CERTBUND_DISPLAYS,
   ...CVES_DISPLAYS,
   ...CPES_DISPLAYS,

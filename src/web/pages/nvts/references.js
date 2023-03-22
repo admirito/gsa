@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -35,9 +35,8 @@ import TableData, {TableDataAlignTop} from 'web/components/table/data';
 import TableRow from 'web/components/table/row';
 
 const References = ({nvt, links = true}) => {
-  const {cves = [], bids = [], certs = [], xrefs = []} = nvt;
-  const has_reference =
-    cves.length > 0 || bids.length > 0 || certs.length > 0 || xrefs.length > 0;
+  const {cves = [], certs = [], xrefs = []} = nvt;
+  const has_reference = cves.length > 0 || certs.length > 0 || xrefs.length > 0;
   if (!has_reference) {
     return null;
   }
@@ -57,17 +56,6 @@ const References = ({nvt, links = true}) => {
                       textOnly={!links}
                     />
                   </span>
-                ))}
-              </TableData>
-            </TableRow>
-          )}
-
-          {bids.length > 0 && (
-            <TableRow>
-              <TableDataAlignTop>{_('BID')}</TableDataAlignTop>
-              <TableData>
-                {bids.map(bid => (
-                  <span key={bid}>{bid}</span>
                 ))}
               </TableData>
             </TableRow>

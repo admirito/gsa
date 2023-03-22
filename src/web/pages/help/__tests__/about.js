@@ -1,4 +1,4 @@
-/* Copyright (C) 2020-2021 Greenbone Networks GmbH
+/* Copyright (C) 2020-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -54,7 +54,7 @@ describe('AboutPage tests', () => {
 
     expect(version).toHaveTextContent('1337.42');
 
-    expect(image).toHaveAttribute('src', '/img/greenbone_banner.jpeg');
+    expect(image).toHaveAttribute('src', '/img/greenbone_banner.png');
   });
 
   test('should open external link dialog on click', async () => {

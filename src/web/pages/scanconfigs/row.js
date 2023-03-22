@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -19,8 +19,6 @@
 import React from 'react';
 
 import _ from 'gmp/locale';
-
-import {getTranslatedType} from 'gmp/models/scanconfig';
 
 import IconDivider from 'web/components/layout/icondivider';
 
@@ -102,7 +100,6 @@ const ScanConfigRow = ({
       displayName={_('Scan Config')}
       onToggleDetailsClick={onToggleDetailsClick}
     />
-    <TableData>{getTranslatedType(entity.scan_config_type)}</TableData>
     <TableData>{na(entity.families.count)}</TableData>
     <TableData>
       <Trend

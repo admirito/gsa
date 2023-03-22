@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -21,8 +21,6 @@
 import Model from 'gmp/model';
 import ScanConfig, {
   filterEmptyScanConfig,
-  openVasScanConfigsFilter,
-  ospScanConfigsFilter,
   SCANCONFIG_TREND_DYNAMIC,
 } from 'gmp/models/scanconfig';
 import {testModel} from 'gmp/models/testing';
@@ -205,12 +203,6 @@ describe('ScanConfig model tests', () => {
     expect(scanConfig.preferences.nvt).toEqual([]);
   });
 
-  test('should parse type', () => {
-    const scanConfig = ScanConfig.fromElement({type: '21'});
-
-    expect(scanConfig.scan_config_type).toEqual(21);
-  });
-
   test('should parse scanner', () => {
     const elem = {
       scanner: {
@@ -267,22 +259,6 @@ describe('ScanConfigs model function test', () => {
 
     expect(filterEmptyScanConfig(config1)).toEqual(true);
     expect(filterEmptyScanConfig(config2)).toEqual(false);
-  });
-
-  test('openVasScanConfigsFilter() should return filter with correct true/false', () => {
-    const config1 = {scan_config_type: 1}; // OSP scanconfig type
-    const config2 = {scan_config_type: 0}; // OpenVAS scanconfig type
-
-    expect(openVasScanConfigsFilter(config1)).toEqual(false);
-    expect(openVasScanConfigsFilter(config2)).toEqual(true);
-  });
-
-  test('ospScanConfigsFilter() should return filter with correct true/false', () => {
-    const config1 = {scan_config_type: 1}; // OSP scanconfig type
-    const config2 = {scan_config_type: 0}; // OpenVAS scanconfig type
-
-    expect(ospScanConfigsFilter(config1)).toEqual(true);
-    expect(ospScanConfigsFilter(config2)).toEqual(false);
   });
 });
 

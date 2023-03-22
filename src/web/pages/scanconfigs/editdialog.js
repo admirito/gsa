@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,25 +20,19 @@ import React, {useReducer, useState, useEffect} from 'react';
 
 import _ from 'gmp/locale';
 
-import {
-  OPENVAS_SCAN_CONFIG_TYPE,
-  OSP_SCAN_CONFIG_TYPE,
-  SCANCONFIG_TREND_STATIC,
-} from 'gmp/models/scanconfig';
+import {SCANCONFIG_TREND_STATIC} from 'gmp/models/scanconfig';
 
 import {YES_VALUE, NO_VALUE} from 'gmp/parser';
 
 import {isDefined} from 'gmp/utils/identity';
 
 import PropTypes from 'web/utils/proptypes';
-import {renderSelectItems} from 'web/utils/render';
 
 import SaveDialog from 'web/components/dialog/savedialog';
 import DialogInlineNotification from 'web/components/dialog/dialoginlinenotification';
 
 import FormGroup from 'web/components/form/formgroup';
 import TextField from 'web/components/form/textfield';
-import Select from 'web/components/form/select';
 import Loading from 'web/components/loading/loading';
 
 import Layout from 'web/components/layout/layout';
@@ -104,7 +98,6 @@ const EditScanConfigDialog = ({
   configId,
   configFamilies,
   configIsInUse = false,
-  configType,
   editNvtDetailsTitle,
   editNvtFamiliesTitle,
   families,
@@ -202,34 +195,18 @@ const EditScanConfigDialog = ({
             </DialogInlineNotification>
           ) : (
             <React.Fragment>
-              {configType === OSP_SCAN_CONFIG_TYPE &&
-                (isLoadingScanners ? (
-                  <Loading />
-                ) : (
-                  <FormGroup title={_('Scanner')}>
-                    <Select
-                      name="scannerId"
-                      items={renderSelectItems(scanners)}
-                      value={state.scannerId}
-                      onChange={onValueChange}
-                    />
-                  </FormGroup>
-                ))}
-
               {isLoadingConfig || isLoadingFamilies ? (
                 <Loading />
               ) : (
-                configType === OPENVAS_SCAN_CONFIG_TYPE && (
-                  <NvtFamilies
-                    configFamilies={configFamilies}
-                    editTitle={editNvtFamiliesTitle}
-                    families={families}
-                    trend={trendValues}
-                    select={selectValues}
-                    onEditConfigFamilyClick={onEditConfigFamilyClick}
-                    onValueChange={onValueChange}
-                  />
-                )
+                <NvtFamilies
+                  configFamilies={configFamilies}
+                  editTitle={editNvtFamiliesTitle}
+                  families={families}
+                  trend={trendValues}
+                  select={selectValues}
+                  onEditConfigFamilyClick={onEditConfigFamilyClick}
+                  onValueChange={onValueChange}
+                />
               )}
 
               {isLoadingConfig ? (
@@ -245,13 +222,11 @@ const EditScanConfigDialog = ({
               {isLoadingConfig ? (
                 <Loading />
               ) : (
-                configType === OPENVAS_SCAN_CONFIG_TYPE && (
-                  <NvtPreferences
-                    editTitle={editNvtDetailsTitle}
-                    preferences={nvtPreferences}
-                    onEditNvtDetailsClick={onEditNvtDetailsClick}
-                  />
-                )
+                <NvtPreferences
+                  editTitle={editNvtDetailsTitle}
+                  preferences={nvtPreferences}
+                  onEditNvtDetailsClick={onEditNvtDetailsClick}
+                />
               )}
             </React.Fragment>
           )}
@@ -266,7 +241,6 @@ EditScanConfigDialog.propTypes = {
   configFamilies: PropTypes.object,
   configId: PropTypes.id.isRequired,
   configIsInUse: PropTypes.bool,
-  configType: PropTypes.number,
   editNvtDetailsTitle: PropTypes.string.isRequired,
   editNvtFamiliesTitle: PropTypes.string.isRequired,
   families: PropTypes.arrayOf(

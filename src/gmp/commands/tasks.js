@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -105,7 +105,6 @@ export class TaskCommand extends EntityCommand {
       scanner_id,
       schedule_id,
       schedule_periods,
-      source_iface,
       tag_id,
       target_id,
     } = args;
@@ -130,7 +129,6 @@ export class TaskCommand extends EntityCommand {
       scanner_type,
       schedule_id,
       schedule_periods,
-      source_iface,
       tag_id,
       target_id,
       usage_type: 'scan',
@@ -172,7 +170,6 @@ export class TaskCommand extends EntityCommand {
       schedule_id = NO_VALUE,
       schedule_periods,
       target_id = NO_VALUE,
-      source_iface,
     } = args;
     const data = {
       alterable,
@@ -193,7 +190,6 @@ export class TaskCommand extends EntityCommand {
       scanner_type,
       schedule_id,
       schedule_periods,
-      source_iface,
       target_id,
       task_id: id,
       usage_type: 'scan',

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -27,7 +27,6 @@ import Model, {parseModelFromElement} from 'gmp/model';
 
 import Credential from './credential';
 
-export const OSP_SCANNER_TYPE = 1;
 export const OPENVAS_SCANNER_TYPE = 2;
 export const CVE_SCANNER_TYPE = 3;
 export const GREENBONE_SENSOR_SCANNER_TYPE = 5;
@@ -35,20 +34,12 @@ export const GREENBONE_SENSOR_SCANNER_TYPE = 5;
 export const OPENVAS_DEFAULT_SCANNER_ID =
   '08b69003-5fc2-4037-a479-93b440211c73';
 
-export const PARAM_TYPE_OVALDEF_FILE = 'osp_ovaldef_file';
-export const PARAM_TYPE_SELECTION = 'osp_selection';
-export const PARAM_TYPE_BOOLEAN = 'osp_boolean';
-
 export const openVasScannersFilter = config =>
   config.scannerType === OPENVAS_SCANNER_TYPE;
-export const ospScannersFilter = config =>
-  config.scannerType === OSP_SCANNER_TYPE;
 
 export function scannerTypeName(scannerType) {
   scannerType = parseInt(scannerType);
-  if (scannerType === OSP_SCANNER_TYPE) {
-    return _('OSP Scanner');
-  } else if (scannerType === OPENVAS_SCANNER_TYPE) {
+  if (scannerType === OPENVAS_SCANNER_TYPE) {
     return _('OpenVAS Scanner');
   } else if (scannerType === CVE_SCANNER_TYPE) {
     return _('CVE Scanner');

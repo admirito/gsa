@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -30,7 +30,6 @@ import {reducer as host} from './hosts';
 import {reducer as note} from './notes';
 import {reducer as nvt} from './nvts';
 import {reducer as operatingsystem} from './operatingsystems';
-import {reducer as ovaldef} from './ovaldefs';
 import {reducer as override} from './overrides';
 import {reducer as permission} from './permissions';
 import {reducer as policy} from './policies';
@@ -65,7 +64,6 @@ const entitiesReducer = combineReducers({
   note,
   nvt,
   operatingsystem,
-  ovaldef,
   override,
   permission,
   policy,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -200,12 +200,6 @@ describe('Policy model tests', () => {
 
     expect(policy.preferences.scanner).toEqual([]);
     expect(policy.preferences.nvt).toEqual([]);
-  });
-
-  test('should parse type', () => {
-    const policy = Policy.fromElement({type: '21'});
-
-    expect(policy.policy_type).toEqual(21);
   });
 
   test('should parse scanner', () => {

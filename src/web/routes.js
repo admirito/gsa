@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -55,6 +55,7 @@ import GroupDetailsPage from './pages/groups/detailspage';
 import HostsPage from './pages/hosts/listpage';
 import HostDetailsPage from './pages/hosts/detailspage';
 import LdapPage from './pages/ldap/ldappage';
+import LicensePage from './pages/licenses/licensepage';
 import LoginPage from './pages/login/loginpage';
 import NotesPage from './pages/notes/listpage';
 import NoteDetailsPage from './pages/notes/detailspage';
@@ -62,8 +63,6 @@ import NvtsPage from './pages/nvts/listpage';
 import NvtDetailsPage from './pages/nvts/detailspage';
 import OperatingSystemsPage from './pages/operatingsystems/listpage';
 import OperatingSystemDetailsPage from './pages/operatingsystems/detailspage';
-import OvaldefsPage from './pages/ovaldefs/listpage';
-import OvaldefDetailsPage from './pages/ovaldefs/detailspage';
 import OverridesPage from './pages/overrides/listpage';
 import OverrideDetailsPage from './pages/overrides/detailspage';
 import PerformancePage from './pages/performance/performancepage';
@@ -73,7 +72,6 @@ import PoliciesPage from './pages/policies/listpage';
 import PoliciesDetailsPage from './pages/policies/detailspage';
 import PortListsPage from './pages/portlists/listpage';
 import PortListDetailsPage from './pages/portlists/detailspage';
-import ProcessMapsPage from './pages/processmaps/processmapspage';
 import RadiusPage from './pages/radius/radiuspage';
 import ReportFormatsPage from './pages/reportformats/listpage';
 import ReportFormatDetailsPage from './pages/reportformats/detailspage';
@@ -145,19 +143,18 @@ const Routes = () => (
               <Route path="/groups" component={GroupsPage} />
               <Route path="/hosts" component={HostsPage} />
               <Route path="/ldap" component={LdapPage} />
+              <Route path="/license" component={LicensePage} />
               <Route path="/notes" component={NotesPage} />
               <Route
                 path="/operatingsystems"
                 component={OperatingSystemsPage}
               />
               <Route path="/nvts" component={NvtsPage} />
-              <Route path="/ovaldefs" component={OvaldefsPage} />
               <Route path="/overrides" component={OverridesPage} />
               <Route path="/performance" component={PerformancePage} />
               <Route path="/permissions" component={PermissionsPage} />
               <Route path="/policies" component={PoliciesPage} />
               <Route path="/portlists" component={PortListsPage} />
-              <Route path="/processmaps" component={ProcessMapsPage} />
               <Route path="/radius" component={RadiusPage} />
               <Route path="/reports" component={ReportsPage} />
               <Route path="/reportformats" component={ReportFormatsPage} />
@@ -192,7 +189,6 @@ const Routes = () => (
               <Route path="/note/:id" component={NoteDetailsPage} />
               <Route path="/nvt/:id" component={NvtDetailsPage} />
               <Route path="/portlist/:id" component={PortListDetailsPage} />
-              <Route path="/ovaldef/:id" component={OvaldefDetailsPage} />
               <Route
                 path="/operatingsystem/:id"
                 component={OperatingSystemDetailsPage}

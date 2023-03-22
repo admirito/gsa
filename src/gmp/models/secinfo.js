@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -35,8 +35,6 @@ export const secInfoTypeName = (type, unknown) => {
       return _('CPE');
     case 'nvt':
       return _('NVT');
-    case 'ovaldef':
-      return _('OVAL Definition');
     case 'cert_bund_adv':
       return _('CERT-Bund Advisory');
     case 'dfn_cert_adv':

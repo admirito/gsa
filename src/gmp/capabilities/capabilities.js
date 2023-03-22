@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2021 Greenbone Networks GmbH
+/* Copyright (C) 2016-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -36,8 +36,6 @@ const types = {
   nvts: 'info',
   operatingsystem: 'asset',
   operatingsystems: 'asset',
-  ovaldefs: 'info',
-  ovaldef: 'info',
   certbund: 'info',
   certbunds: 'info',
   secinfo: 'info',

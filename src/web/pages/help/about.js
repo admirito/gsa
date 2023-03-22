@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -55,7 +55,7 @@ const About = ({gmp}) => (
     <Layout flex="column">
       <Section img={<HelpIcon size="large" />} title={_('About GSA')}>
         <StyledLayout flex="column" align="center">
-          <Img src="greenbone_banner.jpeg" alt="GSA" width="100%" />
+          <Img src="greenbone_banner.png" alt="GSA" width="100%" />
           <h1>Greenbone Security Assistant</h1>
           <h3>
             {isDefined(gmp.settings.vendorVersion)
@@ -85,7 +85,7 @@ const About = ({gmp}) => (
             '
           </DivP>
           <DivP>
-            Copyright (C) 2017-2021 by&nbsp;
+            Copyright (C) 2017-2022 by&nbsp;
             <a
               href="https://www.greenbone.net"
               target="_blank"

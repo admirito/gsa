@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -94,6 +94,7 @@ export const QOD_TYPES = {
   general_note: _l('General note'),
   executable_version: _l('Executable version'),
   package: _l('Package check'),
+  package_unreliable: _l('Unreliable package check'),
   registry: _l('Registry check'),
   remote_active: _l('Remote active'),
   remote_analysis: _l('Remote analysis'),
@@ -129,6 +130,7 @@ export const qodTypeColorScale = scaleOrdinal()
     '#555555', // general_note
     '#011f4b', // executable_version
     '#596d8a', // package
+    '#d6d624', // package_unreliable
     '#a9c9ce', // registry
     '#98df8a', // remote_active
     '#80c674', // remote_analysis
@@ -141,31 +143,12 @@ export const qodTypeColorScale = scaleOrdinal()
     '#d62728', // Exploit
   ]);
 
-export const OVAL_CLASS_TYPES = {
-  compliance: _l('Compliance'),
-  inventory: _l('Inventory'),
-  miscellaneous: _l('Miscellaneous'),
-  patch: _l('Patch'),
-  vulnerability: _l('Vulnerability'),
-};
-
-export const ovalClassColorScale = scaleOrdinal()
-  .domain(Object.keys(OVAL_CLASS_TYPES))
-  .range([
-    '#a9c9ce', // compliance
-    '#024277', // inventory
-    '#2ca02c', // miscellaneous
-    '#8fbfa5', // patch
-    'orange', // vulnerability
-  ]);
-
 export const SEC_INFO_TYPES = {
   cert_bund_adv: _l('CERT-Bund Advisories'),
   cpe: _l('CPEs'),
   cve: _l('CVEs'),
   dfn_cert_adv: _l('DFN-CERT Advisories'),
   nvt: _l('NVTs'),
-  ovaldef: _l('OVAL Definitions'),
 };
 
 export const secInfoTypeColorScale = scaleOrdinal()
@@ -176,7 +159,6 @@ export const secInfoTypeColorScale = scaleOrdinal()
     '#a9c9ce', // CVEs
     '#98df8a', // DFN-CERT Advisories
     '#80c674', // Nvts
-    '#53984a', // OVAL Definitions
   ]);
 
 // vim: set ts=2 sw=2 tw=80:

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -20,7 +20,7 @@ import {isDefined} from 'gmp/utils/identity';
 import {forEach, map} from 'gmp/utils/array';
 import {isEmpty} from 'gmp/utils/string';
 
-import {parseInt, parseBoolean} from 'gmp/parser';
+import {parseBoolean} from 'gmp/parser';
 
 import Model, {parseModelFromElement} from 'gmp/model';
 
@@ -111,8 +111,6 @@ class Policy extends Model {
       scanner: scanner_preferences,
       nvt: nvt_preferences,
     };
-
-    ret.policy_type = parseInt(element.type);
 
     if (isDefined(element.scanner)) {
       const scanner = {

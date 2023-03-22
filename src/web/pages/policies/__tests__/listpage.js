@@ -1,4 +1,4 @@
-/* Copyright (C) 2019-2021 Greenbone Networks GmbH
+/* Copyright (C) 2019-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -25,7 +25,6 @@ import CollectionCounts from 'gmp/collection/collectioncounts';
 
 import Filter from 'gmp/models/filter';
 import Policy from 'gmp/models/policy';
-import {OPENVAS_SCAN_CONFIG_TYPE} from 'gmp/models/scanconfig';
 
 import {setUsername} from 'web/store/usersettings/actions';
 
@@ -53,7 +52,6 @@ const policy = Policy.fromElement({
   usage_type: 'policy',
   permissions: {permission: [{name: 'everything'}]},
   scanner: {name: 'scanner', type: '42'},
-  type: OPENVAS_SCAN_CONFIG_TYPE,
   tasks: {
     task: [
       {id: '1234', name: 'audit1'},

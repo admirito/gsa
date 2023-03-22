@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -79,27 +79,6 @@ describe('User model tests', () => {
 
     expect(user.hosts).toEqual(res);
     expect(user2.hosts).toEqual(res2);
-  });
-
-  test('should parse ifaces', () => {
-    const elem = {
-      ifaces: {
-        __text: '123.456.789.42, 987.654.321.1',
-        _allow: '0',
-      },
-    };
-    const res = {
-      addresses: ['123.456.789.42', '987.654.321.1'],
-      allow: '0',
-    };
-    const res2 = {
-      addresses: [],
-    };
-    const user = User.fromElement(elem);
-    const user2 = User.fromElement({});
-
-    expect(user.ifaces).toEqual(res);
-    expect(user2.ifaces).toEqual(res2);
   });
 
   test('should parse sources to auth_method', () => {

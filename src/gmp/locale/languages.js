@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -28,6 +28,10 @@ const Languages = {
   en: {
     name: 'English',
     native_name: 'English',
+  },
+  zh_TW: { 
+    name: 'Traditional Chinese', 
+    native_name: '繁體中文',
   },
 };
 

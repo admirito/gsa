@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -22,7 +22,7 @@ import {isDefined} from 'gmp/utils/identity';
 
 /**
  * (from https://nvd.nist.gov/site-media/js/nvdApp/cvssV2/cvssV2.service.js)
- * Handles precision and rounding of numbers to one decimal place
+ * Handles percision and rounding of numbers to one decimal place
  * @param value
  * @returns {number}
  */

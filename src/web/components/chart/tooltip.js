@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -33,7 +33,6 @@ const ToolTipText = styled.div`
   background: ${Theme.darkGray};
   color: ${Theme.white};
   border-radius: 2px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
   line-height: 1;
 `;
 

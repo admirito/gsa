@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2021 Greenbone Networks GmbH
+/* Copyright (C) 2017-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -41,15 +41,11 @@ const StyledLayout = styled(Layout)`
 `;
 
 const DialogCloseButton = styled(CloseButton)`
-  border: 1px solid ${Theme.lightRed};
   background: 0;
   color: ${Theme.darkRed};
 
   :hover {
     border: 1px solid ${Theme.darkRed};
-    background: 0;
-    color: ${Theme.black};
-    opacity: 0.5;
   }
 `;
 

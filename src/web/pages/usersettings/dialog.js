@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2021 Greenbone Networks GmbH
+/* Copyright (C) 2018-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -56,9 +56,7 @@ let UserSettingsDialog = ({
   credentials,
   filters,
   openVasScanConfigs,
-  ospScanConfigs,
   openVasScanners,
-  ospScanners,
   portLists,
   schedules,
   targets,
@@ -74,8 +72,6 @@ let UserSettingsDialog = ({
   defaultSeverity,
   defaultAlert,
   defaultEsxiCredential,
-  defaultOspScanConfig,
-  defaultOspScanner,
   defaultOpenvasScanConfig,
   defaultOpenvasScanner,
   defaultPortList,
@@ -110,7 +106,6 @@ let UserSettingsDialog = ({
   cpeFilter,
   cveFilter,
   nvtFilter,
-  ovalFilter,
   certBundFilter,
   dfnCertFilter,
   onClose,
@@ -133,8 +128,6 @@ let UserSettingsDialog = ({
     defaultSeverity: parseFloat(defaultSeverity),
     defaultAlert,
     defaultEsxiCredential,
-    defaultOspScanConfig,
-    defaultOspScanner,
     defaultOpenvasScanConfig,
     defaultOpenvasScanner,
     defaultPortList,
@@ -169,7 +162,6 @@ let UserSettingsDialog = ({
     cpeFilter,
     cveFilter,
     nvtFilter,
-    ovalFilter,
     certBundFilter,
     dfnCertFilter,
   };
@@ -234,16 +226,12 @@ let UserSettingsDialog = ({
                 alerts={alerts}
                 credentials={credentials}
                 openVasScanConfigs={openVasScanConfigs}
-                ospScanConfigs={ospScanConfigs}
                 openVasScanners={openVasScanners}
-                ospScanners={ospScanners}
                 portLists={portLists}
                 schedules={schedules}
                 targets={targets}
                 defaultAlert={values.defaultAlert}
                 defaultEsxiCredential={values.defaultEsxiCredential}
-                defaultOspScanConfig={values.defaultOspScanConfig}
-                defaultOspScanner={values.defaultOspScanner}
                 defaultOpenvasScanConfig={values.defaultOpenvasScanConfig}
                 defaultOpenvasScanner={values.defaultOpenvasScanner}
                 defaultPortList={values.defaultPortList}
@@ -287,7 +275,6 @@ let UserSettingsDialog = ({
                   cpeFilter={values.cpeFilter}
                   cveFilter={values.cveFilter}
                   nvtFilter={values.nvtFilter}
-                  ovalFilter={values.ovalFilter}
                   certBundFilter={values.certBundFilter}
                   dfnCertFilter={values.dfnCertFilter}
                   filters={filters}
@@ -317,8 +304,6 @@ UserSettingsDialog.propTypes = {
   defaultEsxiCredential: PropTypes.string,
   defaultOpenvasScanConfig: PropTypes.string,
   defaultOpenvasScanner: PropTypes.string,
-  defaultOspScanConfig: PropTypes.string,
-  defaultOspScanner: PropTypes.string,
   defaultPortList: PropTypes.string,
   defaultSchedule: PropTypes.string,
   defaultSeverity: PropTypes.number,
@@ -340,9 +325,6 @@ UserSettingsDialog.propTypes = {
   openVasScanConfigs: PropTypes.array,
   openVasScanners: PropTypes.array,
   operatingSystemsFilter: PropTypes.string,
-  ospScanConfigs: PropTypes.array,
-  ospScanners: PropTypes.array,
-  ovalFilter: PropTypes.string,
   overridesFilter: PropTypes.string,
   permissionsFilter: PropTypes.string,
   portLists: PropTypes.array,
