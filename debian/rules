@@ -22,7 +22,7 @@ override_dh_auto_configure:
 
 override_dh_auto_install:
 	yarnpkg --offline
-	yarnpkg --offline build
+	NODE_OPTIONS=--openssl-legacy-provider yarnpkg --offline build
 	mkdir -p debian/gsa/usr/share/gvm/gsad/
 	rm -rf debian/gsa/usr/share/gvm/gsad/web
 	mv build debian/gsa/usr/share/gvm/gsad/web

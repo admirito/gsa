@@ -1,3 +1,9 @@
+gsa (22.4.1-2) jammy; urgency=medium
+
+  * Imported upstream version 22.4.1
+
+ -- Mohammad Razavi <mrazavi64@gmail.com>  Wed, 22 Mar 2023 16:21:50 +0330
+
 gsa (21.4.4-2) focal; urgency=medium
 
   * Imported upstream version 21.4.4

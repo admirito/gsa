@@ -2,8 +2,8 @@ Source: gsa
 Section: admin
 Priority: optional
 Maintainer: Mohammad Razavi <mrazavi64@gmail.com>
-Build-Depends: debhelper-compat (= 12), nodejs (>= 10.0), yarnpkg (>= 1.0), gsa-nodejs-build-dependencies (>= 4.2.0)
-Standards-Version: 4.4.1
+Build-Depends: debhelper-compat (= 13), nodejs (>= 14.0), yarnpkg (>= 1.22), gsa-nodejs-build-dependencies (>= 5.0.0)
+Standards-Version: 4.6.2
 Homepage: https://community.greenbone.net/
 Vcs-Browser: https://github.com/greenbone/gsa
 Vcs-git: https://github.com/greenbone/gsa.git
